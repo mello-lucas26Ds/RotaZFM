@@ -1,7 +1,7 @@
 # Referência — AIHOT.news / KKKKhazix/AIHOT
 
-Status: rascunho bruto de pesquisa  
-Data: 09/11/2026  
+Status: análise estrutural inicial; spike de reuso pendente
+Data: 09/11/2026
 Repositório: https://github.com/KKKKhazix/AIHOT  
 Commit inspecionado: `ad3e934d376e4399ce350d981b4b5eb7a61f860e`
 

@@ -31,10 +31,12 @@ Objetivo: sair do papel com repositório estruturado, fontes testadas e contrato
 
 | Integrante | Entrega | Como validar |
 |---|---|---|
-| Lucas | Scaffold do monorepo, scripts base, estrutura de pastas e `.gitignore` | `git status` limpo após commit; estrutura revisada em PR |
+| Lucas | Scaffold do monorepo, scripts base, estrutura de pastas, `.gitignore` e validação estrutural do AIHOT.news | `git status` limpo após commit; estrutura revisada em PR; gaps do AIHOT documentados |
 | Maria | Teste manual/automatizado de SACE, INMET, DNIT e portarias; amostras e fallbacks documentados | Cada fonte tem endpoint, exemplo de payload, data e status go/no-go |
 | Cris | Contratos iniciais de `Route`, `RouteSegment`, `RawPayload`, `RouteConditionFact` e `IavCalculation` | Tipos/schema revisados pelo time; exemplos JSON válidos |
 | Samuelson | Regulamento confirmado, entrevistas marcadas e definição do caso retrospectivo | Documento com prazos, responsáveis e critério de “resultado ruim” |
+
+**Decisão transversal — AIHOT.news:** Cris valida a viabilidade técnica como base; Lucas valida se a estrutura observada serve ao RotaZFM. A saída deve atualizar `docs/DECISIONS.md` com uma de três decisões: base, referência ou descarte. Referência inicial: `docs/AIHOT_REFERENCE.md`.
 
 Critério de saída da Etapa 1:
 

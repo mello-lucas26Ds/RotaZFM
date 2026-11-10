@@ -33,7 +33,7 @@ Data de abertura: 09/11/2026
 - Decisão: tratar AIHOT.news como referência estrutural; adoção como base exige spike de até 2 dias.
 - Motivo: AIHOT é um framework de curadoria de notícias com LLM, clustering e reports; o RotaZFM precisa de motor determinístico e dados públicos estruturados.
 - Alternativas descartadas: importar AIHOT inteiro sem validação.
-- Responsável: backend.
+- Responsável: Cris (viabilidade backend) + Lucas (impacto na estrutura).
 
 ## DEC-005 — Justificativa determinística primeiro
 
