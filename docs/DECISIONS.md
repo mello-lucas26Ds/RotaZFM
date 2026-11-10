@@ -27,13 +27,13 @@ Data de abertura: 09/11/2026
 - Alternativas descartadas: menor custo total como parte do IAV.
 - Responsável: produto/backend.
 
-## DEC-004 — AIHOT como referência, não como base confirmada
+## DEC-004 — AIHOT como base de direcionamento e referência estrutural
 
 - Data: 09/11/2026
-- Decisão: tratar AIHOT.news como referência estrutural; adoção como base exige spike de até 2 dias.
-- Motivo: AIHOT é um framework de curadoria de notícias com LLM, clustering e reports; o RotaZFM precisa de motor determinístico e dados públicos estruturados.
-- Alternativas descartadas: importar AIHOT inteiro sem validação.
-- Responsável: backend.
+- Decisão: usar AIHOT.news como base de direcionamento e referência estrutural oficial para as próximas pessoas; reuso de código depende de spike de até 2 dias.
+- Motivo: preservar o direcionamento arquitetural do time sem importar um framework de curadoria de notícias que resolve um problema diferente do RotaZFM.
+- Alternativas descartadas: descarte total do AIHOT ou importação integral sem validação.
+- Responsável: Cris (viabilidade backend) + Lucas (impacto na estrutura).
 
 ## DEC-005 — Justificativa determinística primeiro
 
