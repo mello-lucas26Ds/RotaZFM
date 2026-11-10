@@ -18,7 +18,7 @@ Trilha: **Logística & Automação — Hack Brasil 2026**
 - [`docs/PLATFORM_DRAFT.md`](docs/PLATFORM_DRAFT.md) — rascunho da ideia para submissão na plataforma.
 - [`docs/TEAM_EXECUTION_PLAN.md`](docs/TEAM_EXECUTION_PLAN.md) — etapas, papéis e divisões do time.
 - [`docs/DATA_SOURCES_EVALUATION.md`](docs/DATA_SOURCES_EVALUATION.md) — avaliação de fontes, ferramentas e substituições.
-- [`docs/AIHOT_REFERENCE.md`](docs/AIHOT_REFERENCE.md) — análise do AIHOT.news como referência estrutural.
+- [`docs/AIHOT_REFERENCE.md`](docs/AIHOT_REFERENCE.md) — referência estrutural oficial do AIHOT.news e limites de reuso.
 - [`docs/DECISIONS.md`](docs/DECISIONS.md) — decisões técnicas e de escopo registradas.
 
 ## Princípio do MVP

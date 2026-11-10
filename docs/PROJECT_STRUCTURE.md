@@ -60,6 +60,17 @@ RotaZFM/
 - `apps/mcp` consome API/casos de uso; não recalcula IAV por conta própria.
 - `apps/dashboard` consome somente API/contratos; nunca acessa banco direto.
 
+## Relação com AIHOT.news
+
+A estrutura atual é uma versão simplificada inspirada no AIHOT.news, mas adaptada ao RotaZFM:
+
+- `apps/api`, `apps/mcp` e `apps/dashboard` separam superfícies de leitura e decisão.
+- `packages/contracts`, `packages/domain` e `packages/ingestion` separam contrato, regra pura e coleta.
+- Não copiamos scoring editorial, clustering, reports de notícias ou prompts de curadoria.
+- Worker/jobs podem evoluir depois do spike do AIHOT; no MVP, scripts e tarefas simples bastam.
+
+Referência completa: `docs/AIHOT_REFERENCE.md`.
+
 ## O que ainda não existe
 
 Esta estrutura é propositalmente inicial. Não há código de produto, dependências externas, migrations ou telas implementadas. A primeira implementação deve começar pelos contratos e pela persistência mínima, não pelo dashboard.

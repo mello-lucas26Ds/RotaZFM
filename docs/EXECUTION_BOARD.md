@@ -36,7 +36,7 @@ Objetivo: sair do papel com repositório estruturado, fontes testadas e contrato
 | Cris | Contratos iniciais de `Route`, `RouteSegment`, `RawPayload`, `RouteConditionFact` e `IavCalculation` | Tipos/schema revisados pelo time; exemplos JSON válidos |
 | Samuelson | Regulamento confirmado, entrevistas marcadas e definição do caso retrospectivo | Documento com prazos, responsáveis e critério de “resultado ruim” |
 
-**Decisão transversal — AIHOT.news:** Cris valida a viabilidade técnica como base; Lucas valida se a estrutura observada serve ao RotaZFM. A saída deve atualizar `docs/DECISIONS.md` com uma de três decisões: base, referência ou descarte. Referência inicial: `docs/AIHOT_REFERENCE.md`.
+**Decisão transversal — AIHOT.news:** decisão tomada: AIHOT é base de direcionamento e referência estrutural oficial. Cris valida a viabilidade técnica de reuso de código; Lucas valida se a estrutura observada serve ao RotaZFM. A saída do spike deve atualizar `docs/DECISIONS.md` dizendo se haverá reuso de código ou apenas referência. Referência inicial: `docs/AIHOT_REFERENCE.md`.
 
 Critério de saída da Etapa 1:
 

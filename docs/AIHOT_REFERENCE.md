@@ -1,9 +1,28 @@
 # Referência — AIHOT.news / KKKKhazix/AIHOT
 
-Status: análise estrutural inicial; spike de reuso pendente
+Status: referência estrutural oficial e base de direcionamento; spike de reuso de código pendente
 Data: 09/11/2026
 Repositório: https://github.com/KKKKhazix/AIHOT  
 Commit inspecionado: `ad3e934d376e4399ce350d981b4b5eb7a61f860e`
+
+## Como usar no RotaZFM
+
+O AIHOT.news passa a ser a referência arquitetural oficial do projeto. Toda pessoa nova deve ler este documento antes de propor mudanças de estrutura.
+
+Use o AIHOT para:
+
+- entender separação entre API, worker e web;
+- comparar camadas de ingestão, domínio, publicação e apresentação;
+- avaliar se uma nova dependência ou processo se justifica;
+- manter decisões de arquitetura documentadas.
+
+Não copie do AIHOT:
+
+- scoring editorial por LLM;
+- clustering de notícias;
+- geração de reports/newsletter;
+- prompts e taxonomias de curadoria;
+- qualquer lógica que faça LLM calcular IAV ou escolher rota.
 
 ## O que é
 
@@ -74,33 +93,28 @@ Portanto, não devemos copiar prompts, scoring editorial, clustering, reports de
 
 ## Veredito
 
-**AIHOT é válido como referência de estrutura, não como base recomendada.**
+**AIHOT é base de direcionamento e referência estrutural oficial do RotaZFM.**
 
 Recomendação:
 
-1. Usar AIHOT como mapa mental de arquitetura.
-2. Fazer um spike de até 2 dias somente se o time quiser testar reuso real.
-3. Se o spike mostrar que é preciso remover scoring LLM, clustering, reports e prompts para chegar ao RotaZFM, abandonar a base e criar estrutura própria mínima.
-4. Se for usado, congelar commit e não depender de atualização upstream durante o hackathon.
+1. Usar AIHOT como mapa mental de arquitetura para todas as próximas decisões.
+2. Fazer um spike de até 2 dias somente para avaliar reuso real de código.
+3. Se o spike mostrar que é preciso remover scoring LLM, clustering, reports e prompts para chegar ao RotaZFM, manter AIHOT como referência e não como base de código.
+4. Se houver reuso claro, congelar commit e não depender de atualização upstream durante o hackathon.
 
-## Estrutura mínima sugerida para RotaZFM
+## Estrutura de referência adotada
 
-Se não usarmos AIHOT como base, o repositório pode seguir uma versão simplificada:
+Enquanto o spike de reuso não aprovar código do AIHOT, o RotaZFM segue a estrutura simplificada documentada em `docs/PROJECT_STRUCTURE.md`:
 
 ```text
 apps/
-  api/          # Fastify ou equivalente: REST + MCP HTTP
-  worker/       # cron/jobs de coleta e recálculo
-  web/          # dashboard Next.js
+  api/          # API interna, ingestão/orquestração e persistência
+  mcp/          # servidor MCP para agentes de IA
+  dashboard/    # dashboard do gestor
 packages/
-  domain/       # regras do IAV, rotas, validações
-  data/         # modelos, queries, fixtures
-  collectors/   # SACE, INMET, DNIT, portarias, qualidade via
-infra/
-  docker-compose.yml
-  migrations/
-docs/
-tests/
+  contracts/    # tipos e schemas compartilhados
+  domain/       # regras puras do IAV e viabilidade
+  ingestion/    # coletores e normalizadores
 ```
 
-Essa estrutura é menor e mais alinhada ao MVP do que importar o framework inteiro.
+O AIHOT inspira a separação entre superfícies e pacotes, mas o MVP não precisa de worker editorial, reports de notícias, prompts de curadoria ou clustering. Jobs simples ficam em `scripts/` ou na infraestrutura da API até surgir necessidade real de um processo worker separado.
