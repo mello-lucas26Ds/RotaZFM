@@ -5,6 +5,11 @@ build/
 out/
 coverage/
 .data/
+.turbo/
+.wrangler/
+.vercel/
+playwright-report/
+test-results/
 .env
 .env.*
 !.env.example

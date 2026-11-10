@@ -9,6 +9,11 @@ Trilha: **Logística & Automação — Hack Brasil 2026**
 ## Documentos principais
 
 - [`Plan.md`](Plan.md) — documento bruto consolidado do projeto.
+- [`docs/PRD.md`](docs/PRD.md) — problema, objetivo, MVP e critérios de sucesso.
+- [`docs/SPEC.md`](docs/SPEC.md) — requisitos funcionais e modelo de dados inicial.
+- [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md) — estratégia de testes e aceite.
+- [`docs/EXECUTION_BOARD.md`](docs/EXECUTION_BOARD.md) — 4 etapas e divisões por integrante.
+- [`docs/PROJECT_STRUCTURE.md`](docs/PROJECT_STRUCTURE.md) — estrutura de pastas e responsabilidades.
 - [`docs/PREMORTEM.md`](docs/PREMORTEM.md) — análise de fracasso, riscos e gates de decisão.
 - [`docs/PLATFORM_DRAFT.md`](docs/PLATFORM_DRAFT.md) — rascunho da ideia para submissão na plataforma.
 - [`docs/TEAM_EXECUTION_PLAN.md`](docs/TEAM_EXECUTION_PLAN.md) — etapas, papéis e divisões do time.
@@ -38,5 +43,7 @@ fontes públicas → raw_payloads → route_condition_facts → IAV → API/MCP 
 
 - Nome oficial: **RotaZFM**.
 - Repositório público dedicado ao projeto.
-- Fase atual: validação de fontes, problema, caso retrospectivo e divisão do time.
-- Código do produto ainda não iniciado.
+- Estrutura inicial de monorepo criada em `apps/`, `packages/`, `data/`, `scripts/` e `tests/`.
+- Documentação inicial de PRD, SPEC, plano de testes e execução criada.
+- Fase atual: Etapa 1 — fundação e validação de fontes.
+- Código do produto ainda não implementado.
