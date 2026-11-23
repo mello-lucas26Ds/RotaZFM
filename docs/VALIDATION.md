@@ -141,4 +141,4 @@ Validação executada: todos os JSONs foram parseados com `python -m json.tool` 
 - Extração de linhas específicas dos CSVs DNIT de tráfego e ICM ainda está pendente; por isso tráfego e qualidade da via estão `PARCIAL`.
 - SP-330 é rodovia estadual e pode ficar fora do escopo DNIT; precisa fonte estadual ou fallback documentado.
 - O trecho fluvial não tem dimensão "qualidade da via" terrestre; é necessário decidir se usa proxy de navegabilidade ou trata como N/A no IAV.
-- `npm run lint/test/build` não foi executado nesta VM porque Node/npm não estão disponíveis; a etapa é docs/data-only e os JSONs foram validados localmente.
+- Na VM do subagent de dados, Node/npm não estavam disponíveis; os JSONs foram validados localmente. Na VM orquestradora, `npm install`, `npm run lint`, `npm run test` e `npm run build` passam sem serviço externo.
