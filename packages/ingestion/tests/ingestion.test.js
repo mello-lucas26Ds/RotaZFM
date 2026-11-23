@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildDecisionInput } from '../src/index.js';
+import { buildDecisionInput, buildPbtcBlockers } from '../src/index.js';
 import { createDecisionSnapshot } from '../../domain/src/index.js';
 
 const REFERENCE_DATE = '2026-11-23';
@@ -165,4 +165,42 @@ test('ingestion: não depende de rede para normalizar fixtures', () => {
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+test('ingestion: PBTC escolhe o limite mais restritivo por segmento', () => {
+  const payload = {
+    fixture_kind: 'dimension_evidence',
+    dimension: 'weight_restriction',
+    restrictions: [
+      {
+        id: 'ev-10t',
+        route_id: 'rota-1-br-319',
+        segment_id: 'r1-s2-floresta-br319',
+        confirmation_status: 'CONFIRMADO',
+        source: 'DNIT',
+        source_url: 'https://example.com/10t',
+        rules: { pbtc_max_t_jun_oct: 10 },
+      },
+      {
+        id: 'ev-9t',
+        route_id: 'rota-1-br-319',
+        segment_id: 'r1-s2-floresta-br319',
+        confirmation_status: 'CONFIRMADO',
+        source: 'DNIT',
+        source_url: 'https://example.com/9t',
+        rules: { pbtc_max_t_jun_oct: 9 },
+      },
+    ],
+  };
+  const segmentIndex = { get: () => ({ mode: 'rodoviario' }) };
+
+  const blockers = buildPbtcBlockers({
+    payload,
+    query: makeQuery({ peso: 9500, dataEmbarque: '2026-06-15' }),
+    segmentIndex,
+  });
+
+  assert.equal(blockers.length, 1);
+  assert.equal(blockers[0].pbtc_kg, 9000);
+  assert.equal(blockers[0].evidence_id, 'ev-9t');
 });

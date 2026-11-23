@@ -77,9 +77,13 @@ export function buildPbtcBlockers({ payload, query, segmentIndex }) {
 
     const key = segmentKey(candidate.route_id, candidate.segment_id);
     const current = candidates.get(key);
-    const candidateSort = `${candidate.pbtc_kg}:${candidate.evidence_id ?? ''}`;
-    const currentSort = current ? `${current.pbtc_kg}:${current.evidence_id ?? ''}` : null;
-    if (!current || candidateSort < currentSort) {
+    const candidateTie = candidate.evidence_id ?? '';
+    const currentTie = current?.evidence_id ?? '';
+    if (
+      !current ||
+      candidate.pbtc_kg < current.pbtc_kg ||
+      (candidate.pbtc_kg === current.pbtc_kg && candidateTie < currentTie)
+    ) {
       candidates.set(key, candidate);
     }
   }
