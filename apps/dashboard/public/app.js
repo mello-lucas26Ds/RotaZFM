@@ -38,17 +38,59 @@ function formatIav(value) {
   return value === null || value === undefined ? '—' : String(value);
 }
 
+function formatScalarList(values) {
+  return values
+    .map((value) => (value !== null && typeof value === 'object' ? JSON.stringify(value) : String(value)))
+    .join(', ');
+}
+
+function formatRulesValue(rules) {
+  const parts = [];
+  for (const [key, entry] of Object.entries(rules ?? {})) {
+    if (entry === null || entry === undefined) continue;
+    if (Array.isArray(entry)) {
+      parts.push(
+        entry.every((item) => item === null || typeof item !== 'object')
+          ? `${key}=${formatScalarList(entry)}`
+          : `${key}=${JSON.stringify(entry)}`,
+      );
+    } else if (typeof entry !== 'object') {
+      parts.push(`${key}=${entry}`);
+    }
+    if (parts.length === 6) break;
+  }
+  return parts.join(', ');
+}
+
+function formatNestedEvidenceValue(key, entry) {
+  if (key === 'km_range') {
+    const start = entry.start_km ?? entry.start ?? entry.from_km;
+    const end = entry.end_km ?? entry.end ?? entry.to_km;
+    if (start !== undefined || end !== undefined) return `km=${start ?? '—'}–${end ?? '—'}`;
+  }
+  if (key === 'rules' && typeof entry === 'object' && !Array.isArray(entry)) {
+    const formatted = formatRulesValue(entry);
+    if (formatted) return `rules=${formatted}`;
+  }
+  return null;
+}
+
 function formatEvidenceValue(value) {
   if (value === null || value === undefined) return null;
   if (typeof value !== 'object') return String(value);
 
   const parts = [];
   for (const [key, entry] of Object.entries(value)) {
-    if (entry === null || entry === undefined || typeof entry === 'object') continue;
-    parts.push(`${key}=${entry}`);
-    if (parts.length === 4) break;
+    if (entry === null || entry === undefined) continue;
+    if (typeof entry !== 'object') {
+      parts.push(`${key}=${entry}`);
+    } else {
+      const nested = formatNestedEvidenceValue(key, entry);
+      if (nested) parts.push(nested);
+    }
+    if (parts.length === 10) break;
   }
-  return parts.length > 0 ? parts.join(', ') : JSON.stringify(value);
+  return parts.length > 0 ? parts.join('; ') : JSON.stringify(value);
 }
 
 function formatFreshness(hours) {
