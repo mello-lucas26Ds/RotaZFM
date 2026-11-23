@@ -1,0 +1,23 @@
+{
+  "fixture_version": "2026-11-25",
+  "fixture_kind": "related_news",
+  "created_at": "2026-11-25T12:00:00-04:00",
+  "created_by": "Maria - fixtures lógicas E2E (Etapa 6)",
+  "mock": true,
+  "items": [
+    {
+      "id": "c08-confirmed-news-river-level",
+      "title": "Boletim oficial confirma nível do Amazonas dentro da faixa",
+      "url": "https://example.com/boletim-nivel-amazonas",
+      "source": "capitania-fluvial-portaria-2026-114",
+      "source_url": "https://example.com/boletim-nivel-amazonas",
+      "published_at": "2026-11-25T08:00:00-04:00",
+      "collected_at": "2026-11-25T12:00:00-04:00",
+      "matched_segments": [
+        "r2-s1-fluvial-amazonas"
+      ],
+      "confirmation_status": "CONFIRMADO",
+      "relevance": "contextual"
+    }
+  ]
+}

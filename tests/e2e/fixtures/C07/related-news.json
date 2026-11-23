@@ -1,0 +1,23 @@
+{
+  "fixture_version": "2026-11-25",
+  "fixture_kind": "related_news",
+  "created_at": "2026-11-25T12:00:00-04:00",
+  "created_by": "Maria - fixtures lógicas E2E (Etapa 6)",
+  "mock": true,
+  "items": [
+    {
+      "id": "c07-unconfirmed-news-br319",
+      "title": "Rumor de interdição na BR-319",
+      "url": "https://example.com/rumor-interdicao-br319",
+      "source": "portal-regional-exemplo",
+      "source_url": "https://example.com/rumor-interdicao-br319",
+      "published_at": "2026-11-25T08:00:00-04:00",
+      "collected_at": "2026-11-25T12:00:00-04:00",
+      "matched_segments": [
+        "r1-s2-floresta-br319"
+      ],
+      "confirmation_status": "NAO_CONFIRMADO",
+      "relevance": "contextual"
+    }
+  ]
+}
