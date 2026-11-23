@@ -6,7 +6,7 @@ API interna do RotaZFM (MVP local, sem deploy).
 
 - `POST /v1/viabilidade` — body `IavQuery`; retorna `DecisionSnapshot`.
 - `GET /v1/fontes` — evidências normalizadas das fixtures.
-- `GET /v1/noticias` — `related_news` contextual (nunca blocker).
+- `GET /v1/noticias` — `related_news` contextual (nunca blocker); aceita `rota_id` e `janela_horas` (inteiro positivo).
 
 Todas exigem `Authorization: Bearer <key>` com chaves em `IAV_MCP_API_KEYS` (separadas por vírgula). Limite: 60 req/min por chave.
 

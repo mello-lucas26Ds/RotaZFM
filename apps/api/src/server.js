@@ -71,19 +71,22 @@ function sendError(response, status, code, message, { details, extra } = {}) {
 function readJsonBody(request) {
   return new Promise((resolve, reject) => {
     let size = 0;
+    let tooLarge = false;
     const chunks = [];
 
     request.on('data', (chunk) => {
+      if (tooLarge) return;
       size += chunk.length;
       if (size > MAX_BODY_BYTES) {
+        tooLarge = true;
         reject(new HttpError(413, 'PAYLOAD_TOO_LARGE', 'Corpo da requisição muito grande'));
-        request.destroy();
         return;
       }
       chunks.push(chunk);
     });
 
     request.on('end', () => {
+      if (tooLarge) return;
       if (chunks.length === 0) {
         resolve({});
         return;
@@ -157,8 +160,43 @@ function normalizedSources() {
   return buildDecisionInput({}).evidences;
 }
 
-function normalizedNews() {
-  return buildDecisionInput({}).relatedNews;
+function newsMatchesRoute(newsItem, routeId, segmentIds) {
+  if (!newsItem || typeof newsItem !== 'object') return false;
+  if (newsItem.route_id !== undefined) return newsItem.route_id === routeId;
+  if (Array.isArray(newsItem.matched_route_ids)) return newsItem.matched_route_ids.includes(routeId);
+  if (Array.isArray(newsItem.matched_segments)) {
+    return newsItem.matched_segments.some((segmentId) => segmentIds.has(segmentId));
+  }
+  return false;
+}
+
+function normalizedNews(searchParams = new URLSearchParams(), { now = Date.now() } = {}) {
+  const input = buildDecisionInput({});
+  let noticias = input.relatedNews;
+
+  const rotaId = searchParams.get('rota_id');
+  if (rotaId) {
+    const route = input.catalog.routes.find((candidate) => candidate.id === rotaId);
+    if (!route) {
+      throw new HttpError(400, 'INVALID_QUERY', 'rota_id desconhecido');
+    }
+    const segmentIds = new Set((route.segments ?? []).map((segment) => segment.id));
+    noticias = noticias.filter((item) => newsMatchesRoute(item, rotaId, segmentIds));
+  }
+
+  const janela = searchParams.get('janela_horas');
+  if (janela) {
+    if (!/^\d+$/.test(janela) || Number(janela) <= 0) {
+      throw new HttpError(400, 'INVALID_QUERY', 'janela_horas inválida');
+    }
+    const windowMs = Number(janela) * 60 * 60 * 1000;
+    noticias = noticias.filter((item) => {
+      const timestamp = Date.parse(item.updated_at ?? item.published_at ?? item.collected_at ?? '');
+      return Number.isFinite(timestamp) && timestamp <= now && now - timestamp <= windowMs;
+    });
+  }
+
+  return noticias;
 }
 
 export function createApiServer(options = {}) {
@@ -169,6 +207,7 @@ export function createApiServer(options = {}) {
     windowMs: options.rateLimit?.windowMs ?? DEFAULT_RATE_WINDOW_MS,
   });
   const viability = options.consultarViabilidade ?? consultarViabilidade;
+  const nowProvider = typeof options.now === 'function' ? options.now : () => options.now ?? Date.now();
 
   async function handle(request, response) {
     const url = new URL(request.url ?? '/', 'http://localhost');
@@ -213,7 +252,7 @@ export function createApiServer(options = {}) {
       }
 
       if (request.method === 'GET' && path === '/v1/noticias') {
-        sendJson(response, 200, { noticias: normalizedNews() });
+        sendJson(response, 200, { noticias: normalizedNews(url.searchParams, { now: nowProvider() }) });
         return;
       }
 

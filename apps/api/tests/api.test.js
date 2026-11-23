@@ -160,3 +160,53 @@ test('api: GET /v1/fontes e GET /v1/noticias expõem dados normalizados', async 
     await server.close();
   }
 });
+
+test('api: GET /v1/noticias filtra por rota_id e janela_horas', async () => {
+  const now = Date.parse('2026-11-20T00:00:00-04:00');
+  const server = await startServer({ now });
+  try {
+    const all = await getJson(server.baseUrl, '/v1/noticias');
+    const allBody = await all.json();
+
+    const rota = await getJson(server.baseUrl, '/v1/noticias?rota_id=rota-1-br-319');
+    assert.equal(rota.status, 200);
+    const rotaBody = await rota.json();
+    assert.ok(rotaBody.noticias.length > 0);
+    assert.ok(rotaBody.noticias.length < allBody.noticias.length);
+    assert.ok(rotaBody.noticias.every((item) => item.route_id === 'rota-1-br-319'));
+
+    const janela = await getJson(server.baseUrl, '/v1/noticias?janela_horas=240');
+    assert.equal(janela.status, 200);
+    const janelaBody = await janela.json();
+    assert.ok(janelaBody.noticias.length < allBody.noticias.length);
+    assert.ok(janelaBody.noticias.every((item) => item.blocker === false));
+
+    const invalidRoute = await getJson(server.baseUrl, '/v1/noticias?rota_id=rota-inexistente');
+    assert.equal(invalidRoute.status, 400);
+    assert.equal((await invalidRoute.json()).error.code, 'INVALID_QUERY');
+
+    const invalidJanela = await getJson(server.baseUrl, '/v1/noticias?janela_horas=abc');
+    assert.equal(invalidJanela.status, 400);
+    assert.equal((await invalidJanela.json()).error.code, 'INVALID_QUERY');
+  } finally {
+    await server.close();
+  }
+});
+
+test('api: corpo acima de 64 KiB retorna 413 sem derrubar a conexão', async () => {
+  const server = await startServer();
+  try {
+    const response = await fetch(`${server.baseUrl}/v1/viabilidade`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${API_KEY}`,
+      },
+      body: JSON.stringify({ ...validQuery(), padding: 'x'.repeat(70 * 1024) }),
+    });
+    assert.equal(response.status, 413);
+    assert.equal((await response.json()).error.code, 'PAYLOAD_TOO_LARGE');
+  } finally {
+    await server.close();
+  }
+});

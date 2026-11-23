@@ -177,3 +177,47 @@ test('mcp: initialize responde a versão suportada quando o cliente pede outra',
     await server.close();
   }
 });
+
+test('mcp: batch consome uma cota de rate limit por mensagem JSON-RPC', async () => {
+  const server = await startServer({ rateLimit: { limit: 2, windowMs: 60_000 } });
+  try {
+    const batch = [
+      { jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} },
+      { jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} },
+    ];
+    const ok = await fetch(`${server.baseUrl}/mcp`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${API_KEY}`,
+      },
+      body: JSON.stringify(batch),
+    });
+    assert.equal(ok.status, 200);
+    assert.equal((await ok.json()).length, 2);
+
+    const limited = await rpc(server.baseUrl, 'tools/list', {}, { id: 3 });
+    assert.equal(limited.status, 429);
+    assert.equal((await limited.json()).error.code, 'RATE_LIMITED');
+  } finally {
+    await server.close();
+  }
+});
+
+test('mcp: corpo acima de 64 KiB retorna 413 sem derrubar a conexão', async () => {
+  const server = await startServer();
+  try {
+    const response = await fetch(`${server.baseUrl}/mcp`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${API_KEY}`,
+      },
+      body: 'x'.repeat(70 * 1024),
+    });
+    assert.equal(response.status, 413);
+    assert.equal((await response.json()).error.code, 'PAYLOAD_TOO_LARGE');
+  } finally {
+    await server.close();
+  }
+});

@@ -93,22 +93,40 @@ function sendError(response, status, code, message) {
   sendJson(response, status, { error: { code, message } });
 }
 
+function sendRateLimited(response, verdict) {
+  sendJson(
+    response,
+    429,
+    {
+      error: {
+        code: 'RATE_LIMITED',
+        message: 'Limite de requisições excedido',
+        retry_after_seconds: verdict.retryAfterSeconds,
+      },
+    },
+    { 'retry-after': String(verdict.retryAfterSeconds) },
+  );
+}
+
 function readJsonBody(request) {
   return new Promise((resolve, reject) => {
     let size = 0;
+    let tooLarge = false;
     const chunks = [];
 
     request.on('data', (chunk) => {
+      if (tooLarge) return;
       size += chunk.length;
       if (size > MAX_BODY_BYTES) {
+        tooLarge = true;
         reject(new HttpError(413, 'PAYLOAD_TOO_LARGE', 'Corpo da requisição muito grande'));
-        request.destroy();
         return;
       }
       chunks.push(chunk);
     });
 
     request.on('end', () => {
+      if (tooLarge) return;
       if (chunks.length === 0) {
         resolve({});
         return;
@@ -293,18 +311,7 @@ export function createMcpServer(options = {}) {
 
     const verdict = rateLimit(apiKey);
     if (!verdict.allowed) {
-      sendJson(
-        response,
-        429,
-        {
-          error: {
-            code: 'RATE_LIMITED',
-            message: 'Limite de requisições excedido',
-            retry_after_seconds: verdict.retryAfterSeconds,
-          },
-        },
-        { 'retry-after': String(verdict.retryAfterSeconds) },
-      );
+      sendRateLimited(response, verdict);
       return;
     }
 
@@ -316,6 +323,15 @@ export function createMcpServer(options = {}) {
     try {
       const payload = await readJsonBody(request);
       const messages = Array.isArray(payload) ? payload : [payload];
+      if (Array.isArray(payload)) {
+        for (let index = 1; index < messages.length; index += 1) {
+          const batchVerdict = rateLimit(apiKey);
+          if (!batchVerdict.allowed) {
+            sendRateLimited(response, batchVerdict);
+            return;
+          }
+        }
+      }
       const responses = messages
         .map((message) => handleMessage(message, viability))
         .filter((message) => message !== null);
