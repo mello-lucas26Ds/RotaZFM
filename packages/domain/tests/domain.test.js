@@ -175,6 +175,18 @@ test('C05 domain: fontes oficiais conflitantes viram CONFLITANTE e NAO_AVALIAVEL
         missing.reason === 'CONFLITANTE',
     ),
   );
+
+  const segment = route1.segments.find((item) => item.segment_id === 'r1-s2-floresta-br319');
+  assert.ok(
+    segment.evidences.some(
+      (evidence) => evidence.evidence_id === 'ev-conflito-a' && evidence.source === 'FONTE_OFICIAL_A',
+    ),
+  );
+  assert.ok(
+    segment.evidences.some(
+      (evidence) => evidence.evidence_id === 'ev-conflito-b' && evidence.source === 'FONTE_OFICIAL_B',
+    ),
+  );
 });
 
 test('C16 domain: mesma entrada e rule_version produzem DecisionSnapshot idêntico', () => {
@@ -326,4 +338,76 @@ test('domain: bloqueador explícito só vale quando confirmado', () => {
   assert.equal(route1.status, 'NAO_VIAVEL');
   assert.equal(route1.worst_segment_id, segmentId);
   assert.ok(route1.blockers.some((blocker) => blocker.type === 'INTERDICAO'));
+});
+
+test('domain: bloqueador confirmado expirado antes do embarque não bloqueia', () => {
+  const segmentId = 'r1-s2-floresta-br319';
+  const routeId = 'rota-1-br-319';
+  const baseBlocker = {
+    route_id: routeId,
+    segment_id: segmentId,
+    type: 'INTERDICAO',
+    confirmed: true,
+    description: 'Interdição temporária',
+    source: 'DNIT',
+    effective_from: '2026-11-20',
+  };
+
+  const expired = makeSnapshot({
+    blockers: [{ ...baseBlocker, effective_until: '2026-11-24' }],
+  });
+
+  assert.equal(routeById(expired, routeId).status, 'VIAVEL');
+  assert.equal(expired.blockers.length, 0);
+
+  const active = makeSnapshot({
+    blockers: [{ ...baseBlocker, effective_until: '2026-11-25' }],
+  });
+
+  assert.equal(routeById(active, routeId).status, 'NAO_VIAVEL');
+  assert.ok(active.blockers.some((blocker) => blocker.type === 'INTERDICAO'));
+});
+
+test('domain: limiar de status usa IAV sem arredondamento intermediário', () => {
+  const segmentId = 'r1-s2-floresta-br319';
+  const routeId = 'rota-1-br-319';
+  const facts = allFacts({
+    overrides: {
+      [key(routeId, segmentId, 'nivel')]: { score: 70 },
+      [key(routeId, segmentId, 'chuva')]: { score: 70 },
+      [key(routeId, segmentId, 'trafego')]: { score: 70 },
+      [key(routeId, segmentId, 'qualidade')]: { score: 69.98 },
+      [key(routeId, segmentId, 'restricao')]: { score: 70 },
+    },
+  });
+
+  const snapshot = makeSnapshot({ facts });
+  const route1 = routeById(snapshot, routeId);
+  const segment = route1.segments.find((item) => item.segment_id === segmentId);
+
+  assert.equal(segment.status, 'VIAVEL_COM_RESSALVAS');
+  assert.ok(segment.iav < 70);
+  assert.equal(route1.status, 'VIAVEL_COM_RESSALVAS');
+  assert.ok(route1.iav < 70);
+});
+
+test('domain: evidência preserva effective_from e effective_until', () => {
+  const routeId = 'rota-1-br-319';
+  const segmentId = 'r1-s2-floresta-br319';
+  const facts = allFacts();
+  const fact = facts.find(
+    (item) =>
+      item.route_id === routeId &&
+      item.segment_id === segmentId &&
+      item.dimension === 'restricao',
+  );
+  fact.effective_from = '2026-11-01';
+  fact.effective_until = '2026-11-30';
+
+  const snapshot = makeSnapshot({ facts });
+  const segment = routeById(snapshot, routeId).segments.find((item) => item.segment_id === segmentId);
+  const evidence = segment.evidences.find((item) => item.evidence_id === fact.evidence_id);
+
+  assert.equal(evidence.effective_from, '2026-11-01');
+  assert.equal(evidence.effective_until, '2026-11-30');
 });

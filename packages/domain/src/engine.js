@@ -17,6 +17,7 @@ export const SCOPE_WARNING =
 const MAX_FRESHNESS_HOURS = 24;
 const VIABLE_THRESHOLD = 70;
 const NOT_VIABLE_THRESHOLD = 50;
+const DATE_ONLY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})(?:$|[T ])/;
 const CONFIRMATION_STATUSES = new Set([
   'CONFIRMADO',
   'NAO_CONFIRMADO',
@@ -34,6 +35,8 @@ const OPTIONAL_FACT_FIELDS = [
   'method',
   'content_hash',
   'last_valid_at',
+  'effective_from',
+  'effective_until',
 ];
 
 export class DomainError extends Error {
@@ -66,6 +69,44 @@ function round(value, digits = 2) {
 
 function isPositiveFinite(value) {
   return Number.isFinite(value) && value > 0;
+}
+
+function parseDateOnly(value) {
+  const match = DATE_ONLY_PATTERN.exec(value);
+  if (!match) return null;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const timestamp = Date.UTC(year, month - 1, day);
+  const parsed = new Date(timestamp);
+
+  if (
+    parsed.getUTCFullYear() !== year ||
+    parsed.getUTCMonth() !== month - 1 ||
+    parsed.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  return timestamp;
+}
+
+function normalizeDateValue(value, field) {
+  if (typeof value !== 'string' || parseDateOnly(value) === null) {
+    fail(`${field} deve ser uma data válida`, 'INVALID_BLOCKER');
+  }
+  return value;
+}
+
+function dateOnly(value) {
+  const match = DATE_ONLY_PATTERN.exec(value);
+  return match ? `${match[1]}-${match[2]}-${match[3]}` : null;
+}
+
+function blockerActiveOn(blocker, shippingDate) {
+  const effectiveUntil = blocker.effective_until ? dateOnly(blocker.effective_until) : null;
+  return effectiveUntil === null || shippingDate <= effectiveUntil;
 }
 
 function segmentKey(routeId, segmentId) {
@@ -137,15 +178,21 @@ function normalizeBlocker(rawBlocker, index) {
     confirmed: rawBlocker.confirmed === true,
   };
 
-  for (const field of [
-    'description',
-    'source',
-    'source_url',
-    'evidence_id',
-    'effective_from',
-    'effective_until',
-  ]) {
+  for (const field of ['description', 'source', 'source_url', 'evidence_id']) {
     if (rawBlocker[field] !== undefined) blocker[field] = rawBlocker[field];
+  }
+
+  if (rawBlocker.effective_from !== undefined) {
+    blocker.effective_from = normalizeDateValue(
+      rawBlocker.effective_from,
+      `blockers[${index}].effective_from`,
+    );
+  }
+  if (rawBlocker.effective_until !== undefined) {
+    blocker.effective_until = normalizeDateValue(
+      rawBlocker.effective_until,
+      `blockers[${index}].effective_until`,
+    );
   }
 
   return blocker;
@@ -187,7 +234,7 @@ function evaluateDimension(facts) {
   if (freshConfirmed.length > 0) {
     const signatures = new Set(freshConfirmed.map(factSignature));
     if (signatures.size > 1) {
-      return { ok: false, reason: 'CONFLITANTE' };
+      return { ok: false, reason: 'CONFLITANTE', facts: freshConfirmed };
     }
 
     const selected = [...freshConfirmed].sort(compareFacts)[0];
@@ -240,6 +287,8 @@ function dimensionResult(dimension, evaluation) {
     source_url: fact.source_url,
     evidence_id: fact.evidence_id,
     last_valid_at: fact.last_valid_at,
+    effective_from: fact.effective_from,
+    effective_until: fact.effective_until,
   };
 
   if (fact.pbtc_kg !== undefined) result.pbtc_kg = fact.pbtc_kg;
@@ -258,6 +307,8 @@ function evidenceFromFact(fact, routeId, segmentId, dimension) {
     confirmation_status: fact.confirmation_status,
     freshness_hours: fact.freshness_hours,
     last_valid_at: fact.last_valid_at,
+    effective_from: fact.effective_from,
+    effective_until: fact.effective_until,
   };
 
   for (const field of ['collected_at', 'published_at', 'method', 'content_hash']) {
@@ -346,6 +397,9 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
         dimension,
         reason: evaluation.reason,
       });
+      for (const fact of evaluation.facts ?? []) {
+        evidences.push(evidenceFromFact(fact, route.id, segment.id, dimension));
+      }
     } else {
       evidences.push(evidenceFromFact(evaluation.fact, route.id, segment.id, dimension));
     }
@@ -382,11 +436,9 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
 
   const allDimensionsValid = IAV_DIMENSIONS.every((dimension) => dimensions[dimension].score !== null);
   const iav = allDimensionsValid
-    ? round(
-        IAV_DIMENSIONS.reduce(
-          (total, dimension) => total + dimensions[dimension].score * IAV_WEIGHTS[dimension],
-          0,
-        ),
+    ? IAV_DIMENSIONS.reduce(
+        (total, dimension) => total + dimensions[dimension].score * IAV_WEIGHTS[dimension],
+        0,
       )
     : null;
 
@@ -563,7 +615,7 @@ function indexFacts(facts, routes) {
   return factsBySegment;
 }
 
-function indexBlockers(blockers, routes) {
+function indexBlockers(blockers, routes, shippingDate) {
   const knownSegments = new Set();
   for (const route of routes) {
     for (const segment of route.segments) {
@@ -573,7 +625,7 @@ function indexBlockers(blockers, routes) {
 
   const confirmedBlockers = [...blockers]
     .map((blocker, index) => normalizeBlocker(blocker, index))
-    .filter((blocker) => blocker.confirmed)
+    .filter((blocker) => blocker.confirmed && blockerActiveOn(blocker, shippingDate))
     .sort(blockerSort);
 
   for (const blocker of confirmedBlockers) {
@@ -612,7 +664,7 @@ export function assessDecision({
   const routes = validateCatalog(catalog, validQuery);
   const context = {
     factsBySegment: indexFacts(facts, routes),
-    explicitBlockers: indexBlockers(blockers, routes),
+    explicitBlockers: indexBlockers(blockers, routes, validQuery.data_embarque),
     loadProfile: validQuery.carga,
     relatedNews,
     ruleVersion,
