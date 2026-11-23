@@ -54,11 +54,16 @@ Invariantes:
 
 ## 4. Cálculo do IAV no MVP
 
-Para cada trecho, cada dimensão é convertida em score `0..100` por normalizadores específicos. A composição do MVP é soma ponderada com gates:
+Para cada trecho, cada dimensão aplicável é convertida em score `0..100` por normalizadores específicos. A composição do MVP é soma ponderada com gates. Dimensões obrigatórias dependem do modo do trecho: `hidroviario`/`multimodal` usam as cinco dimensões; `rodoviario` usa chuva, tráfego, qualidade e restrição, com peso renormalizado.
 
 ```text
-IAV_trecho = 0,30 × nivel + 0,25 × chuva + 0,20 × trafego + 0,15 × qualidade + 0,10 × restricao
+IAV_hidro/multimodal = 0,30 × nivel_efetivo + 0,25 × chuva + 0,20 × trafego + 0,15 × qualidade + 0,10 × restricao
+IAV_rodoviario = (0,25 × chuva + 0,20 × trafego + 0,15 × qualidade + 0,10 × restricao) / 0,70
+
+nivel_efetivo = nivel - min(5; 0,10 × max(0; 50 - chuva))
 ```
+
+`nivel_efetivo` só existe para trechos hidroviários/multimodais: chuva forte reduz o nível efetivo em até 5 pontos por risco de cheia/entulho; não premia estiagem nem substitui o dado de nível. O `nivel` bruto continua preservado na evidência.
 
 Classificação por trecho:
 

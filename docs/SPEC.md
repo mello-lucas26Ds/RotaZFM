@@ -53,7 +53,7 @@ Data: 23/11/2026
 
 ### RF-006 — IAV por trecho
 
-**Regra:** o IAV é determinístico, de `0` a `100`, calculado por trecho a partir das cinco dimensões: nível do rio, chuva, tráfego, qualidade da via e restrição de peso.
+**Regra:** o IAV é determinístico, de `0` a `100`, calculado por trecho a partir das dimensões aplicáveis ao modo: `hidroviario`/`multimodal` usam nível do rio, chuva, tráfego, qualidade da via e restrição de peso; `rodoviario` usa chuva, tráfego, qualidade da via e restrição de peso com peso renormalizado. Em trechos hidroviários/multimodais, chuva forte reduz o nível efetivo em até 5 pontos por risco de cheia/entulho.
 
 **Critérios de aceite:**
 - Cada `SegmentAssessment` tem `iav`, `dimensions`, `blockers[]`, `missing_data[]`, `evidences[]` e `rule_version`.

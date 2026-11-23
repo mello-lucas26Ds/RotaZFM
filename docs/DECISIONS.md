@@ -175,9 +175,9 @@ Data de abertura: 09/11/2026
 ## DEC-022 — Fórmula do IAV no MVP
 
 - Data: 23/11/2026
-- Decisão: no MVP, cada trecho usa soma ponderada `0,30 × nivel + 0,25 × chuva + 0,20 × trafego + 0,15 × qualidade + 0,10 × restricao` com gates de dado ausente/conflito; rota consolida por `min` dos trechos; bloqueadores prevalecem.
-- Motivo: menor solução explicável que preserva rastreabilidade; composição multiplicativa/avançada fica para evolução com calibração.
-- Alternativas descartadas: fórmula multiplicativa no MVP sem dados suficientes para calibrar ou manter IAV parcial numérico.
+- Decisão: no MVP, cada trecho usa soma ponderada com gates de dado ausente/conflito; rota consolida por `min` dos trechos; bloqueadores prevalecem. v2 (23/11/2026): dimensões dependem do modo — `hidroviario`/`multimodal` usam as cinco dimensões e `rodoviario` renormaliza chuva/tráfego/qualidade/restrição; em trechos hidroviários/multimodais, `nivel_efetivo = nivel - min(5; 0,10 × max(0; 50 - chuva))` para refletir que chuva forte tenderia a piorar a condição hídrica.
+- Motivo: menor solução explicável que preserva rastreabilidade; composição multiplicativa/avançada fica para evolução com calibração. Nível do rio não se aplica a trechos puramente rodoviários.
+- Alternativas descartadas: fórmula multiplicativa no MVP sem dados suficientes para calibrar; exigir nível do rio em trechos rodoviários; premiação de estiagem sem fonte.
 - Responsável: Cris + Lucas.
 
 ## Pendências que afetam decisões

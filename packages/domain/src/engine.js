@@ -1,7 +1,7 @@
 import { assertIavQuery } from '@rotazfm/contracts';
 import { loadRouteCatalog } from './catalog.js';
 
-export const RULE_VERSION = 'iav-mvp-2026-11-23';
+export const RULE_VERSION = 'iav-mvp-2026-11-23-r2';
 export const IAV_WEIGHTS = Object.freeze({
   nivel: 0.3,
   chuva: 0.25,
@@ -20,6 +20,21 @@ const SEGMENT_STATUS_RANK = Object.freeze({
   VIAVEL_COM_RESSALVAS: 1,
   VIAVEL: 2,
 });
+
+const HYDRO_MODES = new Set(['hidroviario', 'multimodal']);
+const RODOVIARIO_DIMENSIONS = Object.freeze(['chuva', 'trafego', 'qualidade', 'restricao']);
+const HYDRO_CHUVA_NIVEL_PENALTY = 0.1;
+
+function applicableDimensions(mode) {
+  return HYDRO_MODES.has(mode) ? IAV_DIMENSIONS : RODOVIARIO_DIMENSIONS;
+}
+
+function hydroNivelAdjustment(nivelScore, chuvaScore) {
+  const rainSeverity = Math.max(0, 50 - chuvaScore);
+  const adjustment = -round(rainSeverity * HYDRO_CHUVA_NIVEL_PENALTY, 4);
+  const score = round(Math.min(100, Math.max(0, nivelScore + adjustment)), 4);
+  return { score, adjustment };
+}
 
 export const SCOPE_WARNING =
   'IAV mede viabilidade física/regulatória; não mede custo, disponibilidade de caminhão ou eventos fora das fontes.';
@@ -348,6 +363,17 @@ function dimensionResult(dimension, evaluation) {
   return result;
 }
 
+function dimensionNotApplicable(dimension) {
+  return {
+    dimension,
+    weight: 0,
+    score: null,
+    weighted_score: null,
+    status: 'NAO_APLICAVEL',
+    reason: 'DIMENSAO_NAO_APLICAVEL',
+  };
+}
+
 function evidenceFromFact(fact, routeId, segmentId, dimension) {
   const evidence = {
     route_id: routeId,
@@ -452,13 +478,14 @@ function rationalToNumber(numerator, denominator) {
   return Number((numerator * IAV_OUTPUT_SCALE) / denominator) / IAV_OUTPUT_SCALE_NUMBER;
 }
 
-function calculateIav(dimensions) {
-  const entries = IAV_DIMENSIONS.map((dimension) => ({
+function calculateIav(scores, dimensionList) {
+  const entries = dimensionList.map((dimension) => ({
     dimension,
-    ...scoreDecimalParts(dimensions[dimension].score),
+    ...scoreDecimalParts(scores[dimension]),
   }));
+  const weightSum = dimensionList.reduce((total, dimension) => total + IAV_WEIGHT_UNITS[dimension], 0);
   const scale = Math.max(0, ...entries.map((entry) => -entry.power));
-  const denominator = 100n * 10n ** BigInt(scale);
+  const denominator = BigInt(weightSum) * 10n ** BigInt(scale);
   const numerator = entries.reduce((total, entry) => {
     const scaledScore = entry.digits * 10n ** BigInt(entry.power + scale);
     return total + BigInt(IAV_WEIGHT_UNITS[entry.dimension]) * scaledScore;
@@ -473,8 +500,14 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
   const missingData = [];
   const evidences = [];
   const blockers = [];
+  const applicable = applicableDimensions(segment.mode);
+  const applicableSet = new Set(applicable);
 
   for (const dimension of IAV_DIMENSIONS) {
+    if (!applicableSet.has(dimension)) {
+      dimensions[dimension] = dimensionNotApplicable(dimension);
+      continue;
+    }
     const key = factKey(route.id, segment.id, dimension);
     const evaluation = evaluateDimension(factsBySegment.get(key), shippingDate);
     evaluations[dimension] = evaluation;
@@ -524,8 +557,20 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
 
   blockers.sort(blockerSort);
 
-  const allDimensionsValid = IAV_DIMENSIONS.every((dimension) => dimensions[dimension].score !== null);
-  const calculation = allDimensionsValid ? calculateIav(dimensions) : null;
+  const allDimensionsValid = applicable.every((dimension) => dimensions[dimension].score !== null);
+  const calculationScores = {};
+  for (const dimension of applicable) calculationScores[dimension] = dimensions[dimension].score;
+
+  let calculation = null;
+  if (allDimensionsValid) {
+    if (applicableSet.has('nivel') && applicableSet.has('chuva')) {
+      const adjustment = hydroNivelAdjustment(dimensions.nivel.score, dimensions.chuva.score);
+      calculationScores.nivel = adjustment.score;
+      dimensions.nivel.score_used = adjustment.score;
+      dimensions.nivel.hydro_adjustment = adjustment.adjustment;
+    }
+    calculation = calculateIav(calculationScores, applicable);
+  }
   const iav = calculation?.iav ?? null;
   const meetsThreshold = (threshold) =>
     calculation !== null && calculation.numerator >= BigInt(threshold) * calculation.denominator;

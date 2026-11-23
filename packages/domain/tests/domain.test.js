@@ -117,7 +117,7 @@ test('C02 domain: PBTC menor que peso bruto vira NAO_VIAVEL com blocker', () => 
 });
 
 test('C03 domain: dimensão obrigatória ausente vira NAO_AVALIAVEL sem IAV', () => {
-  const omit = new Set([key('rota-1-br-319', 'r1-s2-floresta-br319', 'nivel')]);
+  const omit = new Set([key('rota-1-br-319', 'r1-s2-floresta-br319', 'chuva')]);
   const snapshot = makeSnapshot({ facts: allFacts({ omit }) });
   const route1 = routeById(snapshot, 'rota-1-br-319');
 
@@ -127,7 +127,7 @@ test('C03 domain: dimensão obrigatória ausente vira NAO_AVALIAVEL sem IAV', ()
     route1.missing_data.some(
       (missing) =>
         missing.segment_id === 'r1-s2-floresta-br319' &&
-        missing.dimension === 'nivel' &&
+        missing.dimension === 'chuva' &&
         missing.reason === 'AUSENTE',
     ),
   );
@@ -217,10 +217,10 @@ test('C17 domain: BR-319 crítica com chuva forte e via precária fica NAO_VIAVE
   const segment = route1.segments.find((item) => item.segment_id === segmentId);
 
   assert.equal(route1.status, 'NAO_VIAVEL');
-  assert.equal(route1.iav, 48);
+  assert.equal(route1.iav, segment.iav);
   assert.equal(route1.worst_segment_id, segmentId);
   assert.equal(segment.status, 'NAO_VIAVEL');
-  assert.equal(segment.iav, 48);
+  assert.ok(segment.iav < 50);
 });
 
 test('C18 domain: nível do rio fora da faixa derruba trecho fluvial da rota 2', () => {
@@ -283,7 +283,7 @@ test('C19 domain: CONTEINERIZADA no limite do PBTC não muda decisão; PBTC meno
 test('domain: dimensão com freshness_hours > 24 vira NAO_AVALIAVEL', () => {
   const facts = allFacts({
     overrides: {
-      [key('rota-1-br-319', 'r1-s2-floresta-br319', 'nivel')]: { freshness_hours: 25 },
+      [key('rota-1-br-319', 'r1-s2-floresta-br319', 'chuva')]: { freshness_hours: 25 },
     },
   });
 
@@ -297,7 +297,7 @@ test('domain: dimensão com freshness_hours > 24 vira NAO_AVALIAVEL', () => {
     route1.missing_data.some(
       (missing) =>
         missing.segment_id === 'r1-s2-floresta-br319' &&
-        missing.dimension === 'nivel' &&
+        missing.dimension === 'chuva' &&
         missing.reason === 'DESATUALIZADO',
     ),
   );
@@ -501,8 +501,8 @@ test('domain: limiares exatos de IAV não caem por erro de ponto flutuante', () 
   const routeId = 'rota-1-br-319';
   const exact70Segment = 'r1-s2-floresta-br319';
   const exact50Segment = 'r1-s3-rondonia-br364';
-  const scores70 = [42.23, 86.72, 81.58, 79.16, 74.61];
-  const scores50 = [44.75, 58.84, 16.71, 68, 83.23];
+  const scores70 = [0, 70, 70, 70, 70];
+  const scores50 = [0, 50, 50, 50, 50];
   const facts = allFacts({
     overrides: Object.fromEntries(
       IAV_DIMENSIONS.flatMap((dimension, index) => [

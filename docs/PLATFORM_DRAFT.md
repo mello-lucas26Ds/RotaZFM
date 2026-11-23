@@ -31,13 +31,10 @@ Os dados existem, mas estão espalhados: nível do rio, previsão de chuva, trá
 
 O RotaZFM recebe origem, destino e data de embarque e avalia se as rotas candidatas têm condições físicas e regulatórias de operar.
 
-O núcleo é o **IAV — Índice de Antecipação de Viabilidade**, um score determinístico de 0 a 100 calculado por trecho e consolidado pelo pior trecho sobre cinco dimensões:
+O núcleo é o **IAV — Índice de Antecipação de Viabilidade**, um score determinístico de 0 a 100 calculado por trecho e consolidado pelo pior trecho sobre as dimensões aplicáveis ao modo do trecho:
 
-1. Nível do rio — 30%
-2. Previsão de chuva — 25%
-3. Volume de tráfego — 20%
-4. Qualidade da via — 15%
-5. Restrição de peso — 10%
+- Trechos hidroviários/multimodais: nível do rio (30%, com ajuste por chuva forte), previsão de chuva (25%), tráfego (20%), qualidade da via (15%) e restrição de peso (10%).
+- Trechos rodoviários: previsão de chuva, tráfego, qualidade da via e restrição de peso, com peso renormalizado.
 
 Cada resultado mostra:
 
