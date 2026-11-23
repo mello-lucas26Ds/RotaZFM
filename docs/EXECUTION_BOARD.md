@@ -91,6 +91,7 @@ Prompts de tarefa por papel estão em `docs/SUBAGENT_PROMPTS.md`.
 - **Dependências:** Etapas 1–5.
 - **Validação:** lint/test/build verdes; 10 chamadas simultâneas sem erro na meta; fontes falhando não derrubam o sistema.
 - **Critério de aceite:** nenhuma feature Could/Won’t entrou no caminho crítico; limites declarados.
+- **Status 23/11/2026:** runner `npm run scenarios:run` executa a matriz C01–C20; resultado atual 7/20 (C09–C15 passam). Falhas restantes são fixtures/scores/reason codes, bloqueador `confirmed_restriction` e E2E de browser para `EMPTY_STATE`; detalhes em `docs/VALIDATION.md` seção 8.
 
 ## Etapa 7 — Deploy final na Vercel e entrega
 

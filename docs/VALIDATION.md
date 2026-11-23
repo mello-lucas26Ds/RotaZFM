@@ -158,3 +158,11 @@ Data: 23/11/2026. Escopo: chamadas externas mínimas e gratuitas; nenhuma chamad
 | Portarias DNIT/DOU | restrição | Sem chamada nova; evidência documental anterior mantida | Mantém regra conservadora e conflito BR-319 documentado. |
 
 Firecrawl/Alexandria: nenhuma chamada paga nesta etapa. Permanecem discovery/filtro de notícias; não são fonte primária de IAV. Retrospectivo: CAND-RETRO-01 descartado formalmente conforme seção 4; CAND-RETRO-02 permanece descartado. Critério de resultado ruim atendido: nenhum score retrospectivo foi inventado.
+
+## 8. Evidências da Etapa 6 — matriz C01–C20 executável
+
+Data: 23/11/2026. Script: `scripts/run-scenarios.mjs` (`npm run scenarios:run`). O runner executa `tests/e2e/scenarios.json` contra API/MCP/dashboard locais e grava relatório em `test-results/e2e-scenarios.json` (diretório gitignored).
+
+Resultado nesta rodada: **7/20 cenários passaram**. Passaram C09–C15, que cobrem contrato de entrada, data fora da janela, peso inválido, rota inexistente, auth MCP e rate limit. Falharam C01–C08 e C16–C20 porque as fixtures lógicas da matriz ainda não foram materializadas com `score`, frescor e reason codes alinhados ao domínio; C18 também depende de um bloqueador genérico `confirmed_restriction` que a ingestão ainda não emite; C20 exige E2E de browser para provar `EMPTY_STATE`.
+
+Implicação: o runner está pronto e determinístico, mas a matriz numérica só fecha depois que Maria materializar fixtures por cenário e Cris alinhar os reason codes/bloqueadores esperados. Persistência PostgreSQL (`raw_payloads`, `evidences`, `route_condition_facts`, `iav_calculations`, `decision_snapshots`) segue como pendência de decisão antes do deploy.
