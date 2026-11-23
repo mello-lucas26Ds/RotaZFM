@@ -707,3 +707,28 @@ test('domain: IAV publicado não contradiz status em limiar', () => {
   assert.equal(route50.status, 'NAO_VIAVEL');
   assert.ok(route50.iav < 50);
 });
+
+test('domain: fato confirmado sem score não sustenta dimensão', () => {
+  const routeId = 'rota-1-br-319';
+  const segmentId = 'r1-s3-rondonia-br364';
+  const facts = allFacts();
+  const fact = facts.find(
+    (item) =>
+      item.route_id === routeId && item.segment_id === segmentId && item.dimension === 'chuva',
+  );
+  fact.score = null;
+
+  const snapshot = makeSnapshot({ facts });
+  const route1 = routeById(snapshot, routeId);
+
+  assert.equal(route1.status, 'NAO_AVALIAVEL');
+  assert.equal(route1.iav, null);
+  assert.ok(
+    route1.missing_data.some(
+      (missing) =>
+        missing.segment_id === segmentId &&
+        missing.dimension === 'chuva' &&
+        missing.reason === 'SCORE_AUSENTE',
+    ),
+  );
+});
