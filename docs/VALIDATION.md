@@ -72,6 +72,8 @@ Resultado ruim está definido antes da análise e invalida a validação se ocor
 - **Resultado ruim pré-definido:** descartar se não houver fonte oficial cobrindo nível do rio na data/período, se a restrição depender de notícia não confirmada, se chuva/tráfego/PBTC não puderem ser reconstruídos ou marcados como faltantes, ou se o resultado não for reproduzível a partir de `raw_payloads`.
 - **Saída aceitável:** reproduzir `DecisionSnapshot` com fixtures/payloads reais anonimizados ou registrar descarte formal com motivo.
 
+**Resultado da Etapa 5:** CAND-RETRO-01 descartado formalmente. Não há cobertura oficial confirmada para todas as dimensões obrigatórias no mesmo período sem ANA autorizada/Firecrawl pago; tentar reproduzir terminaria em `NAO_AVALIAVEL` por lacuna de fonte, não por teste útil do motor. Detalhes na seção 7.
+
 ### Descartado — CAND-RETRO-02: BR-319 terrestre em 2023
 
 - **Motivo do descarte preventivo:** exige simultaneamente série histórica de tráfego DNIT, previsão/observação de chuva equivalente à janela do MVP, qualidade da via e PBTC por portaria. Sem confirmar as quatro fontes antes de analisar, o caso tem alto risco de terminar em `NAO_AVALIAVEL` por lacuna de fonte, não por teste útil do motor.
@@ -100,7 +102,7 @@ Escopo executado: validação documental e fixtures, sem implementação de IAV/
 
 | Dimensão | Fonte primária | Verificação | Status | Fallback |
 |---|---|---|---|---|
-| Nível do rio | SGB/SAH Amazonas — `https://www.sgb.gov.br/sace/amazonas` | 23/11/2026 | CONFIRMADO | último valor válido com atraso; ANA futura após autorização |
+| Nível do rio | SGB/SAH Amazonas — `https://sace.sgb.gov.br/` | 23/11/2026 | CONFIRMADO | último valor válido com atraso; ANA futura após autorização |
 | Chuva | INMET direto — `https://apiprevmet3.inmet.gov.br/previsao/{geocodigo}` | 23/11/2026 | CONFIRMADO | scraping INMET via Firecrawl somente com custo/limite registrado |
 | Tráfego | DNIT PNCT/dados abertos — `https://servicos.dnit.gov.br/dadosabertos/dataset/contagem-de-trafego` | 23/11/2026 | PARCIAL | tabela estática datada; BR-319/AM sem contagem atual confirmada |
 | Qualidade da via | DNIT ICM — `https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento` + RIMA BR-319 | 23/11/2026 | PARCIAL | valor fixo documentado; SP-330 e trecho fluvial sem fonte terrestre confirmada |
@@ -142,3 +144,17 @@ Validação executada: todos os JSONs foram parseados com `python -m json.tool` 
 - SP-330 é rodovia estadual e pode ficar fora do escopo DNIT; precisa fonte estadual ou fallback documentado.
 - O trecho fluvial não tem dimensão "qualidade da via" terrestre; é necessário decidir se usa proxy de navegabilidade ou trata como N/A no IAV.
 - Na VM do subagent de dados, Node/npm não estavam disponíveis; os JSONs foram validados localmente. Na VM orquestradora, `npm install`, `npm run lint`, `npm run test` e `npm run build` passam sem serviço externo.
+
+## 7. Evidências da Etapa 5 — probe de fontes e retrospectivo
+
+Data: 23/11/2026. Escopo: chamadas externas mínimas e gratuitas; nenhuma chamada paga Firecrawl/Alexandria; payloads não são persistidos, apenas hash/tamanho. Script: `scripts/probe-sources.mjs` (`npm run sources:probe`); resultado: `docs/source-probes/2026-11-23.json`.
+
+| Fonte | Dimensão | Resultado do probe | Decisão |
+|---|---|---|---|
+| INMET previsão Manaus | chuva | HTTP 200, JSON parseável, 236.567 bytes | CONFIRMADO para fixture/fallback; valor numérico ainda depende de normalizador. |
+| SGB/SACE | nível | HTTP 200, HTML 12.132 bytes em `https://sace.sgb.gov.br/` | CONFIRMADO endpoint; série histórica 2023 não validada. |
+| DNIT PNCT contagem | tráfego | `FETCH_ERROR`/timeout a partir da VM | Mantém fixture/fallback; extração PNCT segue pendente. |
+| DNIT ICM pavimento | qualidade | `FETCH_ERROR`/timeout a partir da VM | Mantém fixture/fallback; extração ICM segue pendente. |
+| Portarias DNIT/DOU | restrição | Sem chamada nova; evidência documental anterior mantida | Mantém regra conservadora e conflito BR-319 documentado. |
+
+Firecrawl/Alexandria: nenhuma chamada paga nesta etapa. Permanecem discovery/filtro de notícias; não são fonte primária de IAV. Retrospectivo: CAND-RETRO-01 descartado formalmente conforme seção 4; CAND-RETRO-02 permanece descartado. Critério de resultado ruim atendido: nenhum score retrospectivo foi inventado.

@@ -182,7 +182,7 @@ Esta seção registra a validação documental feita para os trechos críticos d
 
 | Dimensão | Fonte primária validada | URL/página | Verificação | Status | Fallback |
 |---|---|---|---|---|---|
-| Nível do rio | SGB/SAH Amazonas | `https://www.sgb.gov.br/sace/amazonas` e boletim `https://www.sgb.gov.br/w/niveis-do-rio-negro-e-das-grandes-calhas-da-bacia-do-amazonas-mantem-se-estaveis` | 23/11/2026 | CONFIRMADO | último valor válido com atraso; ANA futura após autorização |
+| Nível do rio | SGB/SAH Amazonas | `https://sace.sgb.gov.br/` e boletim `https://www.sgb.gov.br/w/niveis-do-rio-negro-e-das-grandes-calhas-da-bacia-do-amazonas-mantem-se-estaveis` | 23/11/2026 | CONFIRMADO | último valor válido com atraso; ANA futura após autorização |
 | Chuva | INMET direto por geocódigo | `https://apiprevmet3.inmet.gov.br/previsao/{geocodigo}` | 23/11/2026 | CONFIRMADO | scraping INMET via Firecrawl somente com custo/limite registrado |
 | Tráfego | DNIT PNCT/dados abertos | `https://servicos.dnit.gov.br/dadosabertos/dataset/contagem-de-trafego` | 23/11/2026 | PARCIAL | tabela estática datada; trecho BR-319/AM ainda sem contagem confirmada |
 | Qualidade da via | DNIT ICM + RIMA BR-319 | `https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento`; `https://www.gov.br/dnit/pt-br/assuntos/portais-tematicos/br-319-am-ro/audiencias-publicas/br319rima_eleitoral_compressed.pdf` | 23/11/2026 | PARCIAL | valor fixo documentado; SP-330 e trecho fluvial sem fonte terrestre confirmada |
@@ -195,3 +195,9 @@ Esta seção registra a validação documental feita para os trechos críticos d
 - O trecho fluvial Manaus-Belém/Barcarena está documentado e possui: SGB/SAH com estações em Itacoatiara, Parintins, Óbidos, Almeirim e Careiro; leitura específica de Santarém/Breves ficou como lacuna.
 - PBTC na BR-319 exige regra sazonal e conservadora: Portaria 5.455/2022 prevê 17 t nov-mai e 23 t jun-out para km 250,7-679,3, proibição noturna 18h-06h e exceções AET; Portaria 13/2025 prevê proibição acima de 45 t dez-jun para km 1,0-679,3. A consolidação vigente deve ser confirmada antes de tratar como regra única.
 - Firecrawl/Alexandria podem ajudar a filtrar notícias por rota/trecho e descobrir fontes, mas não entram como fonte primária de dimensão do IAV sem normalização e confirmação oficial. Nenhuma chamada paga foi feita nesta etapa; custo registrado: R$0.
+
+## Atualização — probe controlado de 23/11/2026
+
+- O probe em `scripts/probe-sources.mjs` confirmou INMET (`HTTP 200`, JSON parseável) e SGB/SACE (`HTTP 200` em `https://sace.sgb.gov.br/`). A rota antiga `https://www.sgb.gov.br/sace/amazonas` retornou `404` e foi substituída pela URL operacional do SACE.
+- Os dois endpoints DNIT de dados abertos deram timeout a partir da VM; tráfego e qualidade da via seguem com fixture/fallback e extração pendente.
+- Nenhuma chamada paga Firecrawl/Alexandria foi feita; custo da etapa: R$0.

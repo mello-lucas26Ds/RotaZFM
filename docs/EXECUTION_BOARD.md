@@ -81,6 +81,7 @@ Prompts de tarefa por papel estão em `docs/SUBAGENT_PROMPTS.md`.
 - **Dependências:** Etapas 1–4 com fixtures estáveis.
 - **Validação:** cada fonte tem endpoint/página, exemplo, data, status, fallback e termos; chamadas externas mínimas e logadas.
 - **Critério de aceite:** pelo menos três fontes têm fixture/fallback; retrospectivo reproduzível ou descarte formal documentado.
+- **Status 23/11/2026:** probe controlado executado em `docs/source-probes/2026-11-23.json`; INMET e SGB responderam, DNIT deu timeout na VM; CAND-RETRO-01 descartado formalmente; Firecrawl/Alexandria seguem sem chamada paga.
 
 ## Etapa 6 — Integração, hardening e documentação
 
@@ -102,8 +103,8 @@ Prompts de tarefa por papel estão em `docs/SUBAGENT_PROMPTS.md`.
 
 ## Sequência imediata
 
-1. Etapas 0–4 concluídas: decisões congeladas, contratos/domínio/testes, fixtures/ingestão, auditoria de cobertura, API interna, MCP e dashboard integrado ao `DecisionSnapshot`.
-2. Próxima: fontes reais controladas/retrospectivo documental (Etapa 5), com amostras mínimas e fallback documentado.
-3. Depois: integração/hardening (Etapa 6) e deploy final Vercel (Etapa 7), somente com aprovação explícita.
+1. Etapas 0–5 concluídas com limitações registradas: decisões congeladas, contratos/domínio/testes, fixtures/ingestão, auditoria de cobertura, API interna, MCP, dashboard integrado ao `DecisionSnapshot`, probe de fontes e retrospectivo descartado formalmente.
+2. Próxima: integração/hardening (Etapa 6), incluindo extração DNIT pendente, sensibilidade e runbook.
+3. Depois: deploy final Vercel (Etapa 7), somente com aprovação explícita.
 4. Samuelson mantém matriz C01–C20 e decisões de corte; Maria cobre lacunas de fixtures/fontes.
 5. Lucas revisa cada PR e só autoriza deploy na Etapa 7.
