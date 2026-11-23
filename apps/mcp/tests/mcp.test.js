@@ -1,0 +1,128 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createMcpServer } from '../src/server.js';
+
+const API_KEY = 'mcp-test-key';
+
+function tomorrowDateOnly() {
+  const date = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  return date.toISOString().slice(0, 10);
+}
+
+function validArguments(overrides = {}) {
+  return {
+    origem: 'MANAUS',
+    destino: 'SAO_PAULO',
+    data_embarque: tomorrowDateOnly(),
+    carga: { tipo: 'SECA', peso_bruto_total_kg: 10000 },
+    ...overrides,
+  };
+}
+
+async function startServer(options = {}) {
+  const server = createMcpServer({ apiKeys: [API_KEY], ...options });
+  await new Promise((resolve, reject) => {
+    server.once('error', reject);
+    server.listen(0, '127.0.0.1', resolve);
+  });
+  const { port } = server.address();
+  return {
+    baseUrl: `http://127.0.0.1:${port}`,
+    async close() {
+      await new Promise((resolve) => server.close(resolve));
+      server.closeIdleConnections?.();
+    },
+  };
+}
+
+function rpc(baseUrl, method, params, { apiKey = API_KEY, id = 1 } = {}) {
+  return fetch(`${baseUrl}/mcp`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      ...(apiKey ? { authorization: `Bearer ${apiKey}` } : {}),
+    },
+    body: JSON.stringify({ jsonrpc: '2.0', id, method, params }),
+  });
+}
+
+test('mcp: initialize e tools/list expõem consultar_viabilidade', async () => {
+  const server = await startServer();
+  try {
+    const initialized = await rpc(server.baseUrl, 'initialize', {
+      protocolVersion: '2025-06-18',
+      capabilities: {},
+      clientInfo: { name: 'test-client', version: '0.0.0' },
+    });
+    assert.equal(initialized.status, 200);
+    const initBody = await initialized.json();
+    assert.equal(initBody.result.serverInfo.name, 'rotazfm-mcp');
+    assert.ok(initBody.result.capabilities.tools);
+
+    const listed = await rpc(server.baseUrl, 'tools/list', {}, { id: 2 });
+    assert.equal(listed.status, 200);
+    const listBody = await listed.json();
+    assert.equal(listBody.result.tools.length, 1);
+    assert.equal(listBody.result.tools[0].name, 'consultar_viabilidade');
+    assert.equal(listBody.result.tools[0].inputSchema.type, 'object');
+  } finally {
+    await server.close();
+  }
+});
+
+test('mcp: tools/call consultar_viabilidade retorna o mesmo contrato da API', async () => {
+  const server = await startServer();
+  try {
+    const response = await rpc(server.baseUrl, 'tools/call', {
+      name: 'consultar_viabilidade',
+      arguments: validArguments(),
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.result.isError, undefined);
+
+    const snapshot = body.result.structuredContent;
+    assert.equal(typeof snapshot.rule_version, 'string');
+    assert.equal(typeof snapshot.scope_warning, 'string');
+    assert.ok(Array.isArray(snapshot.routes));
+    assert.ok(Array.isArray(snapshot.missing_data));
+    assert.ok(Array.isArray(snapshot.blockers));
+    assert.ok(Array.isArray(snapshot.evidences));
+    assert.ok(Array.isArray(snapshot.related_news));
+
+    const parsedText = JSON.parse(body.result.content[0].text);
+    assert.equal(parsedText.rule_version, snapshot.rule_version);
+  } finally {
+    await server.close();
+  }
+});
+
+test('mcp: query inválida vira erro de ferramenta sem score inventado', async () => {
+  const server = await startServer();
+  try {
+    const response = await rpc(server.baseUrl, 'tools/call', {
+      name: 'consultar_viabilidade',
+      arguments: validArguments({ campo_extra: true }),
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.result.isError, true);
+    const errorBody = JSON.parse(body.result.content[0].text);
+    assert.equal(errorBody.error.code, 'INVALID_QUERY');
+  } finally {
+    await server.close();
+  }
+});
+
+test('mcp: sem chave ou com chave inválida retorna 401', async () => {
+  const server = await startServer();
+  try {
+    const withoutKey = await rpc(server.baseUrl, 'tools/list', {}, { apiKey: null, id: 10 });
+    assert.equal(withoutKey.status, 401);
+
+    const invalidKey = await rpc(server.baseUrl, 'tools/list', {}, { apiKey: 'wrong-key', id: 11 });
+    assert.equal(invalidKey.status, 401);
+  } finally {
+    await server.close();
+  }
+});
