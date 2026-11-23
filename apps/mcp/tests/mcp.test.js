@@ -126,3 +126,54 @@ test('mcp: sem chave ou com chave inválida retorna 401', async () => {
     await server.close();
   }
 });
+
+test('mcp: rate limit retorna 429 após 60 req/min por chave', async () => {
+  const server = await startServer();
+  try {
+    for (let index = 0; index < 60; index += 1) {
+      const response = await rpc(server.baseUrl, 'tools/list', {}, { id: index + 1 });
+      assert.equal(response.status, 200);
+    }
+
+    const limited = await rpc(server.baseUrl, 'tools/list', {}, { id: 100 });
+    assert.equal(limited.status, 429);
+    const body = await limited.json();
+    assert.equal(body.error.code, 'RATE_LIMITED');
+    assert.ok(body.error.retry_after_seconds > 0);
+  } finally {
+    await server.close();
+  }
+});
+
+test('mcp: par origem/destino sem rota vira erro de ferramenta ROUTE_NOT_FOUND', async () => {
+  const server = await startServer();
+  try {
+    const response = await rpc(server.baseUrl, 'tools/call', {
+      name: 'consultar_viabilidade',
+      arguments: validArguments({ destino: 'PORTO_ALEGRE' }),
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.result.isError, true);
+    const errorBody = JSON.parse(body.result.content[0].text);
+    assert.equal(errorBody.error.code, 'ROUTE_NOT_FOUND');
+  } finally {
+    await server.close();
+  }
+});
+
+test('mcp: initialize responde a versão suportada quando o cliente pede outra', async () => {
+  const server = await startServer();
+  try {
+    const response = await rpc(server.baseUrl, 'initialize', {
+      protocolVersion: '1999-01-01',
+      capabilities: {},
+      clientInfo: { name: 'old-client', version: '0.0.0' },
+    });
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.equal(body.result.protocolVersion, '2025-06-18');
+  } finally {
+    await server.close();
+  }
+});

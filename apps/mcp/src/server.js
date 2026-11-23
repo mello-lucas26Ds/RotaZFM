@@ -249,10 +249,7 @@ function handleMessage(message, viability) {
 
   if (message.method === 'initialize') {
     return rpcResult(id, {
-      protocolVersion:
-        isPlainObject(params) && typeof params.protocolVersion === 'string'
-          ? params.protocolVersion
-          : PROTOCOL_VERSION,
+      protocolVersion: PROTOCOL_VERSION,
       capabilities: { tools: { listChanged: false } },
       serverInfo: { name: 'rotazfm-mcp', version: '0.1.0' },
     });
