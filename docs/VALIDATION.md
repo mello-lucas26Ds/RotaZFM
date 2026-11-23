@@ -163,9 +163,14 @@ Firecrawl/Alexandria: nenhuma chamada paga nesta etapa. Permanecem discovery/fil
 
 Data: 23/11/2026. Script: `scripts/run-scenarios.mjs` (`npm run scenarios:run`). O runner executa `tests/e2e/scenarios.json` contra API/MCP/dashboard locais e grava relatório em `test-results/e2e-scenarios.json` (diretório gitignored).
 
-Resultado nesta rodada: **7/20 cenários passaram**. Passaram C09–C15, que cobrem contrato de entrada, data fora da janela, peso inválido, rota inexistente, auth MCP e rate limit. Falharam C01–C08 e C16–C20 porque as fixtures lógicas da matriz ainda não foram materializadas com `score`, frescor e reason codes alinhados ao domínio; C18 também depende de um bloqueador genérico `confirmed_restriction` que a ingestão ainda não emite; C20 exige E2E de browser para provar `EMPTY_STATE`.
+Resultado nesta rodada: **7/20 passaram, 1 pendente (`pending_browser_e2e`), 12 falharam**. Passaram C09–C15, que cobrem contrato de entrada, data fora da janela, peso inválido, rota inexistente, auth MCP e rate limit. C20 é reportado como `pending_browser_e2e`: o runner HTTP continua validando `GET /` e `/app.js`, mas `EMPTY_STATE` exige evidência de browser (E2E/Playwright) que ainda não existe. Falharam C01–C08 e C16–C19 porque as fixtures lógicas da matriz ainda não foram materializadas com `score`, frescor e bloqueadores por cenário (`fixture_fallback_default`).
 
-Implicação: o runner está pronto e determinístico, mas a matriz numérica só fecha depois que Maria materializar fixtures por cenário e Cris alinhar os reason codes/bloqueadores esperados. Persistência PostgreSQL (`raw_payloads`, `evidences`, `route_condition_facts`, `iav_calculations`, `decision_snapshots`) segue como pendência de decisão antes do deploy.
+Alinhamentos desta rodada:
+
+- `expected_missing_data` em `tests/e2e/scenarios.json` passou a usar as dimensões do IAV (`nivel`, `chuva`, `trafego`, `qualidade`, `restricao`) e os reason codes reais do domínio (`AUSENTE`, `CONFLITANTE`, `DESATUALIZADO`, `FRESCOR_AUSENTE`, `SCORE_AUSENTE`, `PBTC_AUSENTE`, `FORA_DE_VIGENCIA` ou `confirmation_status`). Reason codes públicos mais ricos (ex.: `SOURCE_UNAVAILABLE_NO_FALLBACK`) ficam como pendência de contrato, sem mudança no domínio.
+- A ingestão aceita `fixture_kind: "blocker_evidence"` com `items[]` genéricos e emite blockers explícitos no formato do domínio (`route_id`, `segment_id`, `type`, `confirmed`, `description`, `source`, `source_url`, `evidence_id`, `effective_from`, `effective_until`); `CONFIRMED_RESTRICTION` aparece como `confirmed_restriction` no runner. O PBTC atual permanece inalterado.
+
+Implicação: o runner está pronto e determinístico, mas a matriz numérica só fecha depois que Maria materializar fixtures por cenário. Persistência PostgreSQL (`raw_payloads`, `evidences`, `route_condition_facts`, `iav_calculations`, `decision_snapshots`) segue como pendência de decisão antes do deploy.
 
 ## 9. Evidências da Etapa 6 — carga local e runbook
 

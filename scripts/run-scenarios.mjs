@@ -235,8 +235,12 @@ async function runDashboardScenario(scenario, dashboard) {
     failures.push(`dashboard / esperado ${scenario.expected_http_status}, recebido ${index.status}`);
   }
   if (app.status !== 200) failures.push(`dashboard /app.js esperado 200, recebido ${app.status}`);
-  failures.push('EMPTY_STATE exige E2E de browser; runner HTTP só valida assets estáticos');
-  return { status: 'executed', failures, actual: { index: index.status, app: app.status } };
+  const actual = { index: index.status, app: app.status };
+  if (failures.length > 0) return { status: 'executed', failures, actual };
+  if (scenario.expected_status === 'EMPTY_STATE') {
+    return { status: 'pending_browser_e2e', failures: [], actual };
+  }
+  return { status: 'executed', failures, actual };
 }
 
 async function main() {
@@ -298,7 +302,9 @@ async function main() {
         status: result.status,
         failures: result.failures,
       });
-      console.log(`${result.failures.length === 0 ? 'PASS' : 'FAIL'} ${scenario.id} ${scenario.title}`);
+      console.log(
+        `${result.failures.length > 0 ? 'FAIL' : result.status === 'pending_browser_e2e' ? 'PEND' : 'PASS'} ${scenario.id} ${scenario.title}`,
+      );
       for (const failure of result.failures) console.log(`  - ${failure}`);
     }
   } finally {
@@ -306,18 +312,24 @@ async function main() {
   }
 
   const failed = results.filter((result) => result.failures.length > 0);
-  const passed = results.filter((result) => result.failures.length === 0);
+  const pending = results.filter((result) => result.status === 'pending_browser_e2e');
+  const passed = results.filter(
+    (result) => result.failures.length === 0 && result.status !== 'pending_browser_e2e',
+  );
   const report = {
     generated_at: new Date().toISOString(),
     reference_date: REFERENCE_DATE,
     total: results.length,
     passed: passed.length,
+    pending: pending.length,
     failed: failed.length,
     results,
   };
   await mkdir(dirname(REPORT_PATH), { recursive: true });
   await writeFile(REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
-  console.log(`\nE2E scenarios: ${passed.length}/${results.length} passaram; relatório em test-results/e2e-scenarios.json`);
+  console.log(
+    `\nE2E scenarios: ${passed.length}/${results.length} passaram, ${pending.length} pendentes; relatório em test-results/e2e-scenarios.json`,
+  );
   process.exitCode = failed.length > 0 ? 1 : 0;
 }
 

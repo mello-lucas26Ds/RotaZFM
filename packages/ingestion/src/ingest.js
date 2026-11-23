@@ -1,5 +1,6 @@
 import { DEFAULT_CATALOG_PATH, buildSegmentIndex, loadCatalog } from './catalog.js';
 import { DEFAULT_FIXTURE_DIR, loadFixtureFiles } from './fixtures.js';
+import { buildBlockerEvidenceBlockers } from './blockers.js';
 import { normalizeDimensionFixtures, normalizeRelatedNews } from './normalize.js';
 import { buildPbtcBlockers } from './restrictions.js';
 
@@ -58,6 +59,11 @@ export function buildDecisionInput({
 
     if (payload.fixture_kind === 'related_news') {
       relatedNews.push(...normalizeRelatedNews(payload));
+      continue;
+    }
+
+    if (payload.fixture_kind === 'blocker_evidence') {
+      blockers.push(...buildBlockerEvidenceBlockers({ payload, segmentIndex }));
       continue;
     }
 

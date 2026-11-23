@@ -16,7 +16,7 @@ npm run scenarios:run    # matriz C01–C20; relatório em test-results/e2e-scen
 npm run sources:probe    # probe externo opt-in; saída deve ser redirecionada para docs/source-probes/
 ```
 
-Estado em 23/11/2026: lint/test/build passam; `load:local` passou 10/10; `scenarios:run` está em 7/20 com falhas documentadas em `docs/VALIDATION.md` seção 8.
+Estado em 23/11/2026: lint/test/build passam; `load:local` passou 10/10; `scenarios:run` reporta 7 passaram, 1 pendente (`pending_browser_e2e` do C20) e 12 falhas por fixtures de cenário não materializadas, documentadas em `docs/VALIDATION.md` seção 8.
 
 ## Subir serviços locais
 
@@ -65,4 +65,4 @@ Variáveis relevantes:
 - Matriz numérica C01–C20 ainda depende de fixtures por cenário com scores, frescor e reason codes alinhados.
 - DNIT PNCT/ICM deram timeout a partir da VM; fixtures/fallback permanecem.
 - Sensibilidade de pesos ainda não tem runner porque o domínio usa `IAV_WEIGHTS` fixos.
-- C20 (`EMPTY_STATE` do dashboard) exige E2E de browser; o runner HTTP só valida assets estáticos.
+- C20 (`EMPTY_STATE` do dashboard) é reportado como `pending_browser_e2e`: o runner HTTP só valida assets estáticos (`GET /` e `/app.js`); a prova do estado vazio exige E2E de browser, ainda não implementado.

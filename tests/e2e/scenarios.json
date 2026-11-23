@@ -15,7 +15,7 @@
     "expected_iav": "Inteiro 0..100 quando há score numérico esperado; null quando expected_null é true. Valores inteiros são alvos de fixture até os normalizadores serem implementados.",
     "expected_null": "true exige iav=null e ausência de score parcial ou aprovação implícita.",
     "expected_blockers": "Bloqueadores confirmados; notícia sem CONFIRMADO nunca aparece aqui.",
-    "expected_missing_data": "Lacunas auditáveis com dimensão, trecho e motivo.",
+    "expected_missing_data": "Lacunas auditáveis com dimensão, trecho e motivo. dimension usa as dimensões do IAV (nivel, chuva, trafego, qualidade, restricao); reason usa os códigos do domínio (AUSENTE, CONFLITANTE, DESATUALIZADO, FRESCOR_AUSENTE, SCORE_AUSENTE, PBTC_AUSENTE, FORA_DE_VIGENCIA ou um confirmation_status). Reason codes públicos mais ricos são pendência documentada, não alteram o domínio nesta etapa.",
     "expected_route_assessments": "Detalhe por rota quando o cenário depende de mais de uma rota ou de pior trecho."
   },
   "status_values": [
@@ -131,9 +131,9 @@
       "expected_blockers": [],
       "expected_missing_data": [
         {
-          "dimension": "nivel_do_rio",
+          "dimension": "nivel",
           "segment_id": "r2-s1-fluvial-amazonas",
-          "reason": "source_unavailable_no_observation"
+          "reason": "AUSENTE"
         }
       ],
       "expected_route_assessments": {
@@ -175,7 +175,7 @@
         {
           "dimension": "chuva",
           "segment_id": "r1-s2-floresta-br319",
-          "reason": "stale_freshness_gt_24h"
+          "reason": "DESATUALIZADO"
         }
       ],
       "expected_route_assessments": {
@@ -219,7 +219,7 @@
         {
           "dimension": "trafego",
           "segment_id": "r1-s2-floresta-br319",
-          "reason": "official_sources_conflict"
+          "reason": "CONFLITANTE"
         }
       ],
       "expected_evidence_confirmation_status": "CONFLITANTE",
@@ -260,9 +260,9 @@
       "expected_blockers": [],
       "expected_missing_data": [
         {
-          "dimension": "nivel_do_rio",
+          "dimension": "nivel",
           "segment_id": "r2-s1-fluvial-amazonas",
-          "reason": "source_unavailable_no_fallback"
+          "reason": "INDISPONIVEL"
         }
       ],
       "expected_route_assessments": {
