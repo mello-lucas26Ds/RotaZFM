@@ -40,8 +40,19 @@
       "road": "BR-319",
       "uf": "AM/RO",
       "surface": "nao_pavimentada",
-      "km_range": {"start_km": 250.7, "end_km": 656.4, "length_km": 405.7},
-      "municipalities": ["Borba", "Beruri", "Manicoré", "Tapauá", "Canutama", "Humaitá"],
+      "km_range": {
+        "start_km": 250.7,
+        "end_km": 656.4,
+        "length_km": 405.7
+      },
+      "municipalities": [
+        "Borba",
+        "Beruri",
+        "Manicoré",
+        "Tapauá",
+        "Canutama",
+        "Humaitá"
+      ],
       "icm_value": null,
       "icm_classification": null,
       "confirmation_status": "CONFIRMADO",
@@ -55,7 +66,11 @@
       ],
       "method": "documental_snapshot",
       "content_hash": "sha256:175a17b3c646d3706f2a01210cd25fd28e5d1dc70c9300c5722047473a4242b5",
-      "notes": "Fato de superfície não pavimentada confirmado documentalmente; ICM numérico por km ainda não extraído."
+      "notes": "Fato de superfície não pavimentada confirmado documentalmente; ICM numérico por km ainda não extraído.",
+      "source": "DNIT RIMA BR-319 / DNIT ICM",
+      "source_url": "https://www.gov.br/dnit/pt-br/assuntos/portais-tematicos/br-319-am-ro/audiencias-publicas/br319rima_eleitoral_compressed.pdf",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00"
     },
     {
       "id": "road-quality-r1-s2-br319-icm-pending",
@@ -71,10 +86,16 @@
       "effective_until": null,
       "freshness_hours": null,
       "last_valid_at": null,
-      "source_urls": ["https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento"],
+      "source_urls": [
+        "https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento"
+      ],
       "method": "dataset_pending_extraction",
       "content_hash": "sha256:175a17b3c646d3706f2a01210cd25fd28e5d1dc70c9300c5722047473a4242b5",
-      "notes": "CSV de levantamentos não pavimentados existe; valores ICM por km/segmento ainda precisam ser extraídos e validados."
+      "notes": "CSV de levantamentos não pavimentados existe; valores ICM por km/segmento ainda precisam ser extraídos e validados.",
+      "source": "DNIT RIMA BR-319 / DNIT ICM",
+      "source_url": "https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00"
     },
     {
       "id": "road-quality-federal-paved-pending",
@@ -90,10 +111,16 @@
       "effective_until": null,
       "freshness_hours": null,
       "last_valid_at": null,
-      "source_urls": ["https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento"],
+      "source_urls": [
+        "https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento"
+      ],
       "method": "dataset_pending_extraction",
       "content_hash": "sha256:175a17b3c646d3706f2a01210cd25fd28e5d1dc70c9300c5722047473a4242b5",
-      "notes": "Trechos federais pavimentados têm dataset DNIT ICM, mas valores por segmento MVP não foram extraídos nesta etapa."
+      "notes": "Trechos federais pavimentados têm dataset DNIT ICM, mas valores por segmento MVP não foram extraídos nesta etapa.",
+      "source": "DNIT ICM - dataset condições do pavimento",
+      "source_url": "https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00"
     },
     {
       "id": "road-quality-sp330-state-pending",
@@ -112,7 +139,11 @@
       "source_urls": [],
       "method": "source_search_pending",
       "content_hash": "sha256:175a17b3c646d3706f2a01210cd25fd28e5d1dc70c9300c5722047473a4242b5",
-      "notes": "SP-330 é rodovia estadual; fonte DNIT ICM provavelmente não cobre. Precisa DER-SP/ARTESP ou fallback documentado."
+      "notes": "SP-330 é rodovia estadual; fonte DNIT ICM provavelmente não cobre. Precisa DER-SP/ARTESP ou fallback documentado.",
+      "source": "Busca documental Etapa 1 - fonte estadual pendente",
+      "source_url": null,
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00"
     },
     {
       "id": "road-quality-fluvial-n-a",
@@ -131,7 +162,11 @@
       "source_urls": [],
       "method": "not_applicable",
       "content_hash": "sha256:175a17b3c646d3706f2a01210cd25fd28e5d1dc70c9300c5722047473a4242b5",
-      "notes": "Qualidade de via terrestre não se aplica ao trecho fluvial; dimensão deve ser tratada como N/A ou substituída por proxy de navegabilidade somente se especificado."
+      "notes": "Qualidade de via terrestre não se aplica ao trecho fluvial; dimensão deve ser tratada como N/A ou substituída por proxy de navegabilidade somente se especificado.",
+      "source": "Não aplicável - trecho hidroviário",
+      "source_url": null,
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00"
     }
   ],
   "rules_for_implementation": [

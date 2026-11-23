@@ -35,7 +35,9 @@
       "effective_until": "2026-11-26",
       "freshness_hours": 96,
       "last_valid_at": "2026-11-19T17:15:00-04:00",
-      "notes": "Valor citado no 44º Boletim de Alerta Hidrológico; página atualizada em 19/11/2026."
+      "notes": "Valor citado no 44º Boletim de Alerta Hidrológico; página atualizada em 19/11/2026.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://www.sgb.gov.br/sace/amazonas"
     },
     {
       "id": "river-level-r2-s1-itacoatiara-2026-11",
@@ -55,7 +57,9 @@
       "effective_until": "2026-11-26",
       "freshness_hours": 96,
       "last_valid_at": "2026-11-19T17:15:00-04:00",
-      "notes": "Estações do trecho fluvial Manaus-Belém confirmadas em fonte oficial SGB/SACE."
+      "notes": "Estações do trecho fluvial Manaus-Belém confirmadas em fonte oficial SGB/SACE.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://www.sgb.gov.br/sace/amazonas"
     },
     {
       "id": "river-level-r2-s1-parintins-2026-11",
@@ -75,7 +79,9 @@
       "effective_until": "2026-11-26",
       "freshness_hours": 96,
       "last_valid_at": "2026-11-19T17:15:00-04:00",
-      "notes": "Nível negativo é esperado para a referência da estação; não interpretar como erro sem a curva de referência."
+      "notes": "Nível negativo é esperado para a referência da estação; não interpretar como erro sem a curva de referência.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://www.sgb.gov.br/sace/amazonas"
     },
     {
       "id": "river-level-r2-s1-obidos-2026-11",
@@ -95,7 +101,9 @@
       "effective_until": "2026-11-26",
       "freshness_hours": 96,
       "last_valid_at": "2026-11-19T17:15:00-04:00",
-      "notes": "Estação localizada no corredor fluvial do MVP."
+      "notes": "Estação localizada no corredor fluvial do MVP.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://www.sgb.gov.br/sace/amazonas"
     },
     {
       "id": "river-level-r2-s1-almeirim-2026-11",
@@ -115,7 +123,9 @@
       "effective_until": "2026-11-26",
       "freshness_hours": 96,
       "last_valid_at": "2026-11-19T17:15:00-04:00",
-      "notes": "Estação localizada no corredor fluvial do MVP."
+      "notes": "Estação localizada no corredor fluvial do MVP.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://www.sgb.gov.br/sace/amazonas"
     }
   ],
   "coverage_gaps": [
@@ -123,19 +133,25 @@
       "station": "Santarém",
       "segment_id": "r2-s1-fluvial-amazonas",
       "confirmation_status": "INDISPONIVEL",
-      "notes": "Trecho catalogado passa por Santarém, mas leitura específica não foi confirmada no boletim/documento validado nesta etapa."
+      "notes": "Trecho catalogado passa por Santarém, mas leitura específica não foi confirmada no boletim/documento validado nesta etapa.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://www.sgb.gov.br/sace/amazonas"
     },
     {
       "station": "Breves",
       "segment_id": "r2-s1-fluvial-amazonas",
       "confirmation_status": "INDISPONIVEL",
-      "notes": "Trecho catalogado passa por Breves; estação/valor não confirmado nesta etapa."
+      "notes": "Trecho catalogado passa por Breves; estação/valor não confirmado nesta etapa.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://www.sgb.gov.br/sace/amazonas"
     },
     {
       "station": "Manaus (tráfego fluvial de embarque)",
       "segment_id": "r2-s1-fluvial-amazonas",
       "confirmation_status": "NAO_CONFIRMADO",
-      "notes": "Manaus/Rio Negro tem acompanhamento SGB, mas a operacionalidade da balsa Manaus-Belém depende também de calado, terminais e avisos da capitania."
+      "notes": "Manaus/Rio Negro tem acompanhamento SGB, mas a operacionalidade da balsa Manaus-Belém depende também de calado, terminais e avisos da capitania.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://www.sgb.gov.br/sace/amazonas"
     }
   ],
   "scenarios": {
@@ -147,7 +163,10 @@
     "low_water_mock": {
       "description": "Fixture mock para teste de sensibilidade: simula nível muito baixo em Óbidos/Santarém sem afirmar ocorrência real.",
       "mock": true,
-      "mock_values_m": {"obidos": 0.20, "santarem": 0.80},
+      "mock_values_m": {
+        "obidos": 0.2,
+        "santarem": 0.8
+      },
       "confirmation_status": "NAO_CONFIRMADO"
     }
   },

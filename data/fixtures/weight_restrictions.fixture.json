@@ -44,7 +44,10 @@
       "segment_id": "r1-s2-floresta-br319",
       "road": "BR-319",
       "uf": "AM",
-      "km_range": {"start_km": 250.7, "end_km": 679.3},
+      "km_range": {
+        "start_km": 250.7,
+        "end_km": 679.3
+      },
       "restriction_type": "PBTC_seasonal_and_night",
       "legal_instrument": "Portaria DNIT nº 5.455/2022",
       "published_at": "2022-09-24T00:00:00-03:00",
@@ -62,8 +65,12 @@
         "night_prohibited": "18h-06h",
         "aet_exception": "Art. 4º prevê exceções mediante autorização/AET quando aplicável"
       },
-      "source_urls": ["https://www.gov.br/dnit/pt-br/central-de-conteudos/atos-normativos/tipo/portarias/portaria-no-5-455-2022"],
-      "notes": "Regra sazonal confirmada na página oficial DNIT. Em 23/11/2026, aplica-se o limite de 17 t para PBTC acima do permitido no intervalo km 250,7-679,3."
+      "source_urls": [
+        "https://www.gov.br/dnit/pt-br/central-de-conteudos/atos-normativos/tipo/portarias/portaria-no-5-455-2022"
+      ],
+      "notes": "Regra sazonal confirmada na página oficial DNIT. Em 23/11/2026, aplica-se o limite de 17 t para PBTC acima do permitido no intervalo km 250,7-679,3.",
+      "source": "DNIT - Portaria nº 5.455/2022",
+      "source_url": "https://www.gov.br/dnit/pt-br/central-de-conteudos/atos-normativos/tipo/portarias/portaria-no-5-455-2022"
     },
     {
       "id": "w-restr-br319-am-portaria-13-2025",
@@ -71,7 +78,10 @@
       "segment_id": "r1-s2-floresta-br319",
       "road": "BR-319",
       "uf": "AM",
-      "km_range": {"start_km": 1.0, "end_km": 679.3},
+      "km_range": {
+        "start_km": 1.0,
+        "end_km": 679.3
+      },
       "restriction_type": "PBTC_dec_jun",
       "legal_instrument": "Portaria DNIT nº 13/2025",
       "published_at": "2025-01-08T00:00:00-03:00",
@@ -86,13 +96,18 @@
       "rules": {
         "pbtc_max_t_dec_jun": 45.0,
         "applies_when_pbtc_above": 45.0,
-        "revokes": ["Portaria 4.251/2024", "Portaria 6.854/2023"]
+        "revokes": [
+          "Portaria 4.251/2024",
+          "Portaria 6.854/2023"
+        ]
       },
       "source_urls": [
         "https://www.in.gov.br/web/dou/-/portaria-n-13-de-2-de-janeiro-de-2025-605860792",
         "https://www.gov.br/dnit/pt-br/assuntos/portais-tematicos/br-319-am-ro/noticias/br-319-restricoes-ao-trafego-de-veiculos-pesados-durante-o-periodo-chuvoso"
       ],
-      "notes": "DOU confirma proibição de PBTC acima de 45 t de dezembro a junho, do início da travessia da Amazônia em Careiro km 1,0 até BR-230/Humaitá km 679,3."
+      "notes": "DOU confirma proibição de PBTC acima de 45 t de dezembro a junho, do início da travessia da Amazônia em Careiro km 1,0 até BR-230/Humaitá km 679,3.",
+      "source": "DOU - Portaria nº 13/2025",
+      "source_url": "https://www.in.gov.br/web/dou/-/portaria-n-13-de-2-de-janeiro-de-2025-605860792"
     },
     {
       "id": "w-restr-dnit-aet-2026-10",
@@ -114,9 +129,24 @@
       "last_valid_at": "2026-10-05T15:22:00-03:00",
       "rules": {
         "examples": [
-          {"road":"BR-010","uf":"PA","km":"313,1-321,7","weight_comp_t":45.0},
-          {"road":"BR-153","uf":"TO","km":"91,6-108,2","weight_comp_t":45.0},
-          {"road":"BR-050","uf":"MG","km":"0,0-206,8","note":"múltiplas restrições de altura/largura/peso"}
+          {
+            "road": "BR-010",
+            "uf": "PA",
+            "km": "313,1-321,7",
+            "weight_comp_t": 45.0
+          },
+          {
+            "road": "BR-153",
+            "uf": "TO",
+            "km": "91,6-108,2",
+            "weight_comp_t": 45.0
+          },
+          {
+            "road": "BR-050",
+            "uf": "MG",
+            "km": "0,0-206,8",
+            "note": "múltiplas restrições de altura/largura/peso"
+          }
         ],
         "applies_to": "veículos com dimensões/pesos excedentes portando AET"
       },
@@ -126,7 +156,9 @@
         "https://www.gov.br/dnit/pt-br/assuntos/infraestrutura-rodoviaria/aet/restricoes/restricao-temporaria/10-2026/to.pdf",
         "https://www.gov.br/dnit/pt-br/assuntos/infraestrutura-rodoviaria/aet/restricoes/restricao-temporaria/10-2026/mg.pdf"
       ],
-      "notes": "As tabelas AET são para veículos excedentes com autorização; não equivalem automaticamente a PBTC máximo para carga fracionada. Cruzar com portarias específicas por trecho antes de bloquear IAV."
+      "notes": "As tabelas AET são para veículos excedentes com autorização; não equivalem automaticamente a PBTC máximo para carga fracionada. Cruzar com portarias específicas por trecho antes de bloquear IAV.",
+      "source": "DNIT - restrições AET",
+      "source_url": "https://www.gov.br/dnit/pt-br/assuntos/infraestrutura-rodoviaria/aet/restricoes"
     }
   ],
   "overlaps_and_conflicts": [
@@ -139,17 +171,83 @@
     }
   ],
   "coverage_gaps": [
-    {"segment_id":"r1-s3-rondonia-br364","road":"BR-364","uf":"RO","status":"NÃO_ENCONTRADO","fallback":"tabela_estatica_nao_verificada"},
-    {"segment_id":"r1-s4-mato-grosso-br364","road":"BR-364","uf":"MT","status":"NÃO_ENCONTRADO","fallback":"tabela_estatica_nao_verificada"},
-    {"segment_id":"r1-s5-goias-br364","road":"BR-364","uf":"GO","status":"NÃO_ENCONTRADO","fallback":"tabela_estatica_nao_verificada"},
-    {"segment_id":"r1-s6-minas-br365-br050","road":"BR-365/BR-050","uf":"MG","status":"PARCIAL","fallback":"cruzar AET 10/2026 MG/GO com portarias específicas"},
-    {"segment_id":"r1-s7-sao-paulo-sp330","road":"SP-330","uf":"SP","status":"NÃO_ENCONTRADO","fallback":"fonte estadual ou tabela não verificada"},
-    {"segment_id":"r2-s2-para-br316-br010","road":"BR-316/BR-010","uf":"PA","status":"PARCIAL","fallback":"cruzar AET 10/2026 PA com restrições específicas"},
-    {"segment_id":"r2-s3-maranhao-br010","road":"BR-010","uf":"MA","status":"PARCIAL","fallback":"cruzar AET por UF e portarias específicas"},
-    {"segment_id":"r2-s4-tocantins-br153","road":"BR-153","uf":"TO","status":"PARCIAL","fallback":"cruzar AET 10/2026 TO com portarias específicas"},
-    {"segment_id":"r2-s5-goias-br153","road":"BR-153","uf":"GO","status":"NÃO_ENCONTRADO","fallback":"tabela estática não verificada"},
-    {"segment_id":"r2-s6-minas-br153-br050","road":"BR-153/BR-050","uf":"MG","status":"PARCIAL","fallback":"cruzar AET 10/2026 MG/GO com portarias específicas"},
-    {"segment_id":"r2-s7-sao-paulo-sp330","road":"SP-330","uf":"SP","status":"NÃO_ENCONTRADO","fallback":"fonte estadual ou tabela não verificada"}
+    {
+      "segment_id": "r1-s3-rondonia-br364",
+      "road": "BR-364",
+      "uf": "RO",
+      "status": "NÃO_ENCONTRADO",
+      "fallback": "tabela_estatica_nao_verificada"
+    },
+    {
+      "segment_id": "r1-s4-mato-grosso-br364",
+      "road": "BR-364",
+      "uf": "MT",
+      "status": "NÃO_ENCONTRADO",
+      "fallback": "tabela_estatica_nao_verificada"
+    },
+    {
+      "segment_id": "r1-s5-goias-br364",
+      "road": "BR-364",
+      "uf": "GO",
+      "status": "NÃO_ENCONTRADO",
+      "fallback": "tabela_estatica_nao_verificada"
+    },
+    {
+      "segment_id": "r1-s6-minas-br365-br050",
+      "road": "BR-365/BR-050",
+      "uf": "MG",
+      "status": "PARCIAL",
+      "fallback": "cruzar AET 10/2026 MG/GO com portarias específicas"
+    },
+    {
+      "segment_id": "r1-s7-sao-paulo-sp330",
+      "road": "SP-330",
+      "uf": "SP",
+      "status": "NÃO_ENCONTRADO",
+      "fallback": "fonte estadual ou tabela não verificada"
+    },
+    {
+      "segment_id": "r2-s2-para-br316-br010",
+      "road": "BR-316/BR-010",
+      "uf": "PA",
+      "status": "PARCIAL",
+      "fallback": "cruzar AET 10/2026 PA com restrições específicas"
+    },
+    {
+      "segment_id": "r2-s3-maranhao-br010",
+      "road": "BR-010",
+      "uf": "MA",
+      "status": "PARCIAL",
+      "fallback": "cruzar AET por UF e portarias específicas"
+    },
+    {
+      "segment_id": "r2-s4-tocantins-br153",
+      "road": "BR-153",
+      "uf": "TO",
+      "status": "PARCIAL",
+      "fallback": "cruzar AET 10/2026 TO com portarias específicas"
+    },
+    {
+      "segment_id": "r2-s5-goias-br153",
+      "road": "BR-153",
+      "uf": "GO",
+      "status": "NÃO_ENCONTRADO",
+      "fallback": "tabela estática não verificada"
+    },
+    {
+      "segment_id": "r2-s6-minas-br153-br050",
+      "road": "BR-153/BR-050",
+      "uf": "MG",
+      "status": "PARCIAL",
+      "fallback": "cruzar AET 10/2026 MG/GO com portarias específicas"
+    },
+    {
+      "segment_id": "r2-s7-sao-paulo-sp330",
+      "road": "SP-330",
+      "uf": "SP",
+      "status": "NÃO_ENCONTRADO",
+      "fallback": "fonte estadual ou tabela não verificada"
+    }
   ],
   "rules_for_implementation": [
     "Nunca assumir PBTC liberado quando a portaria vigente não foi confirmada.",

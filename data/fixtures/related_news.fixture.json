@@ -17,13 +17,18 @@
       "updated_at": "2026-11-19T17:15:00-04:00",
       "route_id": "rota-2-fluvial-brasilia",
       "segment_id": "r2-s1-fluvial-amazonas",
-      "matched_segments": ["r2-s1-fluvial-amazonas"],
+      "matched_segments": [
+        "r2-s1-fluvial-amazonas"
+      ],
       "relevance": "Níveis do Amazonas em Itacoatiara, Parintins, Óbidos e Almeirim; vazante e chuvas abaixo do esperado.",
       "confirmation_status": "CONFIRMADO",
       "evidence_role": "contextual_official",
       "blocker": false,
       "freshness_hours": 96,
-      "last_valid_at": "2026-11-19T17:15:00-04:00"
+      "last_valid_at": "2026-11-19T17:15:00-04:00",
+      "source": "SGB",
+      "source_url": "https://www.sgb.gov.br/w/niveis-do-rio-negro-e-das-grandes-calhas-da-bacia-do-amazonas-mantem-se-estaveis",
+      "collected_at": "2026-11-23T00:00:00-04:00"
     },
     {
       "id": "news-dnit-br319-pavement-lote-c-2026-10",
@@ -34,13 +39,18 @@
       "updated_at": null,
       "route_id": "rota-1-br-319",
       "segment_id": "r1-s2-floresta-br319",
-      "matched_segments": ["r1-s2-floresta-br319"],
+      "matched_segments": [
+        "r1-s2-floresta-br319"
+      ],
       "relevance": "Pavimentação em Lote C km 198,2-218,2; mostra obras ativas, mas não elimina o trecho não pavimentado documentado.",
       "confirmation_status": "CONFIRMADO",
       "evidence_role": "contextual_official",
       "blocker": false,
       "freshness_hours": 720,
-      "last_valid_at": "2026-10-29T00:00:00-03:00"
+      "last_valid_at": "2026-10-29T00:00:00-03:00",
+      "source": "DNIT",
+      "source_url": "https://www.gov.br/dnit/pt-br/assuntos/noticias/dnit-no-trecho-equipes-acompanham-obras-de-pavimentacao-na-br-319-no-amazonas",
+      "collected_at": "2026-11-23T00:00:00-04:00"
     },
     {
       "id": "news-dnit-igarape-realidade-closed-2026-11",
@@ -51,14 +61,19 @@
       "updated_at": null,
       "route_id": "rota-1-br-319",
       "segment_id": "r1-s2-floresta-br319",
-      "matched_segments": ["r1-s2-floresta-br319"],
+      "matched_segments": [
+        "r1-s2-floresta-br319"
+      ],
       "relevance": "Bloqueio temporário na ponte sobre Igarapé Realidade, Humaitá; DNIT depois informou liberação total do tráfego no km 588.",
       "confirmation_status": "NAO_CONFIRMADO",
       "evidence_role": "contextual_news",
       "blocker": false,
       "follow_up_url": "https://www.gov.br/dnit/pt-br/central-de-conteudos/noticias-alerta-de-servicos/dnit-alerta-para-liberacao-total-do-trafego-na-ponte-sobre-o-igarape-realidade-na-br-319-am",
       "freshness_hours": 24,
-      "last_valid_at": "2026-11-06T11:21:00-03:00"
+      "last_valid_at": "2026-11-06T11:21:00-03:00",
+      "source": "18 Horas",
+      "source_url": "https://18horas.com.br/amazonas/moradores-fecham-trecho-da-br-319-em-protesto-por-falta-de-energia-eletrica-no-amazonas/",
+      "collected_at": "2026-11-23T00:00:00-04:00"
     },
     {
       "id": "news-bnc-balsa-manaus-belem-2026-11",
@@ -69,13 +84,18 @@
       "updated_at": "2026-11-02T20:03:52-04:00",
       "route_id": "rota-2-fluvial-brasilia",
       "segment_id": "r2-s1-fluvial-amazonas",
-      "matched_segments": ["r2-s1-fluvial-amazonas"],
+      "matched_segments": [
+        "r2-s1-fluvial-amazonas"
+      ],
       "relevance": "Naufrágio parcial de comboio próximo a Santarém; relevante para risco operacional fluvial, mas sem confirmação oficial completa de cargas/causa.",
       "confirmation_status": "NAO_CONFIRMADO",
       "evidence_role": "contextual_news",
       "blocker": false,
       "freshness_hours": 48,
-      "last_valid_at": "2026-11-02T20:03:52-04:00"
+      "last_valid_at": "2026-11-02T20:03:52-04:00",
+      "source": "BNC Amazonas",
+      "source_url": "https://www.bncamazonas.com.br/municipios/balsa-naufraga-no-rio-amazonas-com-motos-e-eletronicos-na-rota-manaus-belem/",
+      "collected_at": "2026-11-23T00:00:00-04:00"
     },
     {
       "id": "news-g1-itacoatiara-drought-piers-2026-11",
@@ -86,13 +106,18 @@
       "updated_at": null,
       "route_id": "rota-2-fluvial-brasilia",
       "segment_id": "r2-s1-fluvial-amazonas",
-      "matched_segments": ["r2-s1-fluvial-amazonas"],
+      "matched_segments": [
+        "r2-s1-fluvial-amazonas"
+      ],
       "relevance": "Contexto de vazante/seca no eixo fluvial e movimento de contêineres em Itacoatiara.",
       "confirmation_status": "NAO_CONFIRMADO",
       "evidence_role": "contextual_news",
       "blocker": false,
       "freshness_hours": 72,
-      "last_valid_at": "2026-11-06T01:49:54-03:00"
+      "last_valid_at": "2026-11-06T01:49:54-03:00",
+      "source": "G1 Amazonas",
+      "source_url": "https://g1.globo.com/am/amazonas/noticia/2026/11/05/pieres-em-itacoatiara-movimentam-milhares-de-conteineres-durante-a-seca-no-amazonas.ghtml",
+      "collected_at": "2026-11-23T00:00:00-04:00"
     },
     {
       "id": "news-dnit-br010-316-interdicao-2022",
@@ -103,13 +128,18 @@
       "updated_at": null,
       "route_id": "rota-2-fluvial-brasilia",
       "segment_id": "r2-s2-para-br316-br010",
-      "matched_segments": ["r2-s2-para-br316-br010"],
+      "matched_segments": [
+        "r2-s2-para-br316-br010"
+      ],
       "relevance": "Exemplo histórico de interdição na BR-010/316/PA; deve ser tratado como expirado/não vigente sem confirmação atual.",
       "confirmation_status": "EXPIRADO",
       "evidence_role": "contextual_news",
       "blocker": false,
       "freshness_hours": 0,
-      "last_valid_at": null
+      "last_valid_at": null,
+      "source": "DNIT",
+      "source_url": "https://www.gov.br/dnit/pt-br/central-de-conteudos/noticias-alerta-de-servicos/dnit-alerta-para-interdicao-total-da-br-010-316-pa-no-km-165-e-km-168",
+      "collected_at": "2026-11-23T00:00:00-04:00"
     }
   ],
   "firecrawl_alexandria_evaluation": {
