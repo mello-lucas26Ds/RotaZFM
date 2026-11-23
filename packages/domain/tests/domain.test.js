@@ -520,3 +520,45 @@ test('domain: score abaixo do limiar não sobe por arredondamento', () => {
   assert.equal(route50.status, 'NAO_VIAVEL');
   assert.ok(route50.iav < 50);
 });
+
+test('domain: IAV publicado não contradiz status em limiar', () => {
+  const routeId = 'rota-1-br-319';
+  const below70Segment = 'r1-s2-floresta-br319';
+  const below50Segment = 'r1-s3-rondonia-br364';
+  const scores70 = [70, 70, 70, 70, 69.999999999999];
+  const scores50 = [50, 50, 50, 50, 49.999999999999];
+
+  const snapshot70 = makeSnapshot({
+    facts: allFacts({
+      overrides: Object.fromEntries(
+        IAV_DIMENSIONS.map((dimension, index) => [
+          key(routeId, below70Segment, dimension),
+          { score: scores70[index] },
+        ]),
+      ),
+    }),
+  });
+  const route70 = routeById(snapshot70, routeId);
+  const segment70 = route70.segments.find((item) => item.segment_id === below70Segment);
+  assert.equal(segment70.status, 'VIAVEL_COM_RESSALVAS');
+  assert.ok(segment70.iav < 70);
+  assert.equal(route70.status, 'VIAVEL_COM_RESSALVAS');
+  assert.ok(route70.iav < 70);
+
+  const snapshot50 = makeSnapshot({
+    facts: allFacts({
+      overrides: Object.fromEntries(
+        IAV_DIMENSIONS.map((dimension, index) => [
+          key(routeId, below50Segment, dimension),
+          { score: scores50[index] },
+        ]),
+      ),
+    }),
+  });
+  const route50 = routeById(snapshot50, routeId);
+  const segment50 = route50.segments.find((item) => item.segment_id === below50Segment);
+  assert.equal(segment50.status, 'NAO_VIAVEL');
+  assert.ok(segment50.iav < 50);
+  assert.equal(route50.status, 'NAO_VIAVEL');
+  assert.ok(route50.iav < 50);
+});

@@ -416,11 +416,8 @@ function scoreDecimalParts(value) {
 }
 
 function rationalToNumber(numerator, denominator) {
-  const scaled = numerator * IAV_OUTPUT_SCALE;
-  const quotient = scaled / denominator;
-  const remainder = scaled % denominator;
-  const rounded = remainder * 2n >= denominator ? quotient + 1n : quotient;
-  return Number(rounded) / IAV_OUTPUT_SCALE_NUMBER;
+  // floor evita publicar um IAV arredondado para cima que contradiga o status exato
+  return Number((numerator * IAV_OUTPUT_SCALE) / denominator) / IAV_OUTPUT_SCALE_NUMBER;
 }
 
 function calculateIav(dimensions) {
