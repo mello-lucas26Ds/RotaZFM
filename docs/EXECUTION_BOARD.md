@@ -102,8 +102,8 @@ Prompts de tarefa por papel estão em `docs/SUBAGENT_PROMPTS.md`.
 
 ## Sequência imediata
 
-1. Lucas aprova este quadro e os prompts em `docs/SUBAGENT_PROMPTS.md`.
-2. Cris inicia Etapa 1 com contratos/domínio/fixtures.
-3. Maria inicia validação documental de rotas/fontes em paralelo, sem chamar APIs pagas sem fixture.
-4. Samuelson mantém matriz de cenários e decisões de corte.
+1. Etapas 0–2 concluídas: decisões congeladas, contratos/domínio/testes, fixtures/ingestão e auditoria de cobertura integrados.
+2. Cris executa Etapa 3 (API/MCP) em PR próprio contra a branch de integração.
+3. Depois da revisão da Etapa 3: dashboard (Etapa 4) e fontes reais controladas/retrospectivo documental (Etapa 5).
+4. Samuelson mantém matriz C01–C20 e decisões de corte; Maria cobre lacunas de fixtures/fontes.
 5. Lucas revisa cada PR e só autoriza deploy na Etapa 7.
