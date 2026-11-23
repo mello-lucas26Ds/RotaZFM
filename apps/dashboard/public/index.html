@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RotaZFM — Viabilidade de rotas</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <h1>RotaZFM</h1>
+        <p class="subtitulo">Viabilidade de rotas do Polo Industrial de Manaus</p>
+      </header>
+
+      <form id="viabilidade-form" class="formulario" novalidate>
+        <div class="grid">
+          <div class="campo">
+            <label for="origem">Origem</label>
+            <input id="origem" name="origem" type="text" required autocomplete="off" placeholder="MANAUS" />
+          </div>
+          <div class="campo">
+            <label for="destino">Destino</label>
+            <input id="destino" name="destino" type="text" required autocomplete="off" placeholder="SAO_PAULO" />
+          </div>
+          <div class="campo">
+            <label for="data_embarque">Data de embarque</label>
+            <input id="data_embarque" name="data_embarque" type="date" required />
+          </div>
+          <div class="campo">
+            <label for="tipo">Tipo de carga</label>
+            <select id="tipo" name="tipo" required>
+              <option value="SECA">SECA</option>
+              <option value="CONTEINERIZADA">CONTEINERIZADA</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="peso_bruto_total_kg">Peso bruto total (kg)</label>
+            <input id="peso_bruto_total_kg" name="peso_bruto_total_kg" type="number" min="1" max="60000" step="1" required />
+          </div>
+          <div class="campo">
+            <label for="quantidade_caminhoes">Quantidade de caminhões (opcional)</label>
+            <input id="quantidade_caminhoes" name="quantidade_caminhoes" type="number" min="1" step="1" />
+          </div>
+          <div class="campo campo-chave">
+            <label for="api-key">API key (Bearer)</label>
+            <input id="api-key" name="api-key" type="password" autocomplete="off" placeholder="Digite a chave da API" />
+            <small>Fica só na memória desta aba (sessionStorage); nunca é enviada a terceiros.</small>
+          </div>
+        </div>
+        <button id="consultar" type="submit">Consultar viabilidade</button>
+      </form>
+
+      <section id="resultado" aria-live="polite" aria-atomic="false">
+        <p class="vazio">Nenhuma consulta realizada. Preencha o formulário e clique em “Consultar viabilidade”.</p>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

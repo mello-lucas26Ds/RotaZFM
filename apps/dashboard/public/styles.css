@@ -1,0 +1,221 @@
+:root {
+  color-scheme: light;
+  --texto: #17202a;
+  --muted: #4b5563;
+  --borda: #d1d5db;
+  --fundo: #f8fafc;
+  --card: #ffffff;
+  --foco: #1d4ed8;
+  --ok: #166534;
+  --alerta: #92400e;
+  --erro: #991b1b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--texto);
+  background: var(--fundo);
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.subtitulo {
+  margin: 0.25rem 0 1.5rem;
+  color: var(--muted);
+}
+
+.formulario {
+  background: var(--card);
+  border: 1px solid var(--borda);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.campo-chave {
+  grid-column: 1 / -1;
+}
+
+label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+input,
+select,
+button {
+  font: inherit;
+  color: var(--texto);
+}
+
+input,
+select {
+  border: 1px solid var(--borda);
+  border-radius: 0.5rem;
+  padding: 0.55rem 0.65rem;
+  background: #fff;
+}
+
+input:focus-visible,
+select:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--foco);
+  outline-offset: 2px;
+}
+
+small {
+  color: var(--muted);
+}
+
+button {
+  margin-top: 1rem;
+  border: 0;
+  border-radius: 0.5rem;
+  padding: 0.65rem 1rem;
+  background: var(--foco);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+#resultado {
+  display: grid;
+  gap: 1rem;
+}
+
+.vazio,
+.erro,
+.carregando {
+  background: var(--card);
+  border: 1px solid var(--borda);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.erro {
+  border-color: var(--erro);
+  color: var(--erro);
+}
+
+.carregando {
+  color: var(--muted);
+}
+
+.meta-snapshot,
+.rota,
+.bloco {
+  background: var(--card);
+  border: 1px solid var(--borda);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.meta-snapshot p {
+  margin: 0.25rem 0;
+}
+
+.scope {
+  color: var(--alerta);
+  font-weight: 600;
+}
+
+.rota h3,
+.bloco h3 {
+  margin-top: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge {
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid var(--borda);
+  color: var(--muted);
+  background: #f1f5f9;
+}
+
+.badge.VIAVEL {
+  color: var(--ok);
+  border-color: var(--ok);
+}
+
+.badge.NAO_VIAVEL,
+.badge.NAO_AVALIAVEL {
+  color: var(--erro);
+  border-color: var(--erro);
+}
+
+.badge.VIAVEL_COM_RESSALVAS {
+  color: var(--alerta);
+  border-color: var(--alerta);
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.trechos {
+  padding-left: 1.25rem;
+}
+
+.trechos li {
+  margin-bottom: 0.75rem;
+}
+
+ul {
+  padding-left: 1.25rem;
+}
+
+li {
+  margin-bottom: 0.5rem;
+}
+
+a {
+  color: var(--foco);
+}
+
+code {
+  background: #f1f5f9;
+  border-radius: 0.25rem;
+  padding: 0.1rem 0.3rem;
+  font-size: 0.85em;
+  word-break: break-all;
+}
