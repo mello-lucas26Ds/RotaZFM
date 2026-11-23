@@ -1,55 +1,50 @@
 # Estrutura do repositório — RotaZFM
 
-Status: estrutura inicial  
-Data: 09/11/2026
+Status: estrutura vigente  
+Data: 23/11/2026
 
 ## Princípio
 
-O repositório começa como monorepo simples em Node.js/TypeScript. A divisão por apps e packages evita microserviços prematuros, mas separa claramente frontend, API, MCP e regras de negócio.
+O repositório é um monorepo simples em Node.js/TypeScript. A divisão por apps e packages evita microserviços prematuros, mas separa claramente frontend, API, MCP e regras de negócio.
 
-## Árvore inicial
+## Árvore vigente
 
 ```text
 RotaZFM/
   apps/
     api/                  # API interna e ingestão/orquestração
-      src/
-        presentation/     # rotas HTTP, controllers, DTOs
-        application/      # casos de uso e orquestração
-        infrastructure/   # banco, HTTP clients, workers
-      tests/
     mcp/                  # servidor MCP para agentes de IA
-      src/
-      tests/
     dashboard/            # dashboard web do gestor
-      src/
-      tests/
   packages/
     contracts/            # tipos/schemas compartilhados do contrato IAV
-    domain/               # regras puras: IAV, guardrails, fórmulas
-    ingestion/            # coletores e normalizadores de fontes públicas
+    domain/               # regras puras: IAV por trecho, bloqueadores, NAO_AVALIAVEL
+    ingestion/            # coletores, normalizadores e filtro de notícias
   data/
+    routes/               # catálogo versionado das rotas/trechos do MVP
     fixtures/             # payloads e respostas mockadas para testes/dev
   scripts/                # comandos operacionais: iav, collect, seed, smoke
   tests/
-    e2e/                  # testes ponta a ponta do dashboard/MCP
-  docs/                   # PRD, SPEC, plano, decisões e evidências
+    e2e/                  # cenários C01..C20 e testes ponta a ponta
+  docs/                   # PRD, SPEC, SDD, plano, decisões, evidências e prompts
+  .specs/                 # artefatos tlc-spec-lean do plano aprovado
+  .env.example            # variáveis necessárias, sem segredos
 ```
 
 ## Responsabilidades
 
 | Área | Dono principal | Conteúdo esperado |
 |---|---|---|
-| `packages/contracts` | Cris | Tipos e schemas de rotas, fatos, payloads e resultado do IAV |
-| `packages/domain` | Cris | Cálculo determinístico do IAV e regras de viabilidade |
-| `packages/ingestion` | Maria | Coleta, parsing, normalização e qualidade dos dados |
+| `packages/contracts` | Cris | Tipos e schemas de `IavQuery`, `LoadProfile`, `DecisionSnapshot`, `Evidence`, `RelatedNews` |
+| `packages/domain` | Cris | Cálculo determinístico do IAV por trecho, gates, bloqueadores e `NAO_AVALIAVEL` |
+| `packages/ingestion` | Maria | Coleta, parsing, normalização, frescor, conflito e notícias relacionadas |
 | `apps/api` | Cris | Persistência, casos de uso e endpoints internos |
 | `apps/mcp` | Cris | Exposição MCP, API key, rate limit e resposta estruturada |
-| `apps/dashboard` | Lucas | Interface do gestor, mapa, justificativa e estados de erro |
+| `apps/dashboard` | Lucas | Interface do gestor, trechos, IAV/`NAO_AVALIAVEL`, evidências e notícias |
+| `data/routes` | Maria + Lucas | Catálogo versionado das duas rotas e segmentos aprovados |
 | `data/fixtures` | Maria + Lucas | Fixtures reais anonimizadas/mockadas para testes e UI |
 | `scripts` | Lucas | Automação local de coleta, cálculo, seed e smoke test |
-| `tests/e2e` | Lucas | Fluxos completos dashboard + API/MCP |
-| `docs` | Samuelson + time | Escopo, especificação, decisões, evidências e runbooks |
+| `tests/e2e` | Samuelson + Lucas | Matriz C01..C20 e fluxos completos dashboard + API/MCP |
+| `docs` | Samuelson + time | Escopo, especificação, SDD, decisões, evidências e runbooks |
 
 ## Regras de dependência
 
@@ -67,10 +62,10 @@ A estrutura atual é uma versão simplificada inspirada no AIHOT.news, mas adapt
 - `apps/api`, `apps/mcp` e `apps/dashboard` separam superfícies de leitura e decisão.
 - `packages/contracts`, `packages/domain` e `packages/ingestion` separam contrato, regra pura e coleta.
 - Não copiamos scoring editorial, clustering, reports de notícias ou prompts de curadoria.
-- Worker/jobs podem evoluir depois do spike do AIHOT; no MVP, scripts e tarefas simples bastam.
+- Worker/jobs podem evoluir depois; no MVP, scripts e tarefas simples bastam.
 
 Referência completa: `docs/AIHOT_REFERENCE.md`.
 
 ## O que ainda não existe
 
-Esta estrutura é propositalmente inicial. Não há código de produto, dependências externas, migrations ou telas implementadas. A primeira implementação deve começar pelos contratos e pela persistência mínima, não pelo dashboard.
+Esta estrutura é propositalmente inicial. Ainda não há código de produto implementado. A primeira implementação deve começar por `packages/contracts`, `packages/domain`, `data/routes/mvp-routes.json` e fixtures — não pelo dashboard.

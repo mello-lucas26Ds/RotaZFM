@@ -1,6 +1,6 @@
 # RotaZFM: documento consolidado
 
-Status: versão 3, substitui as anteriores. Esta é a fonte de verdade do projeto. Itens marcados com [a validar] ainda não foram confirmados em fonte primária e não devem aparecer no pitch como fato.
+Status: baseline histórico de 09/11/2026. Decisões vigentes a partir de 23/11/2026 estão em `docs/PRD.md`, `docs/SPEC.md`, `docs/SDD.md`, `docs/DECISIONS.md` e `.specs/features/rotazfm-mvp/plan.md`. Itens marcados com [a validar] ainda não foram confirmados em fonte primária e não devem aparecer no pitch como fato.
 
 1. Resumo executivo
 

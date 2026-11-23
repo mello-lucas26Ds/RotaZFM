@@ -1,19 +1,21 @@
 # Quadro de execução — RotaZFM
 
-Status: plano inicial de 4 etapas  
-Data: 09/11/2026  
-Fonte principal: `Plan.md` v3 e `docs/TEAM_EXECUTION_PLAN.md`
+Status: plano vigente de 8 etapas  
+Data: 23/11/2026  
+Fonte principal: `.specs/features/rotazfm-mvp/plan.md`, `docs/SDD.md`, `docs/DECISIONS.md`
 
 ## Papéis do time
 
-| Integrante | Papel | Foco principal |
-|---|---|---|
-| Samuelson | Produto, validação e pitch | Regulamento, entrevistas, caso retrospectivo, decisões de corte, roteiro e submissão |
-| Maria | Dados e fontes | SACE, INMET, DNIT, portarias, qualidade da via, fixtures e validação histórica |
-| Cris | Motor, API e MCP | Contratos, schema, IAV, API, autenticação, rate limit e MCP |
-| Lucas | Frontend, demo e qualidade | Estrutura do projeto, dashboard, mapa, contrato visual, E2E e documentação de execução |
+Samuelson, Maria e Cris são **subagents/papéis operacionais**, não pessoas reais. Lucas é o responsável humano pela validação final e orquestração.
 
-Se alguém trocar de papel, atualizar este quadro e `docs/TEAM_EXECUTION_PLAN.md` no mesmo PR.
+| Papel | Tipo | Foco principal |
+|---|---|---|
+| Samuelson | subagent operacional | Produto, validação documental, matriz de cenários, decisões de corte, pitch e submissão |
+| Maria | subagent operacional | Fontes, evidências, fixtures, rotas/trechos, frescor, conflito, notícias relacionadas |
+| Cris | subagent operacional | Contratos, domínio, IAV, persistência, API, MCP, auth, rate limit e testes de contrato |
+| Lucas | humano/orquestrador | Aprova decisões, revisa PR, valida aceite final e autoriza deploy |
+
+Prompts de tarefa por papel estão em `docs/SUBAGENT_PROMPTS.md`.
 
 ## Regras de trabalho
 
@@ -23,87 +25,85 @@ Se alguém trocar de papel, atualizar este quadro e `docs/TEAM_EXECUTION_PLAN.md
 - Nenhum score sem fonte, data e qualidade do dado.
 - Nenhum LLM calcula IAV ou escolhe rota.
 - Decisões importantes entram em `docs/DECISIONS.md`.
-- Bloqueio pendente há mais de 24h deve ser escalado para o time.
+- Não há entrevistas com gestores; toda validação dependente de usuário vira pesquisa documental, fixture, premissa explícita ou caso verificável.
+- Deploy público somente na Vercel e somente na etapa final.
 
-## Etapa 1 — Fundação e validação de fontes
+## Etapa 0 — Congelar decisões e validação substituta
 
-Objetivo: sair do papel com repositório estruturado, fontes testadas e contratos iniciais definidos.
+- **Objetivo:** eliminar ambiguidades antes de codar.
+- **Tarefa:** revisar PRD/SPEC/SDD/DECISIONS; confirmar IAV, rotas, carga, política de dado ausente, notícias, Alexandria/Firecrawl e deploy Vercel final.
+- **Subagent/responsável:** Samuelson propõe; Lucas aprova.
+- **Dependências:** decisões de Lucas já registradas.
+- **Validação:** documentos sem dependência de entrevista; toda premissa tem critério objetivo.
+- **Critério de aceite:** nenhuma etapa posterior depende de "entrevistar gestor"; hipóteses de problema declaradas como hipóteses.
 
-| Integrante | Entrega | Como validar |
-|---|---|---|
-| Lucas | Scaffold do monorepo, scripts base, estrutura de pastas, `.gitignore` e validação estrutural do AIHOT.news | `git status` limpo após commit; estrutura revisada em PR; gaps do AIHOT documentados |
-| Maria | Teste manual/automatizado de SACE, INMET, DNIT e portarias; amostras e fallbacks documentados | Cada fonte tem endpoint, exemplo de payload, data e status go/no-go |
-| Cris | Contratos iniciais de `Route`, `RouteSegment`, `RawPayload`, `RouteConditionFact` e `IavCalculation` | Tipos/schema revisados pelo time; exemplos JSON válidos |
-| Samuelson | Regulamento confirmado, entrevistas marcadas e definição do caso retrospectivo | Documento com prazos, responsáveis e critério de “resultado ruim” |
+## Etapa 1 — Domínio, contratos e matriz de cenários
 
-**Decisão transversal — AIHOT.news:** decisão tomada: AIHOT é base de direcionamento e referência estrutural oficial. Cris valida a viabilidade técnica de reuso de código; Lucas valida se a estrutura observada serve ao RotaZFM. A saída do spike deve atualizar `docs/DECISIONS.md` dizendo se haverá reuso de código ou apenas referência. Referência inicial: `docs/AIHOT_REFERENCE.md`.
+- **Objetivo:** congelar o que o sistema deve fazer antes de coletores ou API.
+- **Tarefa:** criar `packages/contracts`, `packages/domain` puros, `data/routes/mvp-routes.json`, `tests/e2e/scenarios.json` e testes unitários do motor com fixtures.
+- **Subagent/responsável:** Cris implementa domínio/contratos; Maria valida rotas/fontes; Samuelson valida cenários/aceite; Lucas revisa.
+- **Dependências:** Etapa 0 aprovada.
+- **Validação:** `npm run test` real no pacote; mesma entrada + mesmo `rule_version` = mesmo resultado; motor sem I/O externo.
+- **Critério de aceite:** cenários C01–C20 cobertos por testes ou marcados pendentes com motivo; `NAO_AVALIAVEL` sem score numérico.
 
-Critério de saída da Etapa 1:
+## Etapa 2 — Evidências, frescor, conflito e notícias
 
-- Repositório tem estrutura mínima versionada.
-- Três fontes principais têm resposta real ou fallback documentado.
-- O time sabe exatamente quais dados entram no `route_condition_facts`.
-- O caso retrospectivo está escolhido ou descartado formalmente.
+- **Objetivo:** transformar fontes/fixtures em fatos auditáveis sem calcular IAV.
+- **Tarefa:** implementar `packages/ingestion` com `raw_payloads` → evidências → fatos; frescor, última atualização, conflito e filtro de notícias relacionadas.
+- **Subagent/responsável:** Maria nos coletores/fixtures/notícias; Cris nos contratos/persistência.
+- **Dependências:** Etapa 1.
+- **Validação:** testes de integração locais; falha de fonte gera fallback/alerta; notícia nunca bloqueia sem confirmação.
+- **Critério de aceite:** payload bruto gravado antes da normalização; fatos têm fonte, URL, datas, método, hash, confiança e efeito.
 
-## Etapa 2 — Ingestão e normalização
+## Etapa 3 — API interna e MCP
 
-Objetivo: transformar fontes públicas em fatos normalizados e auditáveis.
+- **Objetivo:** expor a decisão de forma segura e rastreável.
+- **Tarefa:** implementar `apps/api` e `apps/mcp` com `consultar_viabilidade`, auth Bearer, rate limit, erros e `DecisionSnapshot`.
+- **Subagent/responsável:** Cris; Lucas valida contrato de consumo.
+- **Dependências:** Etapas 1–2.
+- **Validação:** MCP Inspector, testes de contrato/segurança, mesma entrada+snapshot = mesma saída.
+- **Critério de aceite:** resposta nunca contém apenas `iav`/`viavel`; agente não altera regras nem contorna bloqueadores.
 
-| Integrante | Entrega | Como validar |
-|---|---|---|
-| Maria | Coletores de nível do rio, chuva, tráfego e tabelas estáticas de qualidade/peso | Cada coletor grava `raw_payloads` e publica fatos com fonte/data/qualidade |
-| Cris | Schema PostgreSQL, repositórios e persistência de payload bruto | Migração local sobe; registros têm origem, timestamp e hash |
-| Lucas | Fixtures e massa de dados para dashboard/MCP | UI consegue renderizar IAV parcial, completo e erro sem backend real |
-| Samuelson | Checklist de proveniência e critérios de aceite dos dados | Cada dimensão tem fonte, data de referência e fallback declarado |
+## Etapa 4 — Dashboard consumindo a mesma decisão
 
-Critério de saída da Etapa 2:
+- **Objetivo:** tornar a decisão legível sem duplicar regra.
+- **Tarefa:** implementar `apps/dashboard` com formulário de consulta, rotas/trechos, IAV ou `NAO_AVALIAVEL`, bloqueadores, evidências, faltantes, frescor e notícias.
+- **Subagent/responsável:** Lucas; Maria fornece fixtures; Cris mantém contrato.
+- **Dependências:** Etapa 3 ou contrato estável com fixtures.
+- **Validação:** E2E cobre caminho feliz, erro, dado ausente, fonte indisponível e rota não avaliável.
+- **Critério de aceite:** dashboard não calcula IAV; todo score vem com fonte/data/qualidade ou status `NAO_AVALIAVEL`.
 
-- Pelo menos três fontes gravam dado bruto.
-- Fatos normalizados respeitam o contrato da Etapa 1.
-- Falha de fonte gera alerta/último valor válido, não quebra o fluxo.
-- Fixtures permitem desenvolver frontend sem depender das APIs externas.
+## Etapa 5 — Fontes reais controladas e retrospectivo documental
 
-## Etapa 3 — Motor de decisão, API e MCP
+- **Objetivo:** provar coleta real sem desperdiçar chamadas.
+- **Tarefa:** validar SACE/INMET/DNIT/portarias com amostras mínimas; testar Firecrawl/Alexandria para notícias; escolher ou descartar caso retrospectivo com critérios prévios.
+- **Subagent/responsável:** Maria executa; Samuelson registra decisões de corte; Cris revisa contratos.
+- **Dependências:** Etapas 1–4 com fixtures estáveis.
+- **Validação:** cada fonte tem endpoint/página, exemplo, data, status, fallback e termos; chamadas externas mínimas e logadas.
+- **Critério de aceite:** pelo menos três fontes têm fixture/fallback; retrospectivo reproduzível ou descarte formal documentado.
 
-Objetivo: transformar fatos em IAV explicável e expor a decisão por API/MCP.
+## Etapa 6 — Integração, hardening e documentação
 
-| Integrante | Entrega | Como validar |
-|---|---|---|
-| Cris | Motor determinístico do IAV, guardrails, API interna e servidor MCP local | Testes unitários passam; MCP Inspector responde `consultar_viabilidade` |
-| Maria | Regras de qualidade dos dados: frescor, variação atípica, dado ausente e fonte indisponível | Casos de borda cobertos por testes e fixtures |
-| Lucas | Cliente/consumidor do contrato de IAV para o dashboard | Tipos/fixtures atualizados; estados de loading, erro e IAV parcial previstos |
-| Samuelson | Checklist de segurança e aceite funcional | 401 sem API key, entrada inválida rejeitada, justificativa auditável |
+- **Objetivo:** fechar qualidade e evidências antes do deploy.
+- **Tarefa:** rodar matriz C01–C20, testes de carga local, sensibilidade de pesos, README/runbook, revisão de segurança e pitch sem números ilustrativos.
+- **Subagent/responsável:** todos os papéis; Samuelson coordena aceite; Lucas fecha documentação.
+- **Dependências:** Etapas 1–5.
+- **Validação:** lint/test/build verdes; 10 chamadas simultâneas sem erro na meta; fontes falhando não derrubam o sistema.
+- **Critério de aceite:** nenhuma feature Could/Won’t entrou no caminho crítico; limites declarados.
 
-Critério de saída da Etapa 3:
+## Etapa 7 — Deploy final na Vercel e entrega
 
-- `npm run iav` ou equivalente imprime IAV determinístico das duas rotas.
-- IAV fica entre 0 e 100; dimensão ausente gera IAV parcial declarado.
-- Restrição de peso excedida torna a rota inviável.
-- MCP local funciona com API key e rejeita chamada sem chave.
+- **Objetivo:** publicar uma única versão final.
+- **Tarefa:** configurar Vercel, `NEXT_PUBLIC_API_URL`, variáveis de ambiente, smoke público e submissão.
+- **Subagent/responsável:** Lucas aprova; Cris prepara API/MCP portável; Samuelson fecha submissão.
+- **Dependências:** Etapa 6 aprovada por Lucas.
+- **Validação:** deploy público responde; demo fora da rede local; plano B gravado.
+- **Critério de aceite:** deploy acontece uma vez, na Vercel, após aprovação explícita.
 
-## Etapa 4 — Dashboard, deploy e entrega
+## Sequência imediata
 
-Objetivo: transformar o fluxo técnico em demo pública e submissão completa.
-
-| Integrante | Entrega | Como validar |
-|---|---|---|
-| Lucas | Dashboard com origem, destino, data, mapa, IAV, dimensões, fontes e alertas | E2E passa; usuário vê resultado em menos de 2s na meta |
-| Cris | Deploy do MCP na Cloudflare, API key, rate limit e fallback documentado | Endpoint público responde em menos de 3s; teste sem chave retorna 401 |
-| Maria | Validação final das fontes, frescor dos dados e runbook de fallback | Rodada final mostra quais dados são atuais, defasados ou indisponíveis |
-| Samuelson | Relatório retrospectivo, roteiro, gravação, edição e submissão | Pitch sem claims não validados; submissão feita até 28/11 |
-
-Critério de saída da Etapa 4:
-
-- Fluxo completo funciona de ponta a ponta fora da máquina local.
-- 10 chamadas simultâneas ao MCP não geram erro.
-- Dashboard e MCP mostram fonte, data e qualidade do dado.
-- README final explica arquitetura, como rodar, fontes e limites.
-
-## Sequência imediata — por onde começar
-
-1. **Lucas** confirma esta estrutura de pastas e abre o primeiro PR de scaffold.
-2. **Maria** testa SACE, INMET e DNIT/portarias e registra amostras reais ou bloqueios.
-3. **Cris** transforma os contratos em tipos/schema inicial para `route_condition_facts`.
-4. **Samuelson** confirma regulamento, marca entrevistas e define o caso retrospectivo.
-
-Depois disso, o time entra na Etapa 2 em paralelo, respeitando a dependência: frontend consome fixtures/contratos, não espera scraping perfeito.
+1. Lucas aprova este quadro e os prompts em `docs/SUBAGENT_PROMPTS.md`.
+2. Cris inicia Etapa 1 com contratos/domínio/fixtures.
+3. Maria inicia validação documental de rotas/fontes em paralelo, sem chamar APIs pagas sem fixture.
+4. Samuelson mantém matriz de cenários e decisões de corte.
+5. Lucas revisa cada PR e só autoriza deploy na Etapa 7.

@@ -165,3 +165,11 @@ Implementação: cron/worker simples. Airflow/Prefect só em evolução futura s
 4. **ANA:** enviar pedido de autorização no Dia 1, mesmo sem bloquear o MVP.
 5. **Firecrawl:** validar schema de extração para SACE e portarias.
 6. **Escopo:** confirmar que PRF, Airflow/Prefect e routekit dinâmico ficam fora do caminho crítico.
+
+## Atualização — 23/11/2026
+
+- **Rotas:** o catálogo do MVP passa a ser `data/routes/mvp-routes.json`, com as duas rotas e trechos aprovadas por Lucas. `distbrasil`/`routekit` continuam apenas baseline/seed se a cobertura for confirmada; não são fonte de IAV.
+- **Alexandria/Firecrawl:** Alexandria é uma biblioteca de providers dentro do Firecrawl, com créditos e termos por provider. Uso permitido no MVP: descoberta de fontes oficiais e filtro de notícias relacionadas por rota/trecho. Uso proibido: fonte primária de dimensão do IAV sem normalização e confirmação oficial.
+- **Notícias relacionadas:** entram como `related_news[]` com fonte, URL, data e `matched_segments[]`; nunca criam bloqueador sem `confirmation_status = CONFIRMADO`.
+- **Deploy:** nenhum deploy público antes da etapa final; alvo final é Vercel.
+- **Segredos:** `.env.example` lista `DATABASE_URL`, `API_PORT`, `MCP_PORT`, `IAV_MCP_API_KEYS`, `NEXT_PUBLIC_API_URL`, `FIRECRAWL_API_KEY`, `ROUTEKIT_API_KEY` opcional e variáveis Vercel de deploy; valores reais nunca são commitados.

@@ -1,8 +1,9 @@
 # Pré-mortem — RotaZFM
 
-Status: rascunho bruto de planejamento  
-Data: 09/11/2026  
-Fonte: `Plan.md` versão 3
+Status: análise de riscos vigente; datas de 09/11/2026 são históricas  
+Data: 09/11/2026, atualizado em 23/11/2026  
+Fonte: `Plan.md` versão 3 + decisões de Lucas em 23/11/2026  
+Nota: a dependência de entrevistas foi substituída por validação documental, fixtures e matriz C01..C20; deploy público é Vercel somente no final.
 
 ## Veredito
 

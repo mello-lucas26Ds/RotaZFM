@@ -1,9 +1,9 @@
 # Rascunho bruto para plataforma — RotaZFM
 
 Status: rascunho para submissão/ideia  
-Data: 09/11/2026  
-Fonte: `Plan.md` v3  
-Observação: manter `[a validar]` até confirmação em fonte primária. Não apresentar hipóteses como fatos.
+Data: 23/11/2026  
+Fonte: `Plan.md` v3 + decisões vigentes em `docs/DECISIONS.md`  
+Observação: manter `[a validar]` até confirmação em fonte primária. Não apresentar hipóteses como fatos. Validação de problema é documental/fixtures, sem entrevistas; deploy público é Vercel somente no final.
 
 ## Nome do projeto
 
@@ -31,7 +31,7 @@ Os dados existem, mas estão espalhados: nível do rio, previsão de chuva, trá
 
 O RotaZFM recebe origem, destino e data de embarque e avalia se as rotas candidatas têm condições físicas e regulatórias de operar.
 
-O núcleo é o **IAV — Índice de Antecipação de Viabilidade**, um score determinístico de 0 a 100 calculado sobre cinco dimensões:
+O núcleo é o **IAV — Índice de Antecipação de Viabilidade**, um score determinístico de 0 a 100 calculado por trecho e consolidado pelo pior trecho sobre cinco dimensões:
 
 1. Nível do rio — 30%
 2. Previsão de chuva — 25%
@@ -67,7 +67,7 @@ Cada resultado mostra:
 ## Diferenciais
 
 - Não é caixa-preta: cada decisão mostra dimensões, fontes e datas.
-- Distingue ausência de dado de aprovação: score parcial é declarado.
+- Distingue ausência de dado de aprovação: `NAO_AVALIAVEL` é declarado sem score numérico.
 - Separa viabilidade de custo: custo é camada estimada e secundária.
 - Pensado para agentes: MCP com schema rígido, API key e resposta estruturada.
 - Motor determinístico: LLM não calcula score nem escolhe rota.
@@ -103,7 +103,8 @@ Cada resultado mostra:
 
 ## Validação prevista
 
-- Três entrevistas com gestores do PIM `[a validar]`.
+- Validação documental de problema e rotas, sem entrevistas com gestores `[a validar]`.
+- Fixtures e matriz de cenários C01..C20 como evidência de aceite.
 - Caso retrospectivo com fonte pública verificável `[a validar]`.
 - Definição escrita de “resultado ruim” antes de analisar dados.
 - Teste de sensibilidade dos pesos.
@@ -126,12 +127,14 @@ O RotaZFM não prevê:
 - Banco: PostgreSQL, com `raw_payloads` e `route_condition_facts` como contrato central.
 - Fila/jobs: worker agendado simples; sem Airflow/Prefect no MVP.
 - Dashboard: Next.js + MapLibre GL ou Leaflet.
-- MCP: Cloudflare Workers + McpAgent, com fallback local.
+- MCP: servidor Node/TypeScript portátil; deploy público final na Vercel, com Cloudflare opcional se necessário.
 - Auth MCP: API Key.
 - Coleta: HTTP direto e/ou Firecrawl para fontes não estruturadas; fallbacks documentados.
 - Fontes: SACE, INMET direto, DNIT/parseforge, portarias DNIT, `distbrasil`/Zenodo e índices estáticos de qualidade da via.
-- Rotas: distância/duração base via `distbrasil`; geometria/ETA via `routekit-mcp` somente como seed/cache, não por request.
+- Rotas: catálogo versionado em `data/routes/mvp-routes.json`; distância/duração base via `distbrasil` se cobertura confirmada; geometria/ETA via `routekit-mcp` somente como seed/cache, não por request.
+- Notícias: Firecrawl/Alexandria somente para descoberta/filtro contextual; nunca fonte primária do IAV sem confirmação oficial.
 - Orquestração inicial: estrutura própria simples; AIHOT apenas como referência se spike aprovar.
+- Deploy público: Vercel somente na etapa final.
 
 ## Riscos a declarar
 

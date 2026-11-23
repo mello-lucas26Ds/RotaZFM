@@ -1,9 +1,9 @@
 # Plano de execução e divisão da equipe — RotaZFM
 
-Status: rascunho bruto v2.1 — papéis nomeados
-Data: 09/11/2026
-Fontes: `Plan.md` v3 + `PREMORTEM.md` + `DATA_SOURCES_EVALUATION.md` + `EXECUTION_BOARD.md`
-Dia 1 = 05/11/2026; hoje = aproximadamente Dia 5.
+Status: detalhe histórico de papéis; o quadro vigente de execução está em `docs/EXECUTION_BOARD.md`  
+Data: 09/11/2026  
+Fontes: `Plan.md` v3 + `PREMORTEM.md` + `DATA_SOURCES_EVALUATION.md` + `EXECUTION_BOARD.md`  
+Nota: datas e entrevistas deste documento são históricas; desde 23/11/2026 não há entrevistas com gestores e o deploy público é Vercel somente no final.
 
 ## Objetivo do plano
 
