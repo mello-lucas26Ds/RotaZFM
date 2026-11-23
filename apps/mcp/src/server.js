@@ -169,11 +169,12 @@ export function createRateLimiter({ limit = DEFAULT_RATE_LIMIT, windowMs = DEFAU
       return {
         allowed: false,
         retryAfterSeconds: Math.max(1, Math.ceil((entry.resetAt - timestamp) / 1000)),
+        resetAt: entry.resetAt,
       };
     }
 
     entry.count += count;
-    return { allowed: true };
+    return { allowed: true, resetAt: entry.resetAt };
   }
 
   function refund(key, count, timestamp = now()) {
@@ -344,7 +345,12 @@ export function createMcpServer(options = {}) {
         const batchVerdict = rateLimit.checkMany(apiKey, additionalCount, requestTime);
         if (!batchVerdict.allowed) {
           rateLimit.refund(apiKey, 1, requestTime);
-          sendRateLimited(response, batchVerdict);
+          const responseTime = rateLimitNow();
+          const retryAfterSeconds = Math.max(
+            1,
+            Math.ceil((batchVerdict.resetAt - responseTime) / 1000),
+          );
+          sendRateLimited(response, { ...batchVerdict, retryAfterSeconds });
           return;
         }
       }
