@@ -1,0 +1,71 @@
+{
+  "fixture_version": "2026-11-23",
+  "fixture_kind": "dimension_evidence",
+  "dimension": "traffic",
+  "created_at": "2026-11-23T00:00:00-04:00",
+  "created_by": "Maria - validação documental Etapa 1",
+  "mock": true,
+  "source_status": "PARCIAL",
+  "sources": [
+    {
+      "name": "DNIT - PNCT / dados abertos de contagem de tráfego",
+      "dataset_page_url": "https://servicos.dnit.gov.br/dadosabertos/dataset/contagem-de-trafego",
+      "package_api_url": "https://servicos.dnit.gov.br/dadosabertos/api/3/action/package_show?id=contagem-de-trafego",
+      "pnct_page_url": "https://servicos.dnit.gov.br/dadospnct",
+      "resource_2022_xlsx_url": "https://servicos.dnit.gov.br/dadosabertos/dataset/74588ac0-4170-4b51-b642-164a84110955/resource/7154cb44-9425-446f-b86b-b0f91956e7bb/download/vmda2022_snv_202301b.xlsx",
+      "resource_2020_csv_url": "https://servicos.dnit.gov.br/dadosabertos/dataset/74588ac0-4170-4b51-b642-164a84110955/resource/46266208-5e35-4904-87db-4cc5ec4bd480/download/contagem_de_trafego_cgplan.csv",
+      "verification_date": "2026-11-23",
+      "status": "CONFIRMADO",
+      "notes": "Dataset e recursos existem; cobertura atual por trecho MVP ainda não foi extraída/confirmada."
+    },
+    {
+      "name": "DNIT - SIOR / contagem e tráfego",
+      "source_url": "https://www.gov.br/dnit/pt-br/assuntos/infraestrutura-rodoviaria/sior",
+      "verification_date": "2026-11-23",
+      "status": "PARCIAL",
+      "notes": "Página/serviço referenciado como caminho de consulta; não substitui extração PNCT validada."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "traffic-source-pnct-2026-11-23",
+      "route_id": null,
+      "segment_id": null,
+      "dimension": "traffic",
+      "source": "DNIT PNCT dados abertos",
+      "source_url": "https://servicos.dnit.gov.br/dadosabertos/dataset/contagem-de-trafego",
+      "published_at": "2025-10-06T00:00:00-03:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "method": "documental_snapshot",
+      "content_hash": "sha256:42f0080a3ba70b2fbc280a055b5b2bd64a645b2b3e4c6df1c033125079b6a73c",
+      "confirmation_status": "CONFIRMADO",
+      "effective_from": "2025-10-06",
+      "effective_until": null,
+      "freshness_hours": null,
+      "last_valid_at": "2025-10-06T00:00:00-03:00",
+      "value": {"dataset_status": "available", "last_update": "2025-10-06"},
+      "notes": "Confirma existência/atualização do dataset; não confirma contagem específica por segmento."
+    }
+  ],
+  "segment_coverage": [
+    {"segment_id":"r1-s1-balsa-inicial","route_id":"rota-1-br-319","road":null,"critical":true,"traffic_status":"NÃO_ENCONTRADO","coverage":"modal_misto_sem_pnct_rodoviario_direto","vmd_estimated":null,"unit":"veh/day","fallback":"static_table_unverified","notes":"Travessia Manaus-Careiro depende de dados aquaviários/portuários, não cobertos por PNCT rodoviário."},
+    {"segment_id":"r1-s2-floresta-br319","route_id":"rota-1-br-319","road":"BR-319","critical":true,"traffic_status":"NAO_CONFIRMADO","coverage":"no_current_count_post_confirmed","vmd_estimated":null,"unit":"veh/day","fallback":"static_table_unverified","notes":"Trecho crítico sem asfalto; cobertura PNCT/SIOR no Amazonas precisa confirmação antes de usar como primário."},
+    {"segment_id":"r1-s3-rondonia-br364","route_id":"rota-1-br-319","road":"BR-364","critical":false,"traffic_status":"NAO_CONFIRMADO","coverage":"dataset_exists_rows_not_extracted","vmd_estimated":null,"unit":"veh/day","fallback":"static_table_unverified","notes":"Rodovia federal pavimentada; extrair PNCT por UF/rodovia/km na próxima etapa."},
+    {"segment_id":"r1-s4-mato-grosso-br364","route_id":"rota-1-br-319","road":"BR-364","critical":false,"traffic_status":"NAO_CONFIRMADO","coverage":"dataset_exists_rows_not_extracted","vmd_estimated":null,"unit":"veh/day","fallback":"static_table_unverified","notes":"Rodovia federal pavimentada; extrair PNCT por UF/rodovia/km na próxima etapa."},
+    {"segment_id":"r1-s5-goias-br364","route_id":"rota-1-br-319","road":"BR-364","critical":false,"traffic_status":"NAO_CONFIRMADO","coverage":"dataset_exists_rows_not_extracted","vmd_estimated":null,"unit":"veh/day","fallback":"static_table_unverified","notes":"Rodovia federal pavimentada; extrair PNCT por UF/rodovia/km na próxima etapa."},
+    {"segment_id":"r1-s6-minas-br365-br050","route_id":"rota-1-br-319","road":"BR-365/BR-050","critical":false,"traffic_status":"NAO_CONFIRMADO","coverage":"dataset_exists_rows_not_extracted","vmd_estimated":null,"unit":"veh/day","fallback":"static_table_unverified","notes":"Duas rodovias federais; mapear km por UF antes de consolidar."},
+    {"segment_id":"r1-s7-sao-paulo-sp330","route_id":"rota-1-br-319","road":"SP-330","critical":false,"traffic_status":"NÃO_ENCONTRADO","coverage":"state_road_outside_dnit_pnct_scope","vmd_estimated":null,"unit":"veh/day","fallback":"static_table_unverified","notes":"SP-330 é rodovia estadual; DNIT/PNCT pode não cobrir. Precisa fonte DER-SP/ARTESP ou fallback documentado."},
+    {"segment_id":"r2-s1-fluvial-amazonas","route_id":"rota-2-fluvial-brasilia","road":null,"critical":true,"traffic_status":"NÃO_ENCONTRADO","coverage":"hidroviario_sem_pnct_rodoviario","vmd_estimated":null,"unit":"embarcacoes/dia","fallback":"static_table_unverified","notes":"Tráfego fluvial não é volume rodoviário; requer fonte de navegação/terminal ou proxy documentado."},
+    {"segment_id":"r2-s2-para-br316-br010","route_id":"rota-2-fluvial-brasilia","road":"BR-316/BR-010","critical":false,"traffic_status":"NAO_CONFIRMADO","coverage":"dataset_exists_rows_not_extracted","vmd_estimated":null,"unit":"veh/day","fallback":"static_table_unverified","notes":"Duas rodovias federais no Pará; extrair por trecho."},
+    {"segment_id":"r2-s3-maranhao-br010","route_id":"rota-2-fluvial-brasilia","road":"BR-010","critical":false,"traffic_status":"NAO_CONFIRMADO","coverage":"dataset_exists_rows_not_extracted","vmd_estimated":null,"unit":"veh/day","fallback":"static_table_unverified","notes":"Rodovia federal; há restrições AET temporárias no PA que precisam cruzamento separado."},
+    {"segment_id":"r2-s4-tocantins-br153","route_id":"rota-2-fluvial-brasilia","road":"BR-153","critical":false,"traffic_status":"NAO_CONFIRMADO","coverage":"dataset_exists_rows_not_extracted","vmd_estimated":null,"unit":"veh/day","fallback":"static_table_unverified","notes":"Rodovia federal; extrair PNCT por UF/rodovia/km."},
+    {"segment_id":"r2-s5-goias-br153","route_id":"rota-2-fluvial-brasilia","road":"BR-153","critical":false,"traffic_status":"NAO_CONFIRMADO","coverage":"dataset_exists_rows_not_extracted","vmd_estimated":null,"unit":"veh/day","fallback":"static_table_unverified","notes":"Rodovia federal; extrair PNCT por UF/rodovia/km."},
+    {"segment_id":"r2-s6-minas-br153-br050","route_id":"rota-2-fluvial-brasilia","road":"BR-153/BR-050","critical":false,"traffic_status":"NAO_CONFIRMADO","coverage":"dataset_exists_rows_not_extracted","vmd_estimated":null,"unit":"veh/day","fallback":"static_table_unverified","notes":"Duas rodovias federais; mapear km por UF antes de consolidar."},
+    {"segment_id":"r2-s7-sao-paulo-sp330","route_id":"rota-2-fluvial-brasilia","road":"SP-330","critical":false,"traffic_status":"NÃO_ENCONTRADO","coverage":"state_road_outside_dnit_pnct_scope","vmd_estimated":null,"unit":"veh/day","fallback":"static_table_unverified","notes":"SP-330 é rodovia estadual; DNIT/PNCT pode não cobrir. Precisa fonte DER-SP/ARTESP ou fallback documentado."}
+  ],
+  "rules_for_implementation": [
+    "Tráfego sem valor confirmado deve usar fallback datado e qualificado; não inventar VMD.",
+    "Trechos críticos sem contagem atual confirmada devem tender a NAO_AVALIAVEL se tráfego for dimensão obrigatória.",
+    "Tráfego fluvial não deve ser convertido artificialmente em veículos/dia sem fonte própria."
+  ]
+}
