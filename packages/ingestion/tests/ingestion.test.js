@@ -267,6 +267,16 @@ test('ingestion: freshness_hours é calculado, não copiado da fixture', () => {
   );
   assert.ok(riverEvidence);
   assert.ok(riverEvidence.freshness_hours > 24);
+
+  const snapshot = snapshotFrom(input, makeQuery());
+  const riverSegment = snapshot.routes
+    .find((route) => route.route_id === riverEvidence.route_id)
+    .segments.find((segment) => segment.segment_id === riverEvidence.segment_id);
+  const riverSnapshotEvidence = riverSegment.evidences.find(
+    (evidence) => evidence.evidence_id === riverEvidence.evidence_id && evidence.dimension === 'nivel',
+  );
+  assert.equal(riverSnapshotEvidence.value?.station, riverEvidence.value?.station);
+  assert.equal(riverSnapshotEvidence.value?.level_m, riverEvidence.value?.level_m);
 });
 
 test('ingestion: não depende de rede para normalizar fixtures', () => {
@@ -320,4 +330,24 @@ test('ingestion: PBTC escolhe o limite mais restritivo por segmento', () => {
   assert.equal(blockers.length, 1);
   assert.equal(blockers[0].pbtc_kg, 9000);
   assert.equal(blockers[0].evidence_id, 'ev-9t');
+});
+
+test('ingestion: conflito de PBTC do trecho BR-319 vira fato CONFLITANTE', () => {
+  const query = makeQuery({ peso: 10000 });
+  const input = buildDecisionInput({ query });
+  const snapshot = snapshotFrom(input, query);
+
+  assert.ok(
+    input.facts.some(
+      (fact) =>
+        fact.dimension === 'restricao' &&
+        fact.segment_id === 'r1-s2-floresta-br319' &&
+        fact.confirmation_status === 'CONFLITANTE',
+    ),
+  );
+
+  const route = snapshot.routes.find((item) => item.route_id === 'rota-1-br-319');
+  const segment = route.segments.find((item) => item.segment_id === 'r1-s2-floresta-br319');
+  assert.equal(segment.dimensions.restricao.status, 'NAO_AVALIAVEL');
+  assert.equal(segment.dimensions.restricao.reason, 'CONFLITANTE');
 });

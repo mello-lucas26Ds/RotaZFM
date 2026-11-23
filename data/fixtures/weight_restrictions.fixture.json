@@ -164,7 +164,11 @@
   "overlaps_and_conflicts": [
     {
       "id": "pbtc-br319-overlap-2022-vs-2025",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s2-floresta-br319",
       "status": "CONFLITANTE",
+      "source": "DNIT - Portarias 5.455/2022 e 13/2025",
+      "source_url": "https://www.gov.br/dnit/pt-br/assuntos/portais-tematicos/br-319-am-ro/noticias/br-319-restricoes-ao-trafego-de-veiculos-pesados-durante-o-periodo-chuvoso",
       "description": "Portaria 5.455/2022 prevê PBTC sazonal de 17 t/23 t para km 250,7-679,3; Portaria 13/2025 prevê proibição acima de 45 t para km 1,0-679,3 em dez-jun. As normas podem coexistir por abrangência/limiar diferentes, mas a vigência consolidada precisa confirmação oficial.",
       "conservative_rule": "Para o MVP, aplicar o limite mais restritivo aplicável por data/km até confirmação: em nov-mai, PBTC acima de 17 t no trecho km 250,7-679,3 deve ser tratado como restrito; em dez-jun, PBTC acima de 45 t no trecho km 1,0-679,3 deve ser tratado como restrito; proibição noturna 18h-06h permanece conforme Portaria 5.455/2022.",
       "requires_confirmation_from": "Lucas/DNIT"
