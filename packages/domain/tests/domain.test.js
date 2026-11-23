@@ -411,3 +411,47 @@ test('domain: evidência preserva effective_from e effective_until', () => {
   assert.equal(evidence.effective_from, '2026-11-01');
   assert.equal(evidence.effective_until, '2026-11-30');
 });
+
+test('domain: limiares exatos de IAV não caem por erro de ponto flutuante', () => {
+  const routeId = 'rota-1-br-319';
+  const exact70Segment = 'r1-s2-floresta-br319';
+  const exact50Segment = 'r1-s3-rondonia-br364';
+  const scores70 = [42.23, 86.72, 81.58, 79.16, 74.61];
+  const scores50 = [44.75, 58.84, 16.71, 68, 83.23];
+  const facts = allFacts({
+    overrides: Object.fromEntries(
+      IAV_DIMENSIONS.flatMap((dimension, index) => [
+        [key(routeId, exact70Segment, dimension), { score: scores70[index] }],
+        [key(routeId, exact50Segment, dimension), { score: scores50[index] }],
+      ]),
+    ),
+  });
+
+  const snapshot = makeSnapshot({ facts });
+  const route1 = routeById(snapshot, routeId);
+  const segment70 = route1.segments.find((item) => item.segment_id === exact70Segment);
+  const segment50 = route1.segments.find((item) => item.segment_id === exact50Segment);
+
+  assert.equal(segment70.status, 'VIAVEL');
+  assert.equal(segment70.iav, 70);
+  assert.equal(segment50.status, 'VIAVEL_COM_RESSALVAS');
+  assert.equal(segment50.iav, 50);
+});
+
+test('domain: bloqueador com data de expiração inválida é rejeitado', () => {
+  assert.throws(
+    () =>
+      makeSnapshot({
+        blockers: [
+          {
+            route_id: 'rota-1-br-319',
+            segment_id: 'r1-s2-floresta-br319',
+            type: 'INTERDICAO',
+            confirmed: true,
+            effective_until: '2026-11-24T25:99:99Z',
+          },
+        ],
+      }),
+    (error) => error?.code === 'INVALID_BLOCKER',
+  );
+});

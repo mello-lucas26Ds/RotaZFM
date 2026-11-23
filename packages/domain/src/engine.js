@@ -10,6 +10,13 @@ export const IAV_WEIGHTS = Object.freeze({
   restricao: 0.1,
 });
 export const IAV_DIMENSIONS = Object.freeze(Object.keys(IAV_WEIGHTS));
+const IAV_SCALE = 1_000_000_000;
+const IAV_DENOMINATOR = 100 * IAV_SCALE;
+const IAV_WEIGHT_UNITS = Object.freeze(
+  Object.fromEntries(
+    IAV_DIMENSIONS.map((dimension) => [dimension, Math.round(IAV_WEIGHTS[dimension] * 100)]),
+  ),
+);
 
 export const SCOPE_WARNING =
   'IAV mede viabilidade física/regulatória; não mede custo, disponibilidade de caminhão ou eventos fora das fontes.';
@@ -17,7 +24,9 @@ export const SCOPE_WARNING =
 const MAX_FRESHNESS_HOURS = 24;
 const VIABLE_THRESHOLD = 70;
 const NOT_VIABLE_THRESHOLD = 50;
-const DATE_ONLY_PATTERN = /^(\d{4})-(\d{2})-(\d{2})(?:$|[T ])/;
+const VIABLE_THRESHOLD_NUMERATOR = VIABLE_THRESHOLD * IAV_DENOMINATOR;
+const NOT_VIABLE_THRESHOLD_NUMERATOR = NOT_VIABLE_THRESHOLD * IAV_DENOMINATOR;
+const DATE_PREFIX_PATTERN = /^(\d{4})-(\d{2})-(\d{2})/;
 const CONFIRMATION_STATUSES = new Set([
   'CONFIRMADO',
   'NAO_CONFIRMADO',
@@ -71,8 +80,8 @@ function isPositiveFinite(value) {
   return Number.isFinite(value) && value > 0;
 }
 
-function parseDateOnly(value) {
-  const match = DATE_ONLY_PATTERN.exec(value);
+function dateParts(value) {
+  const match = DATE_PREFIX_PATTERN.exec(value);
   if (!match) return null;
 
   const year = Number(match[1]);
@@ -89,19 +98,27 @@ function parseDateOnly(value) {
     return null;
   }
 
-  return timestamp;
+  return { dateOnly: `${match[1]}-${match[2]}-${match[3]}` };
 }
 
 function normalizeDateValue(value, field) {
-  if (typeof value !== 'string' || parseDateOnly(value) === null) {
+  if (typeof value !== 'string') {
+    fail(`${field} deve ser uma data válida`, 'INVALID_BLOCKER');
+  }
+
+  const parts = dateParts(value);
+  if (!parts) {
+    fail(`${field} deve ser uma data válida`, 'INVALID_BLOCKER');
+  }
+  if (value === parts.dateOnly) return value;
+  if (!value.startsWith(`${parts.dateOnly}T`) || Number.isNaN(Date.parse(value))) {
     fail(`${field} deve ser uma data válida`, 'INVALID_BLOCKER');
   }
   return value;
 }
 
 function dateOnly(value) {
-  const match = DATE_ONLY_PATTERN.exec(value);
-  return match ? `${match[1]}-${match[2]}-${match[3]}` : null;
+  return dateParts(value)?.dateOnly ?? null;
 }
 
 function blockerActiveOn(blocker, shippingDate) {
@@ -377,6 +394,19 @@ function blockerSort(left, right) {
   );
 }
 
+function scoreUnits(score) {
+  return Math.round(score * IAV_SCALE);
+}
+
+function calculateIav(dimensions) {
+  const numerator = IAV_DIMENSIONS.reduce(
+    (total, dimension) => total + IAV_WEIGHT_UNITS[dimension] * scoreUnits(dimensions[dimension].score),
+    0,
+  );
+
+  return { iav: numerator / IAV_DENOMINATOR, numerator };
+}
+
 function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadProfile, ruleVersion }) {
   const dimensions = {};
   const evaluations = {};
@@ -435,12 +465,9 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
   blockers.sort(blockerSort);
 
   const allDimensionsValid = IAV_DIMENSIONS.every((dimension) => dimensions[dimension].score !== null);
-  const iav = allDimensionsValid
-    ? IAV_DIMENSIONS.reduce(
-        (total, dimension) => total + dimensions[dimension].score * IAV_WEIGHTS[dimension],
-        0,
-      )
-    : null;
+  const calculation = allDimensionsValid ? calculateIav(dimensions) : null;
+  const iav = calculation?.iav ?? null;
+  const iavNumerator = calculation?.numerator ?? null;
 
   if (iav !== null && (iav < 0 || iav > 100)) {
     fail(`IAV fora do intervalo 0..100 no trecho ${segment.id}`, 'INVALID_SCORE');
@@ -451,9 +478,9 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
     status = 'NAO_VIAVEL';
   } else if (!allDimensionsValid) {
     status = 'NAO_AVALIAVEL';
-  } else if (iav < NOT_VIABLE_THRESHOLD) {
+  } else if (iavNumerator < NOT_VIABLE_THRESHOLD_NUMERATOR) {
     status = 'NAO_VIAVEL';
-  } else if (iav < VIABLE_THRESHOLD) {
+  } else if (iavNumerator < VIABLE_THRESHOLD_NUMERATOR) {
     status = 'VIAVEL_COM_RESSALVAS';
   } else {
     status = 'VIAVEL';
