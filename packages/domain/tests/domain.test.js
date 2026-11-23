@@ -332,9 +332,17 @@ test('domain: evidência fora da vigência do embarque não sustenta score nem b
       (missing) =>
         missing.segment_id === segmentId &&
         missing.dimension === 'restricao' &&
-        missing.reason === 'AUSENTE',
+        missing.reason === 'FORA_DE_VIGENCIA',
     ),
   );
+
+  const expiredSegment = expiredRoute.segments.find((item) => item.segment_id === segmentId);
+  const expiredEvidence = expiredSegment.evidences.find(
+    (evidence) => evidence.evidence_id === expiredFact.evidence_id,
+  );
+  assert.ok(expiredEvidence);
+  assert.equal(expiredEvidence.effective_until, '2026-11-24');
+  assert.equal(expiredEvidence.last_valid_at, '2026-11-23T00:00:00Z');
 
   const futureFacts = allFacts({
     overrides: { [restrictionKey]: { pbtc_kg: 5000 } },

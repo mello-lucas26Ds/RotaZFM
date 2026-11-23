@@ -253,7 +253,7 @@ function factSignature(fact) {
   return JSON.stringify([fact.score, fact.pbtc_kg ?? null]);
 }
 
-function evaluateDimension(facts) {
+function evaluateActiveDimension(facts) {
   if (!facts || facts.length === 0) {
     return { ok: false, reason: 'AUSENTE' };
   }
@@ -297,6 +297,19 @@ function evaluateDimension(facts) {
   }
 
   return { ok: false, reason: 'AUSENTE' };
+}
+
+function evaluateDimension(facts, shippingDate) {
+  if (!facts || facts.length === 0) {
+    return { ok: false, reason: 'AUSENTE' };
+  }
+
+  const activeFacts = facts.filter((fact) => factCoversShippingDate(fact, shippingDate));
+  if (activeFacts.length === 0) {
+    return { ok: false, reason: 'FORA_DE_VIGENCIA', facts };
+  }
+
+  return evaluateActiveDimension(activeFacts);
 }
 
 function dimensionResult(dimension, evaluation) {
@@ -454,7 +467,7 @@ function calculateIav(dimensions) {
   return { iav: rationalToNumber(numerator, denominator), numerator, denominator };
 }
 
-function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadProfile, ruleVersion }) {
+function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadProfile, ruleVersion, shippingDate }) {
   const dimensions = {};
   const evaluations = {};
   const missingData = [];
@@ -463,7 +476,7 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
 
   for (const dimension of IAV_DIMENSIONS) {
     const key = factKey(route.id, segment.id, dimension);
-    const evaluation = evaluateDimension(factsBySegment.get(key));
+    const evaluation = evaluateDimension(factsBySegment.get(key), shippingDate);
     evaluations[dimension] = evaluation;
     dimensions[dimension] = dimensionResult(dimension, evaluation);
 
@@ -658,7 +671,7 @@ function validateCatalog(catalog, query) {
   return routes;
 }
 
-function indexFacts(facts, routes, shippingDate) {
+function indexFacts(facts, routes) {
   const knownSegments = new Set();
   for (const route of routes) {
     for (const segment of route.segments) {
@@ -677,7 +690,7 @@ function indexFacts(facts, routes, shippingDate) {
   }
 
   const factsBySegment = new Map();
-  for (const fact of normalizedFacts.filter((fact) => factCoversShippingDate(fact, shippingDate))) {
+  for (const fact of normalizedFacts) {
     const key = factKey(fact.route_id, fact.segment_id, fact.dimension);
     if (!factsBySegment.has(key)) factsBySegment.set(key, []);
     factsBySegment.get(key).push(fact);
@@ -734,7 +747,8 @@ export function assessDecision({
 
   const routes = validateCatalog(catalog, validQuery);
   const context = {
-    factsBySegment: indexFacts(facts, routes, validQuery.data_embarque),
+    factsBySegment: indexFacts(facts, routes),
+    shippingDate: validQuery.data_embarque,
     explicitBlockers: indexBlockers(blockers, routes, validQuery.data_embarque),
     loadProfile: validQuery.carga,
     relatedNews,
