@@ -158,8 +158,7 @@ function authenticate(request, response, apiKeys) {
 export function createRateLimiter({ limit = DEFAULT_RATE_LIMIT, windowMs = DEFAULT_RATE_WINDOW_MS, now = () => Date.now() } = {}) {
   const windows = new Map();
 
-  function checkMany(key, count) {
-    const timestamp = now();
+  function checkMany(key, count, timestamp = now()) {
     let entry = windows.get(key);
     if (!entry || timestamp >= entry.resetAt) {
       entry = { resetAt: timestamp + windowMs, count: 0 };
@@ -177,15 +176,14 @@ export function createRateLimiter({ limit = DEFAULT_RATE_LIMIT, windowMs = DEFAU
     return { allowed: true };
   }
 
-  function refund(key, count) {
-    const timestamp = now();
+  function refund(key, count, timestamp = now()) {
     const entry = windows.get(key);
     if (!entry || timestamp >= entry.resetAt) return;
     entry.count = Math.max(0, entry.count - count);
   }
 
-  function check(key) {
-    return checkMany(key, 1);
+  function check(key, timestamp) {
+    return checkMany(key, 1, timestamp);
   }
   check.checkMany = checkMany;
   check.refund = refund;
@@ -306,9 +304,11 @@ function handleMessage(message, viability) {
 export function createMcpServer(options = {}) {
   const apiKeys =
     options.apiKeys !== undefined ? toKeyList(options.apiKeys) : toKeyList(process.env.IAV_MCP_API_KEYS);
+  const rateLimitNow = options.rateLimit?.now ?? (() => Date.now());
   const rateLimit = createRateLimiter({
     limit: options.rateLimit?.limit ?? DEFAULT_RATE_LIMIT,
     windowMs: options.rateLimit?.windowMs ?? DEFAULT_RATE_WINDOW_MS,
+    now: rateLimitNow,
   });
   const viability = options.consultarViabilidade ?? consultarViabilidade;
 
@@ -329,7 +329,8 @@ export function createMcpServer(options = {}) {
       return;
     }
 
-    const initialVerdict = rateLimit(apiKey);
+    const requestTime = rateLimitNow();
+    const initialVerdict = rateLimit(apiKey, requestTime);
     if (!initialVerdict.allowed) {
       sendRateLimited(response, initialVerdict);
       return;
@@ -340,9 +341,9 @@ export function createMcpServer(options = {}) {
       const messages = Array.isArray(payload) ? payload : [payload];
       const additionalCount = Math.max(0, messages.length - 1);
       if (additionalCount > 0) {
-        const batchVerdict = rateLimit.checkMany(apiKey, additionalCount);
+        const batchVerdict = rateLimit.checkMany(apiKey, additionalCount, requestTime);
         if (!batchVerdict.allowed) {
-          rateLimit.refund(apiKey, 1);
+          rateLimit.refund(apiKey, 1, requestTime);
           sendRateLimited(response, batchVerdict);
           return;
         }
