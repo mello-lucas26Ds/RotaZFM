@@ -1,0 +1,60 @@
+{
+  "fixture_version": "2026-11-25",
+  "fixture_kind": "dimension_evidence",
+  "created_at": "2026-11-25T12:00:00-04:00",
+  "created_by": "Maria - fixtures lógicas E2E (Etapa 6)",
+  "mock": true,
+  "source_status": "CONFIRMADO",
+  "dimension": "river_level",
+  "sources": [
+    {
+      "name": "SACE/SGB",
+      "source_url": "https://sace.sgb.gov.br/amazonas/",
+      "status": "CONFIRMADO"
+    }
+  ],
+  "official_readings": [
+    {
+      "id": "c16-river-r1-s1-balsa-inicial",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s1-balsa-inicial",
+      "station": "Careiro",
+      "river": "Amazonas/Solimões",
+      "level_m": 4.07,
+      "unit": "m",
+      "observed_at": "2026-11-25",
+      "score": 85,
+      "confirmation_status": "CONFIRMADO",
+      "effective_from": "2026-11-24",
+      "effective_until": "2026-11-26",
+      "published_at": "2026-11-25T09:00:00-04:00",
+      "last_valid_at": "2026-11-25T10:00:00-04:00",
+      "collected_at": "2026-11-25T12:00:00-04:00",
+      "method": "fixture_logica_e2e",
+      "source": "SACE/SGB - boletim hidrológico (fixture lógica)",
+      "source_url": "https://sace.sgb.gov.br/amazonas/"
+    },
+    {
+      "id": "c16-river-r2-s1-fluvial-amazonas",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "station": "Itacoatiara",
+      "river": "Amazonas/Solimões",
+      "level_m": 3.42,
+      "unit": "m",
+      "observed_at": "2026-11-25",
+      "score": 70,
+      "confirmation_status": "CONFIRMADO",
+      "effective_from": "2026-11-24",
+      "effective_until": "2026-11-26",
+      "published_at": "2026-11-25T09:00:00-04:00",
+      "last_valid_at": "2026-11-25T10:00:00-04:00",
+      "collected_at": "2026-11-25T12:00:00-04:00",
+      "method": "fixture_logica_e2e",
+      "source": "SACE/SGB - boletim hidrológico (fixture lógica)",
+      "source_url": "https://sace.sgb.gov.br/amazonas/"
+    }
+  ],
+  "coverage_gaps": [],
+  "notes": "scores lógicos calibrados para a matriz C01-C20; mock=true, não são observações reais"
+}
