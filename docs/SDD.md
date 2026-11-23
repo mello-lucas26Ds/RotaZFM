@@ -143,7 +143,7 @@ Filtro de notícias:
 }
 ```
 
-Regras: campos extras rejeitados; `origem`/`destino` são resolvidos contra `data/routes/mvp-routes.json` e par sem rota retorna `404 ROUTE_NOT_FOUND`; `data_embarque` entre hoje e hoje+4 dias; `peso_bruto_total_kg` entre `1` e `60000`.
+Regras: campos extras rejeitados; `origem`/`destino` são resolvidos contra `data/routes/mvp-routes.json` e par sem rota retorna `404 ROUTE_NOT_FOUND`; `data_embarque` entre hoje (`America/Manaus`) e hoje+4 dias; `peso_bruto_total_kg` entre `1` e `60000`.
 
 ### `DecisionSnapshot`
 

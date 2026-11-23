@@ -158,7 +158,7 @@ function authenticate(request, response, apiKeys) {
 export function createRateLimiter({ limit = DEFAULT_RATE_LIMIT, windowMs = DEFAULT_RATE_WINDOW_MS, now = () => Date.now() } = {}) {
   const windows = new Map();
 
-  return function check(key) {
+  function checkMany(key, count) {
     const timestamp = now();
     let entry = windows.get(key);
     if (!entry || timestamp >= entry.resetAt) {
@@ -166,16 +166,23 @@ export function createRateLimiter({ limit = DEFAULT_RATE_LIMIT, windowMs = DEFAU
       windows.set(key, entry);
     }
 
-    if (entry.count >= limit) {
+    if (entry.count + count > limit) {
       return {
         allowed: false,
         retryAfterSeconds: Math.max(1, Math.ceil((entry.resetAt - timestamp) / 1000)),
       };
     }
 
-    entry.count += 1;
+    entry.count += count;
     return { allowed: true };
-  };
+  }
+
+  function check(key) {
+    return checkMany(key, 1);
+  }
+  check.checkMany = checkMany;
+
+  return check;
 }
 
 export function consultarViabilidade(query, { referenceDate } = {}) {
@@ -309,12 +316,6 @@ export function createMcpServer(options = {}) {
     const apiKey = authenticate(request, response, apiKeys);
     if (!apiKey) return;
 
-    const verdict = rateLimit(apiKey);
-    if (!verdict.allowed) {
-      sendRateLimited(response, verdict);
-      return;
-    }
-
     if (request.method !== 'POST') {
       sendError(response, 405, 'METHOD_NOT_ALLOWED', 'Apenas POST /mcp é suportado neste MVP');
       return;
@@ -323,14 +324,10 @@ export function createMcpServer(options = {}) {
     try {
       const payload = await readJsonBody(request);
       const messages = Array.isArray(payload) ? payload : [payload];
-      if (Array.isArray(payload)) {
-        for (let index = 1; index < messages.length; index += 1) {
-          const batchVerdict = rateLimit(apiKey);
-          if (!batchVerdict.allowed) {
-            sendRateLimited(response, batchVerdict);
-            return;
-          }
-        }
+      const verdict = rateLimit.checkMany(apiKey, Math.max(1, messages.length));
+      if (!verdict.allowed) {
+        sendRateLimited(response, verdict);
+        return;
       }
       const responses = messages
         .map((message) => handleMessage(message, viability))

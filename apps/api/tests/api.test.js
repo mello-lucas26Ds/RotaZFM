@@ -150,6 +150,22 @@ test('api: GET /v1/fontes e GET /v1/noticias expõem dados normalizados', async 
     const fontesBody = await fontes.json();
     assert.ok(Array.isArray(fontesBody.fontes));
     assert.ok(fontesBody.fontes.length > 0);
+    assert.ok(
+      fontesBody.fontes.every(
+        (fonte) =>
+          typeof fonte.source === 'string' &&
+          fonte.source !== '' &&
+          typeof fonte.status === 'string' &&
+          typeof fonte.last_collected_at === 'string' &&
+          Number.isInteger(fonte.evidence_count) &&
+          fonte.evidence_count > 0,
+      ),
+    );
+
+    const inmet = fontesBody.fontes.find((fonte) => fonte.source.includes('INMET'));
+    assert.ok(inmet);
+    assert.equal(inmet.status, 'CONFIRMADO');
+    assert.equal(inmet.evidence_count, 15);
 
     const noticias = await getJson(server.baseUrl, '/v1/noticias');
     assert.equal(noticias.status, 200);

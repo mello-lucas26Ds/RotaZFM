@@ -84,6 +84,19 @@ test('C10 contracts: rejeita data_embarque fora da janela hoje..hoje+4', () => {
   );
 });
 
+test('contracts: janela de data_embarque usa hoje em America/Manaus', () => {
+  const referenceDate = new Date('2026-11-24T01:00:00.000Z');
+
+  assert.equal(
+    validateIavQuery(validQuery({ data_embarque: '2026-11-23' }), { referenceDate }).ok,
+    true,
+  );
+  assert.equal(
+    validateIavQuery(validQuery({ data_embarque: '2026-11-28' }), { referenceDate }).ok,
+    false,
+  );
+});
+
 test('C11 contracts: rejeita peso bruto fora de 1..60000 ou não inteiro', () => {
   for (const peso of [0, 60001, 10.5, '10000', null]) {
     const result = validateLoadProfile({ tipo: 'SECA', peso_bruto_total_kg: peso });

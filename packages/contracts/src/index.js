@@ -5,6 +5,13 @@ const LOAD_PROFILE_FIELDS = new Set(['tipo', 'peso_bruto_total_kg', 'quantidade_
 const DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 const MAX_WEIGHT_KG = 60000;
 const MAX_SHIPPING_DATE_DAYS = 4;
+const MANAUS_TIME_ZONE = 'America/Manaus';
+const manausDateFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: MANAUS_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
 
 export class ContractValidationError extends Error {
   constructor(message, errors, code = 'INVALID_QUERY') {
@@ -61,13 +68,17 @@ function parseDateOnly(value) {
   return timestamp;
 }
 
+function dateOnlyTimestampInManaus(date) {
+  const parts = {};
+  for (const part of manausDateFormatter.formatToParts(date)) {
+    if (part.type !== 'literal') parts[part.type] = part.value;
+  }
+  return Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day));
+}
+
 function normalizeReferenceDate(referenceDate) {
   if (referenceDate instanceof Date) {
-    return Date.UTC(
-      referenceDate.getUTCFullYear(),
-      referenceDate.getUTCMonth(),
-      referenceDate.getUTCDate(),
-    );
+    return dateOnlyTimestampInManaus(referenceDate);
   }
 
   if (typeof referenceDate === 'string') {
@@ -76,7 +87,7 @@ function normalizeReferenceDate(referenceDate) {
   }
 
   const now = new Date();
-  return Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  return dateOnlyTimestampInManaus(now);
 }
 
 function validateDateWindow(value, path, referenceDate, errors) {

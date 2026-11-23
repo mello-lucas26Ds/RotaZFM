@@ -156,8 +156,93 @@ export function consultarViabilidade(query, { referenceDate } = {}) {
   return snapshot;
 }
 
+const SOURCE_STATUS_RANK = new Map([
+  ['CONFIRMADO', 0],
+  ['NAO_CONFIRMADO', 1],
+  ['NAO_AVALIAVEL', 2],
+  ['EXPIRADO', 3],
+  ['CONFLITANTE', 4],
+  ['INDISPONIVEL', 5],
+]);
+
+function sourceStatusRank(status) {
+  return SOURCE_STATUS_RANK.get(status) ?? 1;
+}
+
+function timestampOrNull(value) {
+  if (typeof value !== 'string' || value.trim() === '') return null;
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
 function normalizedSources() {
-  return buildDecisionInput({}).evidences;
+  const input = buildDecisionInput({});
+  const collectedAtByPayload = new Map(
+    input.rawPayloads.map((payload) => [payload.raw_payload_id, payload.collected_at]),
+  );
+  const sources = new Map();
+
+  for (const evidence of input.evidences) {
+    const source =
+      typeof evidence.source === 'string' && evidence.source.trim() !== ''
+        ? evidence.source.trim()
+        : null;
+    if (!source) continue;
+
+    const status = evidence.confirmation_status ?? 'NAO_CONFIRMADO';
+    const payloadCollectedAt = collectedAtByPayload.get(`fixture:${evidence.fixture_file}`);
+    let lastCollectedAt = null;
+    let lastCollectedTime = null;
+    for (const candidate of [evidence.collected_at, payloadCollectedAt]) {
+      const timestamp = timestampOrNull(candidate);
+      if (timestamp !== null && (lastCollectedTime === null || timestamp > lastCollectedTime)) {
+        lastCollectedTime = timestamp;
+        lastCollectedAt = candidate;
+      }
+    }
+
+    let entry = sources.get(source);
+    if (!entry) {
+      entry = {
+        source,
+        source_url: null,
+        status,
+        last_collected_at: null,
+        last_collected_time: null,
+        evidence_count: 0,
+        confirmation_status_counts: {},
+      };
+      sources.set(source, entry);
+    }
+
+    if (
+      entry.source_url === null &&
+      typeof evidence.source_url === 'string' &&
+      evidence.source_url.trim() !== ''
+    ) {
+      entry.source_url = evidence.source_url;
+    }
+    if (sourceStatusRank(status) > sourceStatusRank(entry.status)) {
+      entry.status = status;
+    }
+    entry.evidence_count += 1;
+    entry.confirmation_status_counts[status] = (entry.confirmation_status_counts[status] ?? 0) + 1;
+    if (
+      lastCollectedTime !== null &&
+      (entry.last_collected_time === null || lastCollectedTime > entry.last_collected_time)
+    ) {
+      entry.last_collected_time = lastCollectedTime;
+      entry.last_collected_at = lastCollectedAt;
+    }
+  }
+
+  return [...sources.values()]
+    .map((entry) => {
+      const source = { ...entry };
+      delete source.last_collected_time;
+      return source;
+    })
+    .sort((left, right) => left.source.localeCompare(right.source));
 }
 
 function newsMatchesRoute(newsItem, routeId, segmentIds) {

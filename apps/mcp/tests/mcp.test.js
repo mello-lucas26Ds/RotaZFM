@@ -204,6 +204,36 @@ test('mcp: batch consome uma cota de rate limit por mensagem JSON-RPC', async ()
   }
 });
 
+test('mcp: batch rejeitado por cota não consome saldo', async () => {
+  const server = await startServer({ rateLimit: { limit: 2, windowMs: 60_000 } });
+  try {
+    const first = await rpc(server.baseUrl, 'tools/list', {}, { id: 1 });
+    assert.equal(first.status, 200);
+
+    const batch = await fetch(`${server.baseUrl}/mcp`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${API_KEY}`,
+      },
+      body: JSON.stringify([
+        { jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} },
+        { jsonrpc: '2.0', id: 3, method: 'tools/list', params: {} },
+      ]),
+    });
+    assert.equal(batch.status, 429);
+    assert.equal((await batch.json()).error.code, 'RATE_LIMITED');
+
+    const second = await rpc(server.baseUrl, 'tools/list', {}, { id: 4 });
+    assert.equal(second.status, 200);
+
+    const third = await rpc(server.baseUrl, 'tools/list', {}, { id: 5 });
+    assert.equal(third.status, 429);
+  } finally {
+    await server.close();
+  }
+});
+
 test('mcp: corpo acima de 64 KiB retorna 413 sem derrubar a conexão', async () => {
   const server = await startServer();
   try {
