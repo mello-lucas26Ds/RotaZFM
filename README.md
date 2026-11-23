@@ -12,6 +12,7 @@ Trilha: **Logística & Automação — Hack Brasil 2026**
 - [`docs/PRD.md`](docs/PRD.md) — problema, objetivo, MVP e critérios de sucesso.
 - [`docs/SPEC.md`](docs/SPEC.md) — requisitos funcionais, modelo de dados e contratos.
 - [`docs/SDD.md`](docs/SDD.md) — arquitetura, domínio, fontes, evidências, API/MCP, segurança e deploy.
+- [`docs/VALIDATION.md`](docs/VALIDATION.md) — validação substituta, premissas, critérios objetivos e caso retrospectivo.
 - [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md) — matriz C01..C20 e estratégia de testes.
 - [`docs/EXECUTION_BOARD.md`](docs/EXECUTION_BOARD.md) — etapas e papéis dos subagents.
 - [`docs/SUBAGENT_PROMPTS.md`](docs/SUBAGENT_PROMPTS.md) — prompts executáveis para Samuelson, Maria e Cris.
