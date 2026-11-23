@@ -8,6 +8,23 @@ function monthOf(dateValue) {
   return Number.isInteger(month) && month >= 1 && month <= 12 ? month : null;
 }
 
+function dateOnly(value) {
+  if (typeof value !== 'string' || value.length < 10) return null;
+  return value.slice(0, 10);
+}
+
+function restrictionActiveOn(record, shippingDate) {
+  const shipping = dateOnly(shippingDate);
+  if (shipping === null) return false;
+
+  const effectiveFrom = record.effective_from ? dateOnly(record.effective_from) : null;
+  const effectiveUntil = record.effective_until ? dateOnly(record.effective_until) : null;
+
+  if (effectiveFrom !== null && shipping < effectiveFrom) return false;
+  if (effectiveUntil !== null && shipping > effectiveUntil) return false;
+  return true;
+}
+
 function applicableLimitsTonnes(rules, month) {
   const limits = [];
   const novMay = [11, 12, 1, 2, 3, 4, 5];
@@ -56,6 +73,7 @@ export function buildPbtcBlockers({ payload, query, segmentIndex }) {
 
     const segment = segmentIndex.get(record.route_id, record.segment_id);
     if (!segment) continue;
+    if (!restrictionActiveOn(record, query.data_embarque)) continue;
 
     const limits = applicableLimitsTonnes(record.rules, month);
     if (limits.length === 0) continue;

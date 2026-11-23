@@ -69,6 +69,7 @@ const OPTIONAL_FACT_FIELDS = [
   'published_at',
   'method',
   'content_hash',
+  'raw_payload_id',
   'last_valid_at',
   'effective_from',
   'effective_until',
@@ -222,6 +223,13 @@ function normalizeFact(rawFact, index) {
       fail(`facts[${index}].pbtc_kg deve ser número > 0`, 'INVALID_FACT');
     }
     fact.pbtc_kg = rawFact.pbtc_kg;
+  }
+
+  if (rawFact.value !== undefined) {
+    if (rawFact.value !== null && !isPlainObject(rawFact.value)) {
+      fail(`facts[${index}].value deve ser objeto`, 'INVALID_FACT');
+    }
+    fact.value = rawFact.value;
   }
 
   for (const field of OPTIONAL_FACT_FIELDS) {
@@ -432,7 +440,7 @@ function evidenceFromFact(fact, routeId, segmentId, dimension) {
     effective_until: fact.effective_until,
   };
 
-  for (const field of ['collected_at', 'published_at', 'method', 'content_hash']) {
+  for (const field of ['collected_at', 'published_at', 'method', 'content_hash', 'raw_payload_id', 'value']) {
     if (fact[field] !== undefined) evidence[field] = fact[field];
   }
 

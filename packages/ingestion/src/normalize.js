@@ -248,14 +248,21 @@ function factFromCandidate(candidate, segmentIndex) {
     source,
     source_url: sourceUrl,
     evidence_id: candidate.evidenceId,
+    raw_payload_id: `fixture:${candidate.fixtureFile.fileName}`,
   };
 
   const score = extractScore(record);
   if (score !== null) fact.score = score;
+  if (candidate.value && Object.keys(candidate.value).length > 0) fact.value = candidate.value;
 
   copyPresent(fact, record, EVIDENCE_FIELDS);
   const freshnessHours = computeFreshnessHours(record, candidate.payload);
   if (freshnessHours !== undefined) fact.freshness_hours = freshnessHours;
+  if (fact.collected_at === undefined && candidate.payload?.created_at !== undefined) {
+    fact.collected_at = candidate.payload.created_at;
+  }
+  if (fact.method === undefined) fact.method = 'local_fixture_file';
+  if (fact.content_hash === undefined) fact.content_hash = candidate.fixtureFile.contentHash;
 
   return fact;
 }

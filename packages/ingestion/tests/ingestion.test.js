@@ -118,6 +118,123 @@ test('ingestion: PBTC confirmado vira bloqueador duro apenas quando a carga exce
   );
 });
 
+test('ingestion: PBTC escolhe o menor limite numérico vigente no trecho', () => {
+  const payload = {
+    dimension: 'weight_restriction',
+    restrictions: [
+      {
+        id: 'pbtc-17t',
+        route_id: 'rota-1-br-319',
+        segment_id: 'r1-s2-floresta-br319',
+        confirmation_status: 'CONFIRMADO',
+        source: 'DNIT',
+        source_url: 'https://example.com/pbtc',
+        rules: { pbtc_max_t_nov_may: 17 },
+      },
+      {
+        id: 'pbtc-9t',
+        route_id: 'rota-1-br-319',
+        segment_id: 'r1-s2-floresta-br319',
+        confirmation_status: 'CONFIRMADO',
+        source: 'DNIT',
+        source_url: 'https://example.com/pbtc',
+        rules: { pbtc_max_t_nov_may: 9 },
+      },
+    ],
+  };
+  const segmentIndex = { get: () => ({ mode: 'rodoviario' }) };
+
+  const blockers = buildPbtcBlockers({
+    payload,
+    query: makeQuery({ peso: 10000 }),
+    segmentIndex,
+  });
+
+  assert.equal(blockers.length, 1);
+  assert.equal(blockers[0].pbtc_kg, 9000);
+  assert.equal(blockers[0].evidence_id, 'pbtc-9t');
+});
+
+test('ingestion: PBTC ignora limite vencido antes de escolher o vigente', () => {
+  const payload = {
+    dimension: 'weight_restriction',
+    restrictions: [
+      {
+        id: 'pbtc-9t-vencido',
+        route_id: 'rota-1-br-319',
+        segment_id: 'r1-s2-floresta-br319',
+        confirmation_status: 'CONFIRMADO',
+        source: 'DNIT',
+        source_url: 'https://example.com/pbtc',
+        effective_until: '2026-11-20',
+        rules: { pbtc_max_t_nov_may: 9 },
+      },
+      {
+        id: 'pbtc-17t-vigente',
+        route_id: 'rota-1-br-319',
+        segment_id: 'r1-s2-floresta-br319',
+        confirmation_status: 'CONFIRMADO',
+        source: 'DNIT',
+        source_url: 'https://example.com/pbtc',
+        effective_from: '2026-11-21',
+        rules: { pbtc_max_t_nov_may: 17 },
+      },
+    ],
+  };
+  const segmentIndex = { get: () => ({ mode: 'rodoviario' }) };
+
+  const light = buildPbtcBlockers({
+    payload,
+    query: makeQuery({ peso: 10000 }),
+    segmentIndex,
+  });
+  assert.equal(light.length, 0);
+
+  const heavy = buildPbtcBlockers({
+    payload,
+    query: makeQuery({ peso: 18000 }),
+    segmentIndex,
+  });
+  assert.equal(heavy.length, 1);
+  assert.equal(heavy[0].pbtc_kg, 17000);
+  assert.equal(heavy[0].evidence_id, 'pbtc-17t-vigente');
+});
+
+test('ingestion: fatos carregam valor medido e rastreabilidade do fixture', () => {
+  const query = makeQuery();
+  const input = buildDecisionInput({ query });
+  const rainFact = input.facts.find(
+    (item) => item.dimension === 'chuva' && item.value?.municipality === 'Manaus',
+  );
+  assert.ok(rainFact);
+  assert.equal(rainFact.raw_payload_id, 'fixture:rain.fixture.json');
+  assert.equal(rainFact.method, 'inmet_api_fixture');
+  assert.ok(rainFact.content_hash);
+  assert.ok(rainFact.collected_at);
+  assert.equal(rainFact.value?.municipality, 'Manaus');
+
+  const trafficFact = input.facts.find(
+    (item) => item.dimension === 'trafego' && item.value?.traffic_status === 'NAO_CONFIRMADO',
+  );
+  assert.ok(trafficFact);
+  assert.equal(trafficFact.raw_payload_id, 'fixture:traffic.fixture.json');
+  assert.equal(trafficFact.method, 'local_fixture_file');
+  assert.ok(trafficFact.content_hash);
+  assert.ok(trafficFact.collected_at);
+  assert.equal(trafficFact.value?.traffic_status, 'NAO_CONFIRMADO');
+
+  const snapshot = snapshotFrom(input, query);
+  const segment = snapshot.routes
+    .find((route) => route.route_id === rainFact.route_id)
+    .segments.find((item) => item.segment_id === rainFact.segment_id);
+  const evidence = segment.evidences.find(
+    (item) => item.evidence_id === rainFact.evidence_id && item.dimension === 'chuva',
+  );
+  assert.equal(evidence.value?.municipality, 'Manaus');
+  assert.equal(evidence.raw_payload_id, 'fixture:rain.fixture.json');
+  assert.equal(evidence.method, 'inmet_api_fixture');
+});
+
 test('ingestion: related_news permanece contexto e nunca vira blocker', () => {
   const query = makeQuery();
   const input = buildDecisionInput({ query });
