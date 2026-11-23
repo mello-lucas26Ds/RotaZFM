@@ -183,11 +183,6 @@ function normalizeFact(rawFact, index) {
     fail(`Dimensão inválida: ${fact.dimension}`, 'INVALID_FACT');
   }
 
-  if (!Number.isFinite(rawFact.score) || rawFact.score < 0 || rawFact.score > 100) {
-    fail(`facts[${index}].score deve estar entre 0 e 100`, 'INVALID_SCORE');
-  }
-  fact.score = rawFact.score;
-
   if (
     typeof rawFact.confirmation_status !== 'string' ||
     !CONFIRMATION_STATUSES.has(rawFact.confirmation_status)
@@ -195,6 +190,15 @@ function normalizeFact(rawFact, index) {
     fail(`facts[${index}].confirmation_status inválido`, 'INVALID_FACT');
   }
   fact.confirmation_status = rawFact.confirmation_status;
+
+  if (rawFact.score === undefined || rawFact.score === null) {
+    fact.score = null;
+  } else {
+    if (!Number.isFinite(rawFact.score) || rawFact.score < 0 || rawFact.score > 100) {
+      fail(`facts[${index}].score deve estar entre 0 e 100`, 'INVALID_SCORE');
+    }
+    fact.score = rawFact.score;
+  }
 
   if (rawFact.freshness_hours !== undefined && rawFact.freshness_hours !== null) {
     if (!Number.isFinite(rawFact.freshness_hours) || rawFact.freshness_hours < 0) {
@@ -229,6 +233,15 @@ function normalizeBlocker(rawBlocker, index) {
     confirmed: rawBlocker.confirmed === true,
   };
 
+  for (const field of ['pbtc_kg', 'weight_kg']) {
+    if (rawBlocker[field] !== undefined && rawBlocker[field] !== null) {
+      if (!isPositiveFinite(rawBlocker[field])) {
+        fail(`blockers[${index}].${field} deve ser número > 0`, 'INVALID_BLOCKER');
+      }
+      blocker[field] = rawBlocker[field];
+    }
+  }
+
   for (const field of ['description', 'source', 'source_url', 'evidence_id']) {
     if (rawBlocker[field] !== undefined) blocker[field] = rawBlocker[field];
   }
@@ -249,6 +262,16 @@ function normalizeBlocker(rawBlocker, index) {
   return blocker;
 }
 
+function scoreSortValue(fact) {
+  return Number.isFinite(fact.score) ? fact.score : Number.POSITIVE_INFINITY;
+}
+
+function compareFactScores(left, right) {
+  const leftScore = scoreSortValue(left);
+  const rightScore = scoreSortValue(right);
+  return leftScore === rightScore ? 0 : leftScore - rightScore;
+}
+
 function compareFacts(left, right) {
   const freshnessLeft = Number.isFinite(left.freshness_hours) ? left.freshness_hours : Number.POSITIVE_INFINITY;
   const freshnessRight = Number.isFinite(right.freshness_hours)
@@ -260,7 +283,7 @@ function compareFacts(left, right) {
     String(left.source ?? '').localeCompare(String(right.source ?? '')) ||
     String(left.source_url ?? '').localeCompare(String(right.source_url ?? '')) ||
     String(left.evidence_id ?? '').localeCompare(String(right.evidence_id ?? '')) ||
-    left.score - right.score
+    compareFactScores(left, right)
   );
 }
 
@@ -274,21 +297,22 @@ function evaluateActiveDimension(facts) {
   }
 
   if (facts.some((fact) => fact.confirmation_status === 'CONFLITANTE')) {
-    return { ok: false, reason: 'CONFLITANTE' };
+    return { ok: false, reason: 'CONFLITANTE', facts };
   }
 
   const confirmed = facts.filter((fact) => fact.confirmation_status === 'CONFIRMADO');
-  const freshConfirmed = confirmed.filter(
+  const scoredConfirmed = confirmed.filter((fact) => Number.isFinite(fact.score));
+  const freshScored = scoredConfirmed.filter(
     (fact) => Number.isFinite(fact.freshness_hours) && fact.freshness_hours <= MAX_FRESHNESS_HOURS,
   );
 
-  if (freshConfirmed.length > 0) {
-    const signatures = new Set(freshConfirmed.map(factSignature));
+  if (freshScored.length > 0) {
+    const signatures = new Set(freshScored.map(factSignature));
     if (signatures.size > 1) {
-      return { ok: false, reason: 'CONFLITANTE', facts: freshConfirmed };
+      return { ok: false, reason: 'CONFLITANTE', facts: freshScored };
     }
 
-    const selected = [...freshConfirmed].sort(compareFacts)[0];
+    const selected = [...freshScored].sort(compareFacts)[0];
     if (selected.dimension === 'restricao' && !isPositiveFinite(selected.pbtc_kg)) {
       return { ok: false, reason: 'PBTC_AUSENTE', fact: selected };
     }
@@ -303,12 +327,22 @@ function evaluateActiveDimension(facts) {
   }
 
   if (confirmed.some((fact) => !Number.isFinite(fact.freshness_hours))) {
-    return { ok: false, reason: 'FRESCOR_AUSENTE' };
+    return { ok: false, reason: 'FRESCOR_AUSENTE', facts: confirmed };
+  }
+
+  const freshUnscored = confirmed.filter(
+    (fact) =>
+      Number.isFinite(fact.freshness_hours) &&
+      fact.freshness_hours <= MAX_FRESHNESS_HOURS &&
+      !Number.isFinite(fact.score),
+  );
+  if (freshUnscored.length > 0) {
+    return { ok: false, reason: 'SCORE_AUSENTE', facts: freshUnscored };
   }
 
   const nonConfirmed = facts.find((fact) => fact.confirmation_status !== 'CONFIRMADO');
   if (nonConfirmed) {
-    return { ok: false, reason: nonConfirmed.confirmation_status };
+    return { ok: false, reason: nonConfirmed.confirmation_status, facts };
   }
 
   return { ok: false, reason: 'AUSENTE' };
