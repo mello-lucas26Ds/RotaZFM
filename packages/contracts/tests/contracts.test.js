@@ -39,6 +39,16 @@ test('C01 contracts: aceita IavQuery válido e assume quantidade_caminhoes = 1',
   });
 });
 
+test('contracts: aceita par origem/destino fora do catálogo para o domínio decidir rota', () => {
+  const result = validateIavQuery(validQuery({ origem: 'BELEM' }), {
+    referenceDate: REFERENCE_DATE,
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.value.origem, 'BELEM');
+  assert.equal(result.value.destino, 'SAO_PAULO');
+});
+
 test('C09 contracts: rejeita campo extra na raiz e dentro de carga', () => {
   const rootExtra = validateIavQuery(validQuery({ agente: 'teste' }), {
     referenceDate: REFERENCE_DATE,

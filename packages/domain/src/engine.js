@@ -125,8 +125,24 @@ function dateOnly(value) {
 }
 
 function blockerActiveOn(blocker, shippingDate) {
+  const effectiveFrom = blocker.effective_from ? dateOnly(blocker.effective_from) : null;
   const effectiveUntil = blocker.effective_until ? dateOnly(blocker.effective_until) : null;
-  return effectiveUntil === null || shippingDate <= effectiveUntil;
+
+  if (effectiveFrom !== null && shippingDate < effectiveFrom) return false;
+  if (effectiveUntil !== null && shippingDate > effectiveUntil) return false;
+  return true;
+}
+
+function factCoversShippingDate(fact, shippingDate) {
+  if (fact.effective_from !== undefined && fact.effective_from !== null) {
+    const effectiveFrom = dateOnly(fact.effective_from);
+    if (effectiveFrom === null || shippingDate < effectiveFrom) return false;
+  }
+  if (fact.effective_until !== undefined && fact.effective_until !== null) {
+    const effectiveUntil = dateOnly(fact.effective_until);
+    if (effectiveUntil === null || shippingDate > effectiveUntil) return false;
+  }
+  return true;
 }
 
 function segmentKey(routeId, segmentId) {
@@ -264,8 +280,11 @@ function evaluateDimension(facts) {
     return { ok: true, fact: selected };
   }
 
-  if (confirmed.some((fact) => Number.isFinite(fact.freshness_hours) && fact.freshness_hours > MAX_FRESHNESS_HOURS)) {
-    return { ok: false, reason: 'DESATUALIZADO' };
+  const staleConfirmed = confirmed.filter(
+    (fact) => Number.isFinite(fact.freshness_hours) && fact.freshness_hours > MAX_FRESHNESS_HOURS,
+  );
+  if (staleConfirmed.length > 0) {
+    return { ok: false, reason: 'DESATUALIZADO', facts: staleConfirmed };
   }
 
   if (confirmed.some((fact) => !Number.isFinite(fact.freshness_hours))) {
@@ -639,7 +658,7 @@ function validateCatalog(catalog, query) {
   return routes;
 }
 
-function indexFacts(facts, routes) {
+function indexFacts(facts, routes, shippingDate) {
   const knownSegments = new Set();
   for (const route of routes) {
     for (const segment of route.segments) {
@@ -658,7 +677,7 @@ function indexFacts(facts, routes) {
   }
 
   const factsBySegment = new Map();
-  for (const fact of normalizedFacts) {
+  for (const fact of normalizedFacts.filter((fact) => factCoversShippingDate(fact, shippingDate))) {
     const key = factKey(fact.route_id, fact.segment_id, fact.dimension);
     if (!factsBySegment.has(key)) factsBySegment.set(key, []);
     factsBySegment.get(key).push(fact);
@@ -715,7 +734,7 @@ export function assessDecision({
 
   const routes = validateCatalog(catalog, validQuery);
   const context = {
-    factsBySegment: indexFacts(facts, routes),
+    factsBySegment: indexFacts(facts, routes, validQuery.data_embarque),
     explicitBlockers: indexBlockers(blockers, routes, validQuery.data_embarque),
     loadProfile: validQuery.carga,
     relatedNews,

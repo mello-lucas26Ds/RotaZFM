@@ -1,6 +1,4 @@
 export const LOAD_TYPES = Object.freeze(['SECA', 'CONTEINERIZADA']);
-export const QUERY_ORIGINS = Object.freeze(['MANAUS']);
-export const QUERY_DESTINATIONS = Object.freeze(['SAO_PAULO']);
 
 const IAV_QUERY_FIELDS = new Set(['origem', 'destino', 'data_embarque', 'carga']);
 const LOAD_PROFILE_FIELDS = new Set(['tipo', 'peso_bruto_total_kg', 'quantidade_caminhoes']);
@@ -170,22 +168,8 @@ export function validateIavQuery(input, { referenceDate = new Date() } = {}) {
 
   validateNoExtraFields(input, IAV_QUERY_FIELDS, 'query', errors);
 
-  if (validateRequiredString(input.origem, 'origem', errors)) {
-    if (!QUERY_ORIGINS.includes(input.origem)) {
-      addError(errors, 'origem', 'INVALID_ENUM', `origem deve ser uma de: ${QUERY_ORIGINS.join(', ')}`);
-    }
-  }
-
-  if (validateRequiredString(input.destino, 'destino', errors)) {
-    if (!QUERY_DESTINATIONS.includes(input.destino)) {
-      addError(
-        errors,
-        'destino',
-        'INVALID_ENUM',
-        `destino deve ser uma de: ${QUERY_DESTINATIONS.join(', ')}`,
-      );
-    }
-  }
+  validateRequiredString(input.origem, 'origem', errors);
+  validateRequiredString(input.destino, 'destino', errors);
 
   let dataEmbarque = null;
   if (input.data_embarque === undefined) {

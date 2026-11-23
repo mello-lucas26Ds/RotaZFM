@@ -289,6 +289,7 @@ test('domain: dimensão com freshness_hours > 24 vira NAO_AVALIAVEL', () => {
 
   const snapshot = makeSnapshot({ facts });
   const route1 = routeById(snapshot, 'rota-1-br-319');
+  const segment = route1.segments.find((item) => item.segment_id === 'r1-s2-floresta-br319');
 
   assert.equal(route1.status, 'NAO_AVALIAVEL');
   assert.equal(route1.iav, null);
@@ -299,6 +300,59 @@ test('domain: dimensão com freshness_hours > 24 vira NAO_AVALIAVEL', () => {
         missing.dimension === 'nivel' &&
         missing.reason === 'DESATUALIZADO',
     ),
+  );
+
+  const staleEvidence = segment.evidences.find(
+    (evidence) => evidence.dimension === 'nivel' && evidence.freshness_hours === 25,
+  );
+  assert.ok(staleEvidence);
+  assert.equal(staleEvidence.last_valid_at, '2026-11-23T00:00:00Z');
+});
+
+test('domain: evidência fora da vigência do embarque não sustenta score nem bloqueio', () => {
+  const routeId = 'rota-1-br-319';
+  const segmentId = 'r1-s2-floresta-br319';
+  const restrictionKey = key(routeId, segmentId, 'restricao');
+
+  const expiredFacts = allFacts({
+    overrides: { [restrictionKey]: { pbtc_kg: 5000 } },
+  });
+  const expiredFact = expiredFacts.find(
+    (fact) => fact.route_id === routeId && fact.segment_id === segmentId && fact.dimension === 'restricao',
+  );
+  expiredFact.effective_from = '2026-11-20';
+  expiredFact.effective_until = '2026-11-24';
+
+  const expired = makeSnapshot({ facts: expiredFacts });
+  const expiredRoute = routeById(expired, routeId);
+  assert.equal(expiredRoute.status, 'NAO_AVALIAVEL');
+  assert.equal(expired.blockers.length, 0);
+  assert.ok(
+    expiredRoute.missing_data.some(
+      (missing) =>
+        missing.segment_id === segmentId &&
+        missing.dimension === 'restricao' &&
+        missing.reason === 'AUSENTE',
+    ),
+  );
+
+  const futureFacts = allFacts({
+    overrides: { [restrictionKey]: { pbtc_kg: 5000 } },
+  });
+  const futureFact = futureFacts.find(
+    (fact) => fact.route_id === routeId && fact.segment_id === segmentId && fact.dimension === 'restricao',
+  );
+  futureFact.effective_from = '2026-11-26';
+
+  const future = makeSnapshot({ facts: futureFacts });
+  assert.equal(routeById(future, routeId).status, 'NAO_AVALIAVEL');
+  assert.equal(future.blockers.length, 0);
+});
+
+test('domain: par origem/destino sem rota no catálogo retorna ROUTE_NOT_FOUND', () => {
+  assert.throws(
+    () => makeSnapshot({ query: { ...makeQuery(), origem: 'BELEM' } }),
+    (error) => error?.code === 'ROUTE_NOT_FOUND',
   );
 });
 
@@ -366,6 +420,29 @@ test('domain: bloqueador confirmado expirado antes do embarque não bloqueia', (
 
   assert.equal(routeById(active, routeId).status, 'NAO_VIAVEL');
   assert.ok(active.blockers.some((blocker) => blocker.type === 'INTERDICAO'));
+});
+
+test('domain: bloqueador confirmado que começa depois do embarque não bloqueia', () => {
+  const segmentId = 'r1-s2-floresta-br319';
+  const routeId = 'rota-1-br-319';
+  const baseBlocker = {
+    route_id: routeId,
+    segment_id: segmentId,
+    type: 'INTERDICAO',
+    confirmed: true,
+    description: 'Interdição futura confirmada',
+    source: 'DNIT',
+    effective_from: '2026-11-26',
+  };
+
+  const future = makeSnapshot({ blockers: [baseBlocker] });
+  assert.equal(routeById(future, routeId).status, 'VIAVEL');
+  assert.equal(future.blockers.length, 0);
+
+  const current = makeSnapshot({
+    blockers: [{ ...baseBlocker, effective_from: '2026-11-25' }],
+  });
+  assert.equal(routeById(current, routeId).status, 'NAO_VIAVEL');
 });
 
 test('domain: limiar de status usa IAV sem arredondamento intermediário', () => {
