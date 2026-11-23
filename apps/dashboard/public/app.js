@@ -5,9 +5,16 @@ const snapshotRoot = document.getElementById('snapshot');
 const fontesList = document.getElementById('fontes');
 const newsList = document.getElementById('news');
 
+const manausDateFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'America/Manaus',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+
 function dateOnly(offsetDays = 0) {
   const date = new Date(Date.now() + offsetDays * 24 * 60 * 60 * 1000);
-  return date.toLocaleDateString('en-CA');
+  return manausDateFormatter.format(date);
 }
 
 function showError(message) {
@@ -29,6 +36,19 @@ function element(tag, className, text) {
 
 function formatIav(value) {
   return value === null || value === undefined ? '—' : String(value);
+}
+
+function formatEvidenceValue(value) {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== 'object') return String(value);
+
+  const parts = [];
+  for (const [key, entry] of Object.entries(value)) {
+    if (entry === null || entry === undefined || typeof entry === 'object') continue;
+    parts.push(`${key}=${entry}`);
+    if (parts.length === 4) break;
+  }
+  return parts.length > 0 ? parts.join(', ') : JSON.stringify(value);
 }
 
 function formatFreshness(hours) {
@@ -76,10 +96,11 @@ function renderEvidenceList(title, evidences) {
           return link;
         })()
       : element('span', null, evidence.source ?? 'fonte não informada');
+    const valueText = formatEvidenceValue(evidence.value);
     item.append(
       source,
       document.createTextNode(
-        ` — ${evidence.confirmation_status ?? '—'}; frescor ${formatFreshness(evidence.freshness_hours)}; última válida ${formatTimestamp(evidence.last_valid_at)}`,
+        ` — ${evidence.confirmation_status ?? '—'}; frescor ${formatFreshness(evidence.freshness_hours)}; última válida ${formatTimestamp(evidence.last_valid_at)}${valueText ? `; valor ${valueText}` : ''}`,
       ),
     );
     list.append(item);
@@ -158,6 +179,13 @@ function renderRoute(route) {
   details.append(renderEvidenceList('Evidências da rota', route.evidences));
   card.append(details);
 
+  if ((route.related_news ?? []).length > 0) {
+    const routeNews = element('section');
+    routeNews.append(element('h4', null, 'Notícias da rota'));
+    routeNews.append(renderNews(route.related_news));
+    card.append(routeNews);
+  }
+
   return card;
 }
 
@@ -192,17 +220,16 @@ function renderSnapshot(snapshot) {
   snapshotRoot.append(element('p', 'meta', `Regra ${snapshot.rule_version ?? '—'} · catálogo ${snapshot.catalog_version ?? '—'} · ${snapshot.justification_template ?? ''}`));
 
   for (const route of snapshot.routes ?? []) snapshotRoot.append(renderRoute(route));
-
-  const news = element('section');
-  news.append(element('h3', null, 'Notícias relacionadas'));
-  news.append(renderNews(snapshot.related_news));
-  snapshotRoot.append(news);
 }
 
 async function readError(response) {
   try {
     const body = await response.json();
-    return body?.error?.message ?? `HTTP ${response.status}`;
+    const message = body?.error?.message ?? `HTTP ${response.status}`;
+    const details = Array.isArray(body?.error?.details)
+      ? body.error.details.map((detail) => detail?.message).filter(Boolean)
+      : [];
+    return details.length > 0 ? `${message}: ${details.join('; ')}` : message;
   } catch {
     return `HTTP ${response.status}`;
   }
@@ -278,6 +305,13 @@ async function loadNews() {
   }
 }
 
-form.elements.data_embarque.value = dateOnly(1);
+const shippingDateInput = form.elements.data_embarque;
+shippingDateInput.value = dateOnly(1);
+shippingDateInput.min = dateOnly(0);
+shippingDateInput.max = dateOnly(4);
+const dateWindowHint = document.getElementById('date-window-hint');
+if (dateWindowHint) {
+  dateWindowHint.textContent = `Janela aceita: ${shippingDateInput.min} a ${shippingDateInput.max} (America/Manaus).`;
+}
 loadFontes();
 loadNews();
