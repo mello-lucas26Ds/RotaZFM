@@ -36,29 +36,29 @@ Data: 23/11/2026
 
 ## Matriz de cenários C01..C20
 
-A matriz executável fica em `tests/e2e/scenarios.json`. Cada cenário tem `input`, `fixtures`, `expected_status`, `expected_iav` ou `expected_null`, `expected_blockers[]` e `expected_missing_data[]`.
+A matriz executável fica em `tests/e2e/scenarios.json`. Cada cenário tem `input`, `fixtures`, `expected_status`, `expected_iav`/`expected_null`, `expected_blockers[]` e `expected_missing_data[]`.
 
 | ID | Cenário | Esperado |
 |---|---|---|
 | C01 | Consulta válida, duas rotas com dados frescos | `VIAVEL` ou `VIAVEL_COM_RESSALVAS` com IAV numérico |
 | C02 | PBTC do trecho crítico menor que `peso_bruto_total_kg` | `NAO_VIAVEL` com blocker de peso |
 | C03 | Dimensão obrigatória ausente | `NAO_AVALIAVEL`, `iav = null`, `missing_data[]` preenchido |
-| C04 | Dado com `freshness_hours > 24` | valor reutilizado com `last_valid_at` e alerta |
+| C04 | Dado com `freshness_hours > 24` | último valor válido aparece com `last_valid_at`, `freshness_hours` e alerta; dimensão obrigatória sem fallback fresco vira `NAO_AVALIAVEL` |
 | C05 | Conflito entre fontes oficiais | `CONFLITANTE` → `NAO_AVALIAVEL` na dimensão |
-| C06 | Fonte indisponível sem fallback | `503` na borda ou `NAO_AVALIAVEL` no trecho afetado |
+| C06 | Fonte indisponível sem fallback | `NAO_AVALIAVEL` no trecho afetado; `503` somente se não for possível montar `DecisionSnapshot` |
 | C07 | Notícia relacionada sem confirmação | aparece em `related_news[]`, não em `blockers[]` |
 | C08 | Notícia confirmada por fonte oficial | pode virar evidência; ainda exige regra de bloqueio |
 | C09 | Entrada com campo extra | `400 INVALID_QUERY` |
 | C10 | `data_embarque` fora da janela | `400 INVALID_QUERY` |
 | C11 | `peso_bruto_total_kg` fora de `1..60000` | `400 INVALID_QUERY` |
-| C12 | Rota fora do catálogo | `404 ROUTE_NOT_FOUND` |
+| C12 | Par `origem/destino` sem rota no catálogo | `404 ROUTE_NOT_FOUND` |
 | C13 | MCP sem API key | `401` sem executar coleta/cálculo |
 | C14 | MCP com chave inválida | `401` |
 | C15 | MCP acima de 60 req/min | `429` com `retry_after_seconds` |
 | C16 | Mesmo input + mesmo `rule_version` | mesmo `DecisionSnapshot` |
 | C17 | Trecho crítico da BR-319 sem asfalto com chuva forte | rota 1 `NAO_VIAVEL` ou `NAO_AVALIAVEL` conforme fixture |
 | C18 | Rota 2 com nível do rio fora da faixa | trecho fluvial bloqueado/`NAO_AVALIAVEL` |
-| C19 | Carga `CONTEINERIZADA` com peso no limite do PBTC | decisão muda apenas se PBTC mudar |
+| C19 | Carga `CONTEINERIZADA` com peso igual ao PBTC | igualdade não bloqueia; decisão só muda se PBTC confirmado mudar |
 | C20 | Dashboard sem dados | mostra estado vazio com orientação, sem score |
 
 ## Dados de teste

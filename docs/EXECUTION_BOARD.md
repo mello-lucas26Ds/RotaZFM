@@ -31,7 +31,7 @@ Prompts de tarefa por papel estão em `docs/SUBAGENT_PROMPTS.md`.
 ## Etapa 0 — Congelar decisões e validação substituta
 
 - **Objetivo:** eliminar ambiguidades antes de codar.
-- **Tarefa:** revisar PRD/SPEC/SDD/DECISIONS; confirmar IAV, rotas, carga, política de dado ausente, notícias, Alexandria/Firecrawl e deploy Vercel final.
+- **Tarefa:** revisar PRD/SPEC/SDD/DECISIONS; confirmar IAV, rotas, carga, política de dado ausente, notícias, Alexandria/Firecrawl e deploy Vercel final; registrar validação substituta em `docs/VALIDATION.md`.
 - **Subagent/responsável:** Samuelson propõe; Lucas aprova.
 - **Dependências:** decisões de Lucas já registradas.
 - **Validação:** documentos sem dependência de entrevista; toda premissa tem critério objetivo.
@@ -76,7 +76,7 @@ Prompts de tarefa por papel estão em `docs/SUBAGENT_PROMPTS.md`.
 ## Etapa 5 — Fontes reais controladas e retrospectivo documental
 
 - **Objetivo:** provar coleta real sem desperdiçar chamadas.
-- **Tarefa:** validar SACE/INMET/DNIT/portarias com amostras mínimas; testar Firecrawl/Alexandria para notícias; escolher ou descartar caso retrospectivo com critérios prévios.
+- **Tarefa:** validar SACE/INMET/DNIT/portarias com amostras mínimas; testar Firecrawl/Alexandria para notícias; escolher ou descartar caso retrospectivo com critérios prévios e registrar o resultado em `docs/VALIDATION.md`.
 - **Subagent/responsável:** Maria executa; Samuelson registra decisões de corte; Cris revisa contratos.
 - **Dependências:** Etapas 1–4 com fixtures estáveis.
 - **Validação:** cada fonte tem endpoint/página, exemplo, data, status, fallback e termos; chamadas externas mínimas e logadas.
