@@ -11,8 +11,8 @@ Data: 23/11/2026
 
 **Critérios de aceite:**
 - O catálogo contém `rota-1-br-319` e `rota-2-fluvial-brasilia`, cada uma com segmentos `from`, `to`, `road`, `mode` e `critical`.
-- `origin` deve ser `MANAUS` e `destination` deve ser `SAO_PAULO`.
-- Qualquer rota fora do catálogo retorna `404`.
+- O catálogo do MVP contém rotas com `origin = MANAUS` e `destination = SAO_PAULO`.
+- Um par `origem/destino` sem rota correspondente no catálogo retorna `404 ROUTE_NOT_FOUND`; isso não é campo extra de `IavQuery`.
 
 ### RF-002 — Perfil mínimo de carga
 
@@ -46,7 +46,7 @@ Data: 23/11/2026
 **Regra:** quando a fonte falhar ou o dado estiver velho, o sistema deve reutilizar a última observação válida com alerta de atraso; quando houver conflito entre fontes oficiais, a dimensão fica `CONFLITANTE`.
 
 **Critérios de aceite:**
-- Dado com `freshness_hours > 24` é marcado como defasado.
+- Dado com `freshness_hours > 24` é marcado como defasado; a última observação válida pode ser exibida com `last_valid_at`, `freshness_hours` e alerta, mas não sustenta score de dimensão obrigatória sem fallback mais fresco.
 - Valor com variação atípica é descartado ou marcado `NAO_AVALIAVEL`.
 - Conflito entre fontes oficiais gera `CONFLITANTE`, nunca média silenciosa.
 - Último valor válido sempre aparece com `last_valid_at` e `freshness_hours`.
@@ -85,7 +85,7 @@ Data: 23/11/2026
 **Regra:** se dimensão obrigatória estiver ausente, desatualizada além do limite ou conflitante, o sistema não publica IAV numérico.
 
 **Critérios de aceite:**
-- Retorna `status = "NAO_AVALIAVEL"`, `iav = null` e `missing_data[]` com dimensão, trecho e motivo.
+- Retorna `status = "NAO_AVALIAVEL"`, `iav = null` e `missing_data[]` com dimensão, trecho e motivo quando a dimensão obrigatória estiver ausente, desatualizada além do limite de frescor do MVP (`freshness_hours > 24`) ou conflitante.
 - `NAO_AVALIAVEL` não é tratado como aprovação.
 - Dashboard e MCP exibem a lacuna em vez de score parcial.
 

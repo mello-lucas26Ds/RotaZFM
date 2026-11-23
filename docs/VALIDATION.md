@@ -1,18 +1,94 @@
-# Validação documental e plano substituto — RotaZFM MVP
+# VALIDATION — RotaZFM
 
-Status: Etapa 1 concluída em modo documental/fixtures
+Status: validação substituta vigente
+
 Data: 23/11/2026
-Escopo: validação das fontes e criação de fixtures locais; sem implementação de IAV, API, MCP ou dashboard; sem chamadas pagas a Firecrawl/Alexandria/routekit.
 
-## 1. Resultado executivo
+Fonte: `docs/PRD.md`, `docs/SPEC.md`, `docs/SDD.md`, `docs/TEST_PLAN.md`, `docs/EXECUTION_BOARD.md`, `docs/DECISIONS.md`, `.specs/features/rotazfm-mvp/plan.md`
 
-- Os dois trechos críticos catalogados foram validados documentalmente: BR-319 trecho florestal sem asfalto e Manaus–Belém/Barcarena fluvial.
-- Pontos de PBTC/restrição conhecidos foram mapeados, com destaque para sobreposição sazonal na BR-319/AM entre Portaria 5.455/2022 e Portaria 13/2025.
-- Fontes mínimas por dimensão foram registradas com URL, data de verificação e status. Tráfego e qualidade da via ficaram `PARCIAL` por dependerem de extração de datasets DNIT ainda não concluída.
-- Fixtures locais determinísticas foram criadas em `data/fixtures/` para catálogo, nível do rio, chuva, tráfego, qualidade da via, restrição de peso e notícias relacionadas.
-- Firecrawl/Alexandria podem ajudar no filtro de notícias por rota/trecho, mas não serão fonte primária do IAV sem normalização e confirmação oficial. Custo desta etapa: R$0.
+## 1. Validação substituta das entrevistas
 
-## 2. Validação documental dos trechos críticos
+Não há gestores do PIM disponíveis para entrevista. Toda validação que antes dependeria de usuário vira pesquisa documental, premissa explícita, fixture, caso verificável ou critério objetivo.
+
+| Pergunta que uma entrevista responderia | Substituto adotado | Critério objetivo |
+|---|---|---|
+| Gestores sofrem para escolher rota? | Hipótese de problema declarada no PRD/pitch; evidência documental de fontes públicas fragmentadas e regras de PBTC/nível do rio/chuva. | Pitch chama de hipótese se não houver confirmação; demo mostra rastreabilidade de fonte/data/qualidade. |
+| Quais dados são confiáveis? | `docs/DATA_SOURCES_EVALUATION.md` + fixtures locais + cenários C01–C20. | Cada dimensão tem fonte primária, fallback ou limitação declarada; C03/C04/C05/C06 passam. |
+| Qual limiar de IAV significa viável? | Regra documentada em `docs/SDD.md` e `docs/DECISIONS.md`: `VIAVEL >= 70`, `VIAVEL_COM_RESSALVAS 50..69`, `NAO_VIAVEL < 50` ou bloqueador. | Teste de sensibilidade ±5 pontos documenta se a recomendação muda; nenhuma recomendação depende de número ilustrativo. |
+| Dado velho pode ser usado? | Última atualização válida com `freshness_hours`, `last_valid_at` e alerta; dimensão obrigatória velha sem fallback fresco vira `NAO_AVALIAVEL`. | C04 prova que valor velho aparece como evidência de atraso e não sustenta score. |
+| Notícia pode bloquear rota? | Não. Notícia é `related_news[]`; bloqueio exige `confirmation_status = CONFIRMADO` e regra explícita. | C07 e C08 provam notícia contextual/confirmada sem bloqueio automático. |
+| O caso retrospectivo é real? | Caso candidato com fonte primária, período, definição prévia de resultado ruim e descarte formal se falhar. | Ver seção 4. |
+
+## 2. Premissas explícitas
+
+| Premissa | Default adotado | Critério de validação | Status |
+|---|---|---|---|
+| Nome do índice | IAV — Índice de Antecipação de Viabilidade | Documentos e contratos usam IAV; nenhum uso ambíguo de IVA em docs novos. | Confirmada por Lucas |
+| Rotas do MVP | Exatamente `rota-1-br-319` e `rota-2-fluvial-brasilia` em `data/routes/mvp-routes.json` | Catálogo contém as duas rotas e 7 segmentos cada; C17/C18 cobrem trechos críticos. | Confirmada por Lucas |
+| Perfil de carga | `tipo` = `SECA`/`CONTEINERIZADA`; `peso_bruto_total_kg` inteiro `1..60000`; `quantidade_caminhoes` opcional | C09/C10/C11 rejeitam entradas inválidas; C19 testa limite de PBTC. | Confirmada por Lucas |
+| Dado ausente/desatualizado | Reusar última observação válida só como evidência de atraso; dimensão obrigatória ausente/velha/conflitante sem fallback fresco => `NAO_AVALIAVEL`, `iav=null` | C03/C04/C05/C06 passam com `missing_data[]` preenchido. | Confirmada por Lucas |
+| Fórmula do IAV | Soma ponderada por trecho `0,30/0,25/0,20/0,15/0,10`; rota = `min` dos trechos; bloqueadores prevalecem | Testes unitários de domínio + sensibilidade ±5 antes da entrega. | Confirmada por Lucas |
+| Notícias relacionadas | Contextuais, filtradas por rota/trecho, com fonte/data/URL; nunca bloqueiam sem confirmação oficial | C07/C08 passam; `related_news[]` separado de `blockers[]`. | Confirmada por Lucas |
+| Firecrawl/Alexandria | Spike controlado para descoberta/filtro; não é fonte primária de dimensão do IAV | Sem `FIRECRAWL_API_KEY`, sistema roda só com fixtures e declara fonte indisponível. | Pendente de spike |
+| Deploy | Nenhum deploy público antes da Etapa 7; alvo final Vercel | Nenhum PR/etapa intermediária publica endpoint público. | Confirmada por Lucas |
+| Runtime | Node `>=22.18` no plano aprovado para `node:test` com type stripping | `package.json` hoje declara `>=20`; alinhar antes da Etapa 1 terminar. | Pendente |
+| Rota inexistente | Hoje modelado como par `origem/destino` sem rota no catálogo => `404 ROUTE_NOT_FOUND` | C12 passa sem campo extra no `IavQuery`. Se Lucas quiser `route_id` opcional, vira mudança de contrato. | Pendente |
+| Valores de PBTC | PBTC numérico é fixture até portaria oficial ser confirmada | C02/C19 usam fixtures; Etapa 5 substitui por portaria real ou marca `NAO_CONFIRMADO`. | Pendente |
+| IAV numérico exato | Status e `iav=null` são vínculos; valores inteiros em `tests/e2e/scenarios.json` são alvos de fixture até normalizadores serem definidos | Testes primeiro validam status/faltantes/bloqueadores; alvo numérico só depois de normalizadores. | Pendente |
+
+## 3. Critérios objetivos de aprovação
+
+| Validação | Evidência exigida | Critério de aprovação |
+|---|---|---|
+| Contratos e motor | `npm run test` | Casos unitários de IAV, gates, `min`, PBTC, `NAO_AVALIAVEL`, frescor e conflito passam sem I/O externo. |
+| Matriz C01–C20 | `tests/e2e/scenarios.json` + testes E2E futuros | Todos os cenários têm `input`, `fixtures`, `expected_status`, `expected_iav` ou `expected_null`, `expected_blockers[]` e `expected_missing_data[]`; pendentes só com motivo registrado. |
+| Lint/build | `npm run lint`, `npm run build` | Saem com código `0` sem depender de serviço externo. |
+| MCP | MCP Inspector + testes de contrato | `consultar_viabilidade` valida schema; sem chave `401`; acima de 60 req/min `429` com `retry_after_seconds`; resposta tem `scope_warning`. |
+| Dashboard | E2E Playwright futuro | Cobre caminho feliz, erro, `NAO_AVALIAVEL`, fonte indisponível, notícia contextual e C20 vazio; nunca mostra score sem fonte/data/qualidade. |
+| Segurança/segredos | `.env.example` e `.gitignore` | Nenhum `.env` ou segredo commitado; respostas e logs não expõem chaves. |
+| APIs externas | Fixtures e logs de chamada | Nenhuma chamada paga é necessária para testes; chamadas reais da Etapa 5 são mínimas e registradas. |
+| Retrospectivo | `docs/VALIDATION.md` seção 4 | Caso escolhido é reproduzível a partir de `raw_payloads`/fixtures ou é descartado formalmente. |
+
+### Definição prévia de resultado ruim
+
+Resultado ruim está definido antes da análise e invalida a validação se ocorrer:
+
+1. Qualquer cenário C01–C20 falhar sem justificativa documentada.
+2. Algum score for exibido sem fonte, data, qualidade do dado ou sem aviso de dado ausente.
+3. Notícia sem `CONFIRMADO` aparecer em `blockers[]` ou mudar IAV.
+4. `NAO_AVALIAVEL` for tratado como aprovação ou receber `iav` numérico.
+5. Teste depender de API paga, credencial real ou serviço externo no caminho crítico.
+6. Deploy público acontecer antes da Etapa 7.
+7. O caso retrospectivo não puder ser reproduzido a partir de payload bruto/evidência ou exigir dado não oficial para fechar dimensão obrigatória.
+8. O IAV mudar de recomendação apenas por ajuste ilustrativo de peso, sem teste de sensibilidade documentado.
+
+## 4. Caso retrospectivo
+
+### Candidato — CAND-RETRO-01: Rota 2 fluvial em evento hidrológico de 2023
+
+- **Por que candidato:** a Rota 2 tem o trecho crítico `r2-s1-fluvial-amazonas`; eventos de cheia/vazante do Amazonas são o caso em que nível do rio e restrição de navegação mais podem mudar a decisão.
+- **Fonte primária candidata:** SACE/CPRM ou ANA HidroWebService para nível do rio; Capitania Fluvial/Portaria para restrição confirmada; INMET/DNIT somente se houver série equivalente para chuva/tráfego. Se faltar série histórica, a dimensão fica ausente e o resultado esperado é `NAO_AVALIAVEL`, não score inventado.
+- **Período:** a definir na Etapa 5 após confirmar cobertura SACE/ANA para 2023; não usar data ilustrativa no pitch.
+- **Resultado ruim pré-definido:** descartar se não houver fonte oficial cobrindo nível do rio na data/período, se a restrição depender de notícia não confirmada, se chuva/tráfego/PBTC não puderem ser reconstruídos ou marcados como faltantes, ou se o resultado não for reproduzível a partir de `raw_payloads`.
+- **Saída aceitável:** reproduzir `DecisionSnapshot` com fixtures/payloads reais anonimizados ou registrar descarte formal com motivo.
+
+### Descartado — CAND-RETRO-02: BR-319 terrestre em 2023
+
+- **Motivo do descarte preventivo:** exige simultaneamente série histórica de tráfego DNIT, previsão/observação de chuva equivalente à janela do MVP, qualidade da via e PBTC por portaria. Sem confirmar as quatro fontes antes de analisar, o caso tem alto risco de terminar em `NAO_AVALIAVEL` por lacuna de fonte, não por teste útil do motor.
+- **Condição para reabrir:** se a Etapa 5 provar que DNIT, INMET/observação histórica, `precviasBR` e portarias DNIT cobrem o mesmo período e trecho, Lucas pode reabrir como segundo caso.
+
+## 5. Perguntas pendentes para Lucas
+
+1. **Rota inexistente:** manter 404 por par `origem/destino` sem rota no catálogo ou adicionar `route_id` opcional ao `IavQuery`? Recomendação: manter par OD no MVP e só adicionar `route_id` se houver caso de uso real.
+2. **Runtime:** o plano aprovado cita Node `>=22.18`, mas `package.json` declara `>=20`. Confirmar a versão mínima antes de criar `packages/contracts`/`domain`.
+3. **IAV exato:** os valores inteiros em `tests/e2e/scenarios.json` são alvos de fixture. Confirmar que a Etapa 1 pode calibrar fixtures para esses alvos ou se o aceite deve ser apenas por status/faixa até normalizadores serem definidos.
+4. **Retrospectivo:** autorizar Etapa 5 a testar cobertura SACE/ANA 2023 sem chamada paga; se não houver cobertura, registrar descarte formal de CAND-RETRO-01.
+
+## 6. Evidências documentais da Etapa 1 — fontes, fixtures e pendências
+
+Escopo executado: validação documental e fixtures, sem implementação de IAV/API/MCP/dashboard e sem chamadas pagas a Firecrawl/Alexandria/routekit. Custo desta etapa: R$0.
+
+### 6.1 Trechos críticos validados
 
 | Trecho | Evidência documental | Status | Observação |
 |---|---|---|---|
@@ -20,7 +96,7 @@ Escopo: validação das fontes e criação de fixtures locais; sem implementaç�
 | `r2-s1-fluvial-amazonas` — Manaus → Belém/Barcarena | SGB/SAH monitora estações em Itacoatiara, Parintins, Óbidos, Almeirim e Careiro; notícias de seca/vazante e operação portuária contextualizam o trecho. | CONFIRMADO | Leitura específica de Santarém/Breves ficou como lacuna; operacionalidade depende de calado, terminais e avisos. |
 | PBTC/restrições BR-319 | Portaria 5.455/2022 e Portaria 13/2025 confirmadas em página DNIT/DOU; AET temporárias 10/2026 localizadas por UF. | PARCIAL | Sobreposição de regras exige confirmação da vigência consolidada; regra conservadora adotada nas fixtures. |
 
-## 3. Fontes mínimas por dimensão
+### 6.2 Fontes mínimas por dimensão
 
 | Dimensão | Fonte primária | Verificação | Status | Fallback |
 |---|---|---|---|---|
@@ -31,7 +107,7 @@ Escopo: validação das fontes e criação de fixtures locais; sem implementaç�
 | Restrição de peso | Portarias DNIT/DOU — Portaria 5.455/2022 e Portaria 13/2025 | 23/11/2026 | PARCIAL | tabela estática "não verificada"; regra conservadora em sobreposição |
 | Notícias relacionadas | Busca documental + fontes oficiais/noticiosas | 23/11/2026 | PARCIAL | fixtures locais; Firecrawl/Alexandria só para descoberta/filtro contextual |
 
-## 4. Fixtures criadas
+### 6.3 Fixtures criadas
 
 | Arquivo | Conteúdo | Uso esperado |
 |---|---|---|
@@ -45,7 +121,7 @@ Escopo: validação das fontes e criação de fixtures locais; sem implementaç�
 
 Validação executada: todos os JSONs foram parseados com `python -m json.tool` e passaram. Nos fixtures, `confirmation_status` segue o enum de RF-004 (`CONFIRMADO | NAO_CONFIRMADO | CONFLITANTE | INDISPONIVEL | EXPIRADO | NAO_AVALIAVEL`); os status documentais `PARCIAL`/`NÃO_ENCONTRADO` ficam em `source_status`, `coverage` ou notas de lacuna.
 
-## 5. Firecrawl/Alexandria — avaliação sem chamadas pagas
+### 6.4 Firecrawl/Alexandria — avaliação sem chamadas pagas
 
 - **Pode ajudar:** descoberta de fontes oficiais, leitura de páginas/PDFs difíceis e filtro de notícias por rota/trecho.
 - **Não pode ser fonte primária do IAV:** saída precisa ser normalizada em `raw_payloads`/`route_condition_facts` e confirmada por fonte oficial quando a dimensão exigir.
@@ -53,41 +129,16 @@ Validação executada: todos os JSONs foram parseados com `python -m json.tool` 
 - **Termos:** termos Firecrawl revisados em 07/10/2026; providers terceiros podem impor termos adicionais.
 - **Custo/limite desta etapa:** nenhuma chamada paga realizada; custo R$0. Qualquer spike futuro deve registrar créditos estimados, endpoint, provider e fallback antes de executar.
 
-## 6. Plano de validação substituta — sem entrevistas
-
-1. **Contrato de fixtures:** carregar os JSONs de `data/fixtures/` e validar presença dos campos obrigatórios de evidência (`source`, `source_url`, `published_at`, `collected_at`, `method`, `content_hash`, `confirmation_status`, `effective_from`, `effective_until`, `freshness_hours`, `last_valid_at` quando reutilizada).
-2. **Cobertura por dimensão:** para cada dimensão do IAV, confirmar que existe fonte primária, fallback e fixture correspondente; ausência deve resultar em `NAO_AVALIAVEL` ou fallback explícito, nunca valor inventado.
-3. **Cenários determinísticos:** usar os cenários mock das fixtures para testar:
-   - rota normal com dados frescos;
-   - nível do rio baixo/alto;
-   - chuva forte;
-   - tráfego ausente;
-   - PBTC excedido;
-   - notícia contextual sem bloqueio.
-4. **Regras de bloqueio:** verificar que restrição de peso confirmada bloqueia; notícia `PARCIAL`/`NAO_CONFIRMADO` não bloqueia; dado velho/conflitante gera `NAO_AVALIAVEL`.
-5. **Sensibilidade:** rodar o IAV com variação de ±5 pontos por dimensão e confirmar que a fórmula consolidada por pior trecho e bloqueadores se mantém estável.
-6. **Documentação:** manter `DATA_SOURCES_EVALUATION.md`, `VALIDATION.md` e fixtures sincronizados a cada nova fonte ou mudança de status.
-
-## 7. Critérios objetivos de aceite desta etapa
-
-- [x] Trechos críticos validados documentalmente com fonte oficial ou notícia identificada.
-- [x] Fontes mínimas por dimensão registradas com URL, data de verificação, status e fallback.
-- [x] Fixtures locais criadas para catálogo, nível do rio, chuva, tráfego, qualidade da via, restrição de peso e notícias.
-- [x] Fixtures não dependem de API paga e estão em JSON válido.
-- [x] Firecrawl/Alexandria avaliados sem chamada paga e com limites/termos registrados.
-- [x] `docs/DATA_SOURCES_EVALUATION.md` atualizado.
-- [x] Perguntas essenciais pendentes registradas abaixo.
-
-## 8. Perguntas objetivas para Lucas
+### 6.5 Perguntas adicionais da Etapa 1
 
 1. **PBTC BR-319:** a Portaria 5.455/2022 continua vigente para km 250,7–679,3 em paralelo à Portaria 13/2025, ou existe ato posterior que a revoga/substitui? Até confirmação, podemos adotar a regra conservadora documentada na fixture?
 2. **Tráfego BR-319/AM:** existe fonte atual confiável de contagem de tráfego para o trecho florestal, ou devemos aceitar explicitamente `NAO_AVALIAVEL`/fallback estático não verificado para essa dimensão no MVP?
 3. **Nível do rio:** quais estações e limites operacionais devem ser usados para classificar navegabilidade Manaus–Belém? SACE/SGB fornece nível, mas o MVP precisa de threshold ou referência de calado/terminal.
 4. **Notícias:** quais fontes noticiosas são aceitas como contexto oficial do projeto e há orçamento/conta Firecrawl prevista para spike controlado de filtro de notícias?
 
-## 9. Riscos e pendências
+### 6.6 Riscos e pendências da Etapa 1
 
 - Extração de linhas específicas dos CSVs DNIT de tráfego e ICM ainda está pendente; por isso tráfego e qualidade da via estão `PARCIAL`.
 - SP-330 é rodovia estadual e pode ficar fora do escopo DNIT; precisa fonte estadual ou fallback documentado.
 - O trecho fluvial não tem dimensão "qualidade da via" terrestre; é necessário decidir se usa proxy de navegabilidade ou trata como N/A no IAV.
-- Qualquer uso de Firecrawl/Alexandria em etapa futura deve registrar custo, créditos, provider e fallback antes de chamar API paga.
+- `npm run lint/test/build` não foi executado nesta VM porque Node/npm não estão disponíveis; a etapa é docs/data-only e os JSONs foram validados localmente.

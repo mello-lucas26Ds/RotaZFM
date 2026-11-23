@@ -1,0 +1,717 @@
+{
+  "version": "2026-11-23",
+  "rule_version": "iav-mvp-2026-11-23",
+  "source": "docs/TEST_PLAN.md",
+  "constraints": {
+    "no_product_code": true,
+    "no_paid_external_apis": true,
+    "fixtures_are_local": true,
+    "llm_never_calculates_iav": true
+  },
+  "field_contract": {
+    "input": "IavQuery para api/mcp; mesmo formulário para dashboard; route_id somente em cenários de catálogo.",
+    "fixtures": "IDs lógicos de fixtures locais; devem ser materializados em data/fixtures sem chamar APIs pagas.",
+    "expected_status": "Pior status entre as rotas avaliadas; em erro de borda usa INVALID_QUERY, ROUTE_NOT_FOUND, UNAUTHORIZED ou RATE_LIMITED; em dashboard sem dados usa EMPTY_STATE.",
+    "expected_iav": "Inteiro 0..100 quando há score numérico esperado; null quando expected_null é true. Valores inteiros são alvos de fixture até os normalizadores serem implementados.",
+    "expected_null": "true exige iav=null e ausência de score parcial ou aprovação implícita.",
+    "expected_blockers": "Bloqueadores confirmados; notícia sem CONFIRMADO nunca aparece aqui.",
+    "expected_missing_data": "Lacunas auditáveis com dimensão, trecho e motivo.",
+    "expected_route_assessments": "Detalhe por rota quando o cenário depende de mais de uma rota ou de pior trecho."
+  },
+  "status_values": [
+    "VIAVEL",
+    "VIAVEL_COM_RESSALVAS",
+    "NAO_VIAVEL",
+    "NAO_AVALIAVEL",
+    "INVALID_QUERY",
+    "ROUTE_NOT_FOUND",
+    "UNAUTHORIZED",
+    "RATE_LIMITED",
+    "EMPTY_STATE"
+  ],
+  "scenarios": [
+    {
+      "id": "C01",
+      "title": "Consulta válida com dados frescos",
+      "category": "success",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "fixtures": ["c01-fresh-baseline"],
+      "expected_http_status": 200,
+      "expected_status": "VIAVEL_COM_RESSALVAS",
+      "expected_iav": 64,
+      "expected_null": false,
+      "expected_blockers": [],
+      "expected_missing_data": [],
+      "expected_route_assessments": {
+        "rota-1-br-319": {
+          "status": "VIAVEL",
+          "iav": 76,
+          "worst_segment_id": "r1-s2-floresta-br319"
+        },
+        "rota-2-fluvial-brasilia": {
+          "status": "VIAVEL_COM_RESSALVAS",
+          "iav": 64,
+          "worst_segment_id": "r2-s1-fluvial-amazonas"
+        }
+      },
+      "notes": "Caminho feliz com as cinco dimensões frescas e confirmadas; a rota é consolidada pelo pior trecho."
+    },
+    {
+      "id": "C02",
+      "title": "PBTC menor que o peso bruto",
+      "category": "pbtc",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "CONTEINERIZADA",
+          "peso_bruto_total_kg": 50000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "fixtures": ["c02-pbtc-br319-below-load"],
+      "expected_http_status": 200,
+      "expected_status": "NAO_VIAVEL",
+      "expected_iav": 58,
+      "expected_null": false,
+      "expected_blockers": [
+        {
+          "code": "pbtc_exceeded",
+          "segment_id": "r1-s2-floresta-br319",
+          "source": "portaria-dnit-pbtc-br319-2026-001"
+        }
+      ],
+      "expected_missing_data": [],
+      "expected_route_assessments": {
+        "rota-1-br-319": {
+          "status": "NAO_VIAVEL",
+          "iav": 58,
+          "worst_segment_id": "r1-s2-floresta-br319"
+        },
+        "rota-2-fluvial-brasilia": {
+          "status": "VIAVEL_COM_RESSALVAS",
+          "iav": 64,
+          "worst_segment_id": "r2-s1-fluvial-amazonas"
+        }
+      },
+      "notes": "Bloqueador confirmado prevalece sobre IAV numérico."
+    },
+    {
+      "id": "C03",
+      "title": "Dimensão obrigatória ausente",
+      "category": "missing_data",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "fixtures": ["c03-missing-river-level"],
+      "expected_http_status": 200,
+      "expected_status": "NAO_AVALIAVEL",
+      "expected_iav": null,
+      "expected_null": true,
+      "expected_blockers": [],
+      "expected_missing_data": [
+        {
+          "dimension": "nivel_do_rio",
+          "segment_id": "r2-s1-fluvial-amazonas",
+          "reason": "source_unavailable_no_observation"
+        }
+      ],
+      "expected_route_assessments": {
+        "rota-1-br-319": {
+          "status": "VIAVEL",
+          "iav": 76,
+          "worst_segment_id": "r1-s2-floresta-br319"
+        },
+        "rota-2-fluvial-brasilia": {
+          "status": "NAO_AVALIAVEL",
+          "iav": null,
+          "worst_segment_id": "r2-s1-fluvial-amazonas"
+        }
+      },
+      "notes": "Sem dimensão obrigatória não há score parcial nem aprovação implícita."
+    },
+    {
+      "id": "C04",
+      "title": "Dado velho com última atualização válida",
+      "category": "stale_data",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "fixtures": ["c04-stale-inmet-rain"],
+      "expected_http_status": 200,
+      "expected_status": "NAO_AVALIAVEL",
+      "expected_iav": null,
+      "expected_null": true,
+      "expected_blockers": [],
+      "expected_missing_data": [
+        {
+          "dimension": "chuva",
+          "segment_id": "r1-s2-floresta-br319",
+          "reason": "stale_freshness_gt_24h"
+        }
+      ],
+      "expected_route_assessments": {
+        "rota-1-br-319": {
+          "status": "NAO_AVALIAVEL",
+          "iav": null,
+          "worst_segment_id": "r1-s2-floresta-br319"
+        },
+        "rota-2-fluvial-brasilia": {
+          "status": "VIAVEL_COM_RESSALVAS",
+          "iav": 64,
+          "worst_segment_id": "r2-s1-fluvial-amazonas"
+        }
+      },
+      "expected_evidence_fields": ["last_valid_at", "freshness_hours", "alert"],
+      "expected_alerts": ["stale_data:chuva:r1-s2-floresta-br319"],
+      "notes": "O último valor válido aparece como evidência de atraso, mas não sustenta score de dimensão obrigatória."
+    },
+    {
+      "id": "C05",
+      "title": "Conflito entre fontes oficiais",
+      "category": "conflict",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "fixtures": ["c05-conflicting-dnit-traffic"],
+      "expected_http_status": 200,
+      "expected_status": "NAO_AVALIAVEL",
+      "expected_iav": null,
+      "expected_null": true,
+      "expected_blockers": [],
+      "expected_missing_data": [
+        {
+          "dimension": "trafego",
+          "segment_id": "r1-s2-floresta-br319",
+          "reason": "official_sources_conflict"
+        }
+      ],
+      "expected_evidence_confirmation_status": "CONFLITANTE",
+      "expected_route_assessments": {
+        "rota-1-br-319": {
+          "status": "NAO_AVALIAVEL",
+          "iav": null,
+          "worst_segment_id": "r1-s2-floresta-br319"
+        },
+        "rota-2-fluvial-brasilia": {
+          "status": "VIAVEL_COM_RESSALVAS",
+          "iav": 64,
+          "worst_segment_id": "r2-s1-fluvial-amazonas"
+        }
+      },
+      "notes": "Conflito oficial vira CONFLITANTE e nunca média silenciosa."
+    },
+    {
+      "id": "C06",
+      "title": "Fonte indisponível sem fallback",
+      "category": "source_unavailable",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "fixtures": ["c06-source-unavailable-no-fallback"],
+      "expected_http_status": 200,
+      "expected_status": "NAO_AVALIAVEL",
+      "expected_iav": null,
+      "expected_null": true,
+      "expected_blockers": [],
+      "expected_missing_data": [
+        {
+          "dimension": "nivel_do_rio",
+          "segment_id": "r2-s1-fluvial-amazonas",
+          "reason": "source_unavailable_no_fallback"
+        }
+      ],
+      "expected_route_assessments": {
+        "rota-1-br-319": {
+          "status": "VIAVEL",
+          "iav": 76,
+          "worst_segment_id": "r1-s2-floresta-br319"
+        },
+        "rota-2-fluvial-brasilia": {
+          "status": "NAO_AVALIAVEL",
+          "iav": null,
+          "worst_segment_id": "r2-s1-fluvial-amazonas"
+        }
+      },
+      "notes": "Fonte crítica sem fallback degrada o trecho para NAO_AVALIAVEL; 503 fica reservado para falha total sem snapshot."
+    },
+    {
+      "id": "C07",
+      "title": "Notícia relacionada sem confirmação",
+      "category": "contextual_news",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "fixtures": ["c07-unconfirmed-news-br319"],
+      "expected_http_status": 200,
+      "expected_status": "VIAVEL_COM_RESSALVAS",
+      "expected_iav": 64,
+      "expected_null": false,
+      "expected_blockers": [],
+      "expected_missing_data": [],
+      "expected_related_news": [
+        {
+          "title": "Rumor de interdição na BR-319",
+          "source": "portal-regional-exemplo",
+          "confirmation_status": "NAO_CONFIRMADO",
+          "matched_segments": ["r1-s2-floresta-br319"],
+          "creates_blocker": false
+        }
+      ],
+      "assertions": ["news_not_in_blockers"],
+      "notes": "Notícia é evidência contextual e nunca bloqueia sem CONFIRMADO."
+    },
+    {
+      "id": "C08",
+      "title": "Notícia confirmada por fonte oficial",
+      "category": "confirmed_news",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "fixtures": ["c08-confirmed-news-river-level"],
+      "expected_http_status": 200,
+      "expected_status": "VIAVEL_COM_RESSALVAS",
+      "expected_iav": 64,
+      "expected_null": false,
+      "expected_blockers": [],
+      "expected_missing_data": [],
+      "expected_related_news": [
+        {
+          "title": "Boletim oficial confirma nível do Amazonas dentro da faixa",
+          "source": "capitania-fluvial-portaria-2026-114",
+          "confirmation_status": "CONFIRMADO",
+          "matched_segments": ["r2-s1-fluvial-amazonas"],
+          "creates_blocker": false
+        }
+      ],
+      "assertions": ["confirmed_news_is_evidence", "confirmation_alone_does_not_block"],
+      "notes": "Confirmação pode virar evidência, mas bloqueio exige regra explícita de corte."
+    },
+    {
+      "id": "C09",
+      "title": "Entrada com campo extra",
+      "category": "invalid_input",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        },
+        "rota_preferida": "barata"
+      },
+      "fixtures": [],
+      "expected_http_status": 400,
+      "expected_status": "INVALID_QUERY",
+      "expected_error_code": "INVALID_QUERY",
+      "expected_iav": null,
+      "expected_null": true,
+      "expected_blockers": [],
+      "expected_missing_data": [],
+      "assertions": ["no_collection", "no_calculation"],
+      "notes": "Campos extras na consulta raiz ou na carga são rejeitados."
+    },
+    {
+      "id": "C10",
+      "title": "Data de embarque inválida",
+      "category": "invalid_date",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-29",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "input_variants": ["2026-11-20", "2026-13-01"],
+      "fixtures": [],
+      "expected_http_status": 400,
+      "expected_status": "INVALID_QUERY",
+      "expected_error_code": "INVALID_QUERY",
+      "expected_iav": null,
+      "expected_null": true,
+      "expected_blockers": [],
+      "expected_missing_data": [],
+      "assertions": ["no_collection", "no_calculation"],
+      "notes": "Data fora da janela hoje..hoje+4 dias ou malformada usa o mesmo erro de contrato."
+    },
+    {
+      "id": "C11",
+      "title": "Peso bruto inválido",
+      "category": "invalid_weight",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 60001,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "input_variants": [0, -1, 10000.5, "10000"],
+      "fixtures": [],
+      "expected_http_status": 400,
+      "expected_status": "INVALID_QUERY",
+      "expected_error_code": "INVALID_QUERY",
+      "expected_iav": null,
+      "expected_null": true,
+      "expected_blockers": [],
+      "expected_missing_data": [],
+      "assertions": ["no_collection", "no_calculation"],
+      "notes": "peso_bruto_total_kg deve ser inteiro entre 1 e 60000."
+    },
+    {
+      "id": "C12",
+      "title": "Rota inexistente no catálogo",
+      "category": "route_not_found",
+      "surface": "api",
+      "input": {
+        "origem": "BELEM",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "fixtures": ["data/routes/mvp-routes.json"],
+      "expected_http_status": 404,
+      "expected_status": "ROUTE_NOT_FOUND",
+      "expected_error_code": "ROUTE_NOT_FOUND",
+      "expected_iav": null,
+      "expected_null": true,
+      "expected_blockers": [],
+      "expected_missing_data": [],
+      "assertions": ["no_collection", "no_calculation"],
+      "notes": "Par origem/destino sem rota no catálogo retorna 404; pendente confirmar se o contrato público deve aceitar route_id opcional."
+    },
+    {
+      "id": "C13",
+      "title": "MCP sem API key",
+      "category": "mcp_auth_missing",
+      "surface": "mcp",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "request": {
+        "authorization": null
+      },
+      "fixtures": [],
+      "expected_http_status": 401,
+      "expected_status": "UNAUTHORIZED",
+      "expected_error_code": "UNAUTHORIZED",
+      "expected_iav": null,
+      "expected_null": true,
+      "expected_blockers": [],
+      "expected_missing_data": [],
+      "assertions": ["no_collection", "no_calculation"],
+      "notes": "Sem Bearer válido a chamada não executa coleta nem cálculo."
+    },
+    {
+      "id": "C14",
+      "title": "MCP com API key inválida",
+      "category": "mcp_auth_invalid",
+      "surface": "mcp",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "request": {
+        "authorization": "Bearer invalid-key"
+      },
+      "fixtures": [],
+      "expected_http_status": 401,
+      "expected_status": "UNAUTHORIZED",
+      "expected_error_code": "UNAUTHORIZED",
+      "expected_iav": null,
+      "expected_null": true,
+      "expected_blockers": [],
+      "expected_missing_data": [],
+      "assertions": ["no_collection", "no_calculation", "secret_not_logged"],
+      "notes": "Chave inválida recebe 401 e nenhum detalhe interno."
+    },
+    {
+      "id": "C15",
+      "title": "MCP acima de 60 requisições por minuto",
+      "category": "rate_limit",
+      "surface": "mcp",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "request": {
+        "authorization": "Bearer test-key",
+        "requests_in_window": 61
+      },
+      "fixtures": ["c15-rate-limit-window"],
+      "expected_http_status": 429,
+      "expected_status": "RATE_LIMITED",
+      "expected_error_code": "RATE_LIMITED",
+      "expected_retry_after_seconds": 60,
+      "expected_iav": null,
+      "expected_null": true,
+      "expected_blockers": [],
+      "expected_missing_data": [],
+      "assertions": ["retry_after_seconds_present", "no_secret_in_response"],
+      "notes": "Limite de 60 req/min por chave; excesso retorna 429 com retry_after_seconds."
+    },
+    {
+      "id": "C16",
+      "title": "Idempotência com mesmo input e rule_version",
+      "category": "idempotency",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "fixtures": ["c01-fresh-baseline"],
+      "expected_http_status": 200,
+      "expected_status": "VIAVEL_COM_RESSALVAS",
+      "expected_iav": 64,
+      "expected_null": false,
+      "expected_blockers": [],
+      "expected_missing_data": [],
+      "compare_with": "C01",
+      "assertions": ["same_input_same_rule_version_same_snapshot"],
+      "notes": "Mesma entrada, mesmo rule_version e mesmos fatos retornam o mesmo DecisionSnapshot."
+    },
+    {
+      "id": "C17",
+      "title": "BR-319 sem asfalto com chuva forte",
+      "category": "br319_critical",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 30000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "fixtures": ["c17-br319-unpaved-heavy-rain"],
+      "expected_http_status": 200,
+      "expected_status": "NAO_VIAVEL",
+      "expected_iav": 34,
+      "expected_null": false,
+      "expected_blockers": [],
+      "expected_missing_data": [],
+      "expected_route_assessments": {
+        "rota-1-br-319": {
+          "status": "NAO_VIAVEL",
+          "iav": 34,
+          "worst_segment_id": "r1-s2-floresta-br319"
+        },
+        "rota-2-fluvial-brasilia": {
+          "status": "VIAVEL_COM_RESSALVAS",
+          "iav": 64,
+          "worst_segment_id": "r2-s1-fluvial-amazonas"
+        }
+      },
+      "notes": "Trecho crítico da BR-319 com qualidade, tráfego e chuva ruins gera score baixo sem blocker formal."
+    },
+    {
+      "id": "C18",
+      "title": "Nível do rio fora da faixa na rota fluvial",
+      "category": "fluvial_route",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "fixtures": ["c18-amazonas-level-out-of-range"],
+      "expected_http_status": 200,
+      "expected_status": "NAO_VIAVEL",
+      "expected_iav": 32,
+      "expected_null": false,
+      "expected_blockers": [
+        {
+          "code": "confirmed_restriction",
+          "segment_id": "r2-s1-fluvial-amazonas",
+          "source": "capitania-fluvial-portaria-2026-114"
+        }
+      ],
+      "expected_missing_data": [],
+      "expected_route_assessments": {
+        "rota-1-br-319": {
+          "status": "VIAVEL",
+          "iav": 76,
+          "worst_segment_id": "r1-s2-floresta-br319"
+        },
+        "rota-2-fluvial-brasilia": {
+          "status": "NAO_VIAVEL",
+          "iav": 32,
+          "worst_segment_id": "r2-s1-fluvial-amazonas"
+        }
+      },
+      "notes": "Restrição fluvial confirmada por fonte oficial é corte duro; sem confirmação oficial seria apenas evidência contextual."
+    },
+    {
+      "id": "C19",
+      "title": "Carga containerizada no limite do PBTC",
+      "category": "containerized_at_pbtc_limit",
+      "surface": "api",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "CONTEINERIZADA",
+          "peso_bruto_total_kg": 48000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "fixtures": ["c19-containerized-at-pbtc-limit"],
+      "expected_http_status": 200,
+      "expected_status": "VIAVEL_COM_RESSALVAS",
+      "expected_iav": 58,
+      "expected_null": false,
+      "expected_blockers": [],
+      "expected_missing_data": [],
+      "expected_route_assessments": {
+        "rota-1-br-319": {
+          "status": "VIAVEL_COM_RESSALVAS",
+          "iav": 58,
+          "worst_segment_id": "r1-s2-floresta-br319"
+        },
+        "rota-2-fluvial-brasilia": {
+          "status": "VIAVEL_COM_RESSALVAS",
+          "iav": 64,
+          "worst_segment_id": "r2-s1-fluvial-amazonas"
+        }
+      },
+      "assertions": ["pbtc_equal_does_not_block", "pbtc_minus_1_would_block_in_C02"],
+      "notes": "Igualdade ao PBTC não dispara RF-008; a decisão só muda se o PBTC confirmado mudar."
+    },
+    {
+      "id": "C20",
+      "title": "Dashboard sem dados",
+      "category": "dashboard_empty",
+      "surface": "dashboard",
+      "input": {
+        "origem": "MANAUS",
+        "destino": "SAO_PAULO",
+        "data_embarque": "2026-11-25",
+        "carga": {
+          "tipo": "SECA",
+          "peso_bruto_total_kg": 10000,
+          "quantidade_caminhoes": 1
+        }
+      },
+      "fixtures": ["c20-empty-state"],
+      "expected_http_status": 200,
+      "expected_status": "EMPTY_STATE",
+      "expected_iav": null,
+      "expected_null": true,
+      "expected_blockers": [],
+      "expected_missing_data": [],
+      "expected_ui": {
+        "empty_state": true,
+        "shows_score": false,
+        "shows_guidance": true
+      },
+      "notes": "Sem DecisionSnapshot o dashboard orienta o usuário e nunca exibe score."
+    }
+  ]
+}

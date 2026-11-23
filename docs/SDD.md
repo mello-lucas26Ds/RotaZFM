@@ -72,7 +72,7 @@ Classificação por trecho:
 Política de composição:
 
 - Dimensão ausente não entra como zero; ela marca `missing_data[]` e pode levar a `NAO_AVALIAVEL`.
-- Dimensão com `freshness_hours > 24` é reutilizada com alerta; se for crítica e não houver fallback aceitável, vira `NAO_AVALIAVEL`.
+- Dimensão com `freshness_hours > 24` é marcada como defasada; a última observação válida aparece com `last_valid_at` e alerta. Se a dimensão for obrigatória e não houver fallback mais fresco, o trecho vira `NAO_AVALIAVEL` sem IAV numérico.
 - Conflito entre fontes oficiais vira `CONFLITANTE` e `NAO_AVALIAVEL` para aquela dimensão.
 - A fórmula é decisão de produto documentada em `docs/DECISIONS.md`; teste de sensibilidade ±5 pontos é obrigatório antes da entrega.
 
@@ -138,7 +138,7 @@ Filtro de notícias:
 }
 ```
 
-Regras: campos extras rejeitados; `data_embarque` entre hoje e hoje+4 dias; `peso_bruto_total_kg` entre `1` e `60000`.
+Regras: campos extras rejeitados; `origem`/`destino` são resolvidos contra `data/routes/mvp-routes.json` e par sem rota retorna `404 ROUTE_NOT_FOUND`; `data_embarque` entre hoje e hoje+4 dias; `peso_bruto_total_kg` entre `1` e `60000`.
 
 ### `DecisionSnapshot`
 
@@ -177,7 +177,7 @@ MCP:
 - Tool única `consultar_viabilidade`.
 - Auth: `Authorization: Bearer <IAV_MCP_API_KEY>`.
 - Rate limit: `60` req/min/chave.
-- Erros: `400` entrada inválida, `401` sem chave, `404` rota inexistente, `429` rate limit, `503` fonte crítica indisponível sem fallback.
+- Erros: `400` entrada inválida, `401` sem chave, `404` par `origem/destino` sem rota no catálogo, `429` rate limit, `503` indisponibilidade total sem `DecisionSnapshot`; fonte crítica sem fallback vira `NAO_AVALIAVEL` na rota afetada.
 
 ## 10. Persistência
 
