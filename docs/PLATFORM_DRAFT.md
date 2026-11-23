@@ -23,7 +23,7 @@ O RotaZFM é uma plataforma de logística e automação que avalia a viabilidade
 
 Empresas do Polo Industrial de Manaus precisam escoar carga para o Sudeste ou Norte e escolhem entre rotas com impactos diferentes em prazo, custo e risco de atraso.
 
-Hoje, segundo hipótese do time `[a validar com entrevistas]`, essa decisão se apoia em experiência, transportadoras e consultas pontuais a órgãos públicos.
+Hoje, segundo hipótese do time `[a validar com evidência documental]`, essa decisão se apoia em experiência, transportadoras e consultas pontuais a órgãos públicos.
 
 Os dados existem, mas estão espalhados: nível do rio, previsão de chuva, tráfego, qualidade da via e restrições de peso. Nenhuma fonte isolada responde: “essa rota vai funcionar na data do embarque?”.
 
