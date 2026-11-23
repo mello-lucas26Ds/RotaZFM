@@ -177,10 +177,18 @@ export function createRateLimiter({ limit = DEFAULT_RATE_LIMIT, windowMs = DEFAU
     return { allowed: true };
   }
 
+  function refund(key, count) {
+    const timestamp = now();
+    const entry = windows.get(key);
+    if (!entry || timestamp >= entry.resetAt) return;
+    entry.count = Math.max(0, entry.count - count);
+  }
+
   function check(key) {
     return checkMany(key, 1);
   }
   check.checkMany = checkMany;
+  check.refund = refund;
 
   return check;
 }
@@ -321,13 +329,23 @@ export function createMcpServer(options = {}) {
       return;
     }
 
+    const initialVerdict = rateLimit(apiKey);
+    if (!initialVerdict.allowed) {
+      sendRateLimited(response, initialVerdict);
+      return;
+    }
+
     try {
       const payload = await readJsonBody(request);
       const messages = Array.isArray(payload) ? payload : [payload];
-      const verdict = rateLimit.checkMany(apiKey, Math.max(1, messages.length));
-      if (!verdict.allowed) {
-        sendRateLimited(response, verdict);
-        return;
+      const additionalCount = Math.max(0, messages.length - 1);
+      if (additionalCount > 0) {
+        const batchVerdict = rateLimit.checkMany(apiKey, additionalCount);
+        if (!batchVerdict.allowed) {
+          rateLimit.refund(apiKey, 1);
+          sendRateLimited(response, batchVerdict);
+          return;
+        }
       }
       const responses = messages
         .map((message) => handleMessage(message, viability))

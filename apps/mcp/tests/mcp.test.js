@@ -234,6 +234,27 @@ test('mcp: batch rejeitado por cota não consome saldo', async () => {
   }
 });
 
+test('mcp: JSON malformado consome cota antes da próxima chamada', async () => {
+  const server = await startServer({ rateLimit: { limit: 1, windowMs: 60_000 } });
+  try {
+    const malformed = await fetch(`${server.baseUrl}/mcp`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        authorization: `Bearer ${API_KEY}`,
+      },
+      body: 'not-json',
+    });
+    assert.equal(malformed.status, 400);
+
+    const limited = await rpc(server.baseUrl, 'tools/list', {}, { id: 2 });
+    assert.equal(limited.status, 429);
+    assert.equal((await limited.json()).error.code, 'RATE_LIMITED');
+  } finally {
+    await server.close();
+  }
+});
+
 test('mcp: corpo acima de 64 KiB retorna 413 sem derrubar a conexão', async () => {
   const server = await startServer();
   try {
