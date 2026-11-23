@@ -567,6 +567,7 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
       const adjustment = hydroNivelAdjustment(dimensions.nivel.score, dimensions.chuva.score);
       calculationScores.nivel = adjustment.score;
       dimensions.nivel.score_used = adjustment.score;
+      dimensions.nivel.weighted_score = round(adjustment.score * IAV_WEIGHTS.nivel, 4);
       dimensions.nivel.hydro_adjustment = adjustment.adjustment;
     }
     calculation = calculateIav(calculationScores, applicable);

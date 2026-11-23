@@ -245,6 +245,27 @@ test('C18 domain: nível do rio fora da faixa derruba trecho fluvial da rota 2',
   assert.equal(routeById(snapshot, 'rota-1-br-319').status, 'VIAVEL');
 });
 
+test('domain: ajuste chuva-nivel atualiza score usado e weighted_score em multimodal', () => {
+  const routeId = 'rota-1-br-319';
+  const segmentId = 'r1-s1-balsa-inicial';
+  const facts = allFacts({
+    score: 90,
+    overrides: {
+      [key(routeId, segmentId, 'chuva')]: { score: 10 },
+    },
+  });
+
+  const snapshot = makeSnapshot({ facts });
+  const segment = routeById(snapshot, routeId).segments.find((item) => item.segment_id === segmentId);
+  const nivel = segment.dimensions.nivel;
+
+  assert.equal(segment.mode, 'multimodal');
+  assert.equal(nivel.score, 90);
+  assert.equal(nivel.score_used, 86);
+  assert.equal(nivel.weighted_score, 25.8);
+  assert.equal(nivel.hydro_adjustment, -4);
+});
+
 test('C19 domain: CONTEINERIZADA no limite do PBTC não muda decisão; PBTC menor bloqueia', () => {
   const facts = allFacts({
     overrides: Object.fromEntries(
