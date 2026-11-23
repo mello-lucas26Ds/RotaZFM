@@ -23,17 +23,27 @@ const SEGMENT_STATUS_RANK = Object.freeze({
 
 const HYDRO_MODES = new Set(['hidroviario', 'multimodal']);
 const RODOVIARIO_DIMENSIONS = Object.freeze(['chuva', 'trafego', 'qualidade', 'restricao']);
-const HYDRO_CHUVA_NIVEL_PENALTY = 0.1;
 
 function applicableDimensions(mode) {
   return HYDRO_MODES.has(mode) ? IAV_DIMENSIONS : RODOVIARIO_DIMENSIONS;
 }
 
 function hydroNivelAdjustment(nivelScore, chuvaScore) {
-  const rainSeverity = Math.max(0, 50 - chuvaScore);
-  const adjustment = -round(rainSeverity * HYDRO_CHUVA_NIVEL_PENALTY, 4);
-  const score = round(Math.min(100, Math.max(0, nivelScore + adjustment)), 4);
-  return { score, adjustment };
+  const rainSeverity = decimalSubtract({ digits: 50n, power: 0 }, scoreDecimalParts(chuvaScore));
+  if (rainSeverity.digits <= 0n) {
+    const scoreParts = scoreDecimalParts(nivelScore);
+    return { score: decimalToNumber(scoreParts), adjustment: 0, scoreParts };
+  }
+
+  const penaltyParts = decimalDivideByTen(rainSeverity);
+  const adjustedParts = decimalSubtract(scoreDecimalParts(nivelScore), penaltyParts);
+  const clampedParts = adjustedParts.digits < 0n ? { digits: 0n, power: 0 } : adjustedParts;
+
+  return {
+    score: decimalToNumber(clampedParts),
+    adjustment: -decimalToNumber(penaltyParts),
+    scoreParts: clampedParts,
+  };
 }
 
 export const SCOPE_WARNING =
@@ -327,8 +337,7 @@ function evaluateDimension(facts, shippingDate) {
   return evaluateActiveDimension(activeFacts);
 }
 
-function dimensionResult(dimension, evaluation) {
-  const weight = IAV_WEIGHTS[dimension];
+function dimensionResult(dimension, evaluation, weight = IAV_WEIGHTS[dimension]) {
 
   if (!evaluation.ok) {
     return {
@@ -473,6 +482,46 @@ function scoreDecimalParts(value) {
   };
 }
 
+function decimalAlign(left, right) {
+  const power = Math.min(left.power, right.power);
+  return [
+    { digits: left.digits * 10n ** BigInt(left.power - power), power },
+    { digits: right.digits * 10n ** BigInt(right.power - power), power },
+  ];
+}
+
+function decimalSubtract(left, right) {
+  const [leftAligned, rightAligned] = decimalAlign(left, right);
+  return { digits: leftAligned.digits - rightAligned.digits, power: leftAligned.power };
+}
+
+function decimalDivideByTen(parts) {
+  return { digits: parts.digits, power: parts.power - 1 };
+}
+
+function decimalToString({ digits, power }) {
+  const negative = digits < 0n;
+  const absolute = negative ? -digits : digits;
+  let text = absolute.toString();
+
+  if (power >= 0) {
+    text += '0'.repeat(power);
+  } else {
+    const point = text.length + power;
+    if (point > 0) {
+      text = `${text.slice(0, point)}.${text.slice(point)}`;
+    } else {
+      text = `0.${'0'.repeat(-point)}${text}`;
+    }
+  }
+
+  return `${negative ? '-' : ''}${text}`;
+}
+
+function decimalToNumber(parts) {
+  return Number(decimalToString(parts));
+}
+
 function rationalToNumber(numerator, denominator) {
   // floor evita publicar um IAV arredondado para cima que contradiga o status exato
   return Number((numerator * IAV_OUTPUT_SCALE) / denominator) / IAV_OUTPUT_SCALE_NUMBER;
@@ -502,6 +551,15 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
   const blockers = [];
   const applicable = applicableDimensions(segment.mode);
   const applicableSet = new Set(applicable);
+  const applicableWeightUnits = applicable.reduce(
+    (total, dimension) => total + IAV_WEIGHT_UNITS[dimension],
+    0,
+  );
+  const weightForDimension = (dimension) => {
+    if (!applicableSet.has(dimension)) return 0;
+    if (applicable.length === IAV_DIMENSIONS.length) return IAV_WEIGHTS[dimension];
+    return IAV_WEIGHT_UNITS[dimension] / applicableWeightUnits;
+  };
 
   for (const dimension of IAV_DIMENSIONS) {
     if (!applicableSet.has(dimension)) {
@@ -511,7 +569,7 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
     const key = factKey(route.id, segment.id, dimension);
     const evaluation = evaluateDimension(factsBySegment.get(key), shippingDate);
     evaluations[dimension] = evaluation;
-    dimensions[dimension] = dimensionResult(dimension, evaluation);
+    dimensions[dimension] = dimensionResult(dimension, evaluation, weightForDimension(dimension));
 
     if (!evaluation.ok) {
       missingData.push({
@@ -565,8 +623,9 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
   if (allDimensionsValid) {
     if (applicableSet.has('nivel') && applicableSet.has('chuva')) {
       const adjustment = hydroNivelAdjustment(dimensions.nivel.score, dimensions.chuva.score);
-      calculationScores.nivel = adjustment.score;
+      calculationScores.nivel = decimalToString(adjustment.scoreParts);
       dimensions.nivel.score_used = adjustment.score;
+      dimensions.nivel.weighted_score = round(adjustment.score * weightForDimension('nivel'), 4);
       dimensions.nivel.hydro_adjustment = adjustment.adjustment;
     }
     calculation = calculateIav(calculationScores, applicable);

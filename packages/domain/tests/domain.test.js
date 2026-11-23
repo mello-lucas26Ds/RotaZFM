@@ -245,6 +245,66 @@ test('C18 domain: nível do rio fora da faixa derruba trecho fluvial da rota 2',
   assert.equal(routeById(snapshot, 'rota-1-br-319').status, 'VIAVEL');
 });
 
+test('domain: ajuste chuva-nivel atualiza score usado e weighted_score em multimodal', () => {
+  const routeId = 'rota-1-br-319';
+  const segmentId = 'r1-s1-balsa-inicial';
+  const facts = allFacts({
+    score: 90,
+    overrides: {
+      [key(routeId, segmentId, 'chuva')]: { score: 10 },
+    },
+  });
+
+  const snapshot = makeSnapshot({ facts });
+  const segment = routeById(snapshot, routeId).segments.find((item) => item.segment_id === segmentId);
+  const nivel = segment.dimensions.nivel;
+
+  assert.equal(segment.mode, 'multimodal');
+  assert.equal(nivel.score, 90);
+  assert.equal(nivel.score_used, 86);
+  assert.equal(nivel.weighted_score, 25.8);
+  assert.equal(nivel.hydro_adjustment, -4);
+});
+
+test('domain: ajuste chuva-nivel não arredonda nível quando não há penalidade', () => {
+  const routeId = 'rota-1-br-319';
+  const segmentId = 'r1-s1-balsa-inicial';
+  const facts = allFacts({
+    overrides: Object.fromEntries(
+      IAV_DIMENSIONS.map((dimension) => [
+        key(routeId, segmentId, dimension),
+        { score: dimension === 'nivel' ? 69.9999999231 : 70 },
+      ]),
+    ),
+  });
+
+  const snapshot = makeSnapshot({ facts });
+  const segment = routeById(snapshot, routeId).segments.find((item) => item.segment_id === segmentId);
+
+  assert.equal(segment.mode, 'multimodal');
+  assert.equal(segment.status, 'VIAVEL_COM_RESSALVAS');
+  assert.ok(segment.iav < 70);
+  assert.equal(segment.dimensions.nivel.score_used, 69.9999999231);
+  assert.equal(segment.dimensions.nivel.hydro_adjustment, 0);
+});
+
+test('domain: breakdown rodoviário reflete pesos renormalizados do IAV', () => {
+  const routeId = 'rota-1-br-319';
+  const segmentId = 'r1-s2-floresta-br319';
+  const snapshot = makeSnapshot({ facts: allFacts({ score: 90 }) });
+  const segment = routeById(snapshot, routeId).segments.find((item) => item.segment_id === segmentId);
+
+  assert.equal(segment.mode, 'rodoviario');
+  assert.equal(segment.dimensions.nivel.status, 'NAO_APLICAVEL');
+  assert.equal(segment.iav, 90);
+
+  const contribution = ['chuva', 'trafego', 'qualidade', 'restricao'].reduce(
+    (total, dimension) => total + segment.dimensions[dimension].weighted_score,
+    0,
+  );
+  assert.ok(Math.abs(contribution - segment.iav) < 0.001);
+});
+
 test('C19 domain: CONTEINERIZADA no limite do PBTC não muda decisão; PBTC menor bloqueia', () => {
   const facts = allFacts({
     overrides: Object.fromEntries(
