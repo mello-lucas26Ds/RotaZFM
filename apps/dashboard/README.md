@@ -21,6 +21,8 @@ Abra `http://127.0.0.1:3002`.
 
 O dashboard usa `ROTAZFM_API_URL` para saber onde está a API e reutiliza a primeira chave de `IAV_MCP_API_KEYS` para o proxy `/api/v1/*`. O browser não recebe a chave.
 
+Para expor o dashboard fora de localhost, defina `DASHBOARD_AUTH_TOKEN` e envie `Authorization: Bearer <token>` nas requisições. Sem a variável, o modo atual permanece sem autenticação apenas para uso local.
+
 ## Testes
 
 ```bash

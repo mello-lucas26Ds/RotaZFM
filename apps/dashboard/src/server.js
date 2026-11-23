@@ -34,8 +34,8 @@ function sendJson(response, status, body, extraHeaders = {}) {
   response.end(payload);
 }
 
-function sendError(response, status, code, message) {
-  sendJson(response, status, { error: { code, message } });
+function sendError(response, status, code, message, extraHeaders = {}) {
+  sendJson(response, status, { error: { code, message } }, extraHeaders);
 }
 
 function firstApiKey(value) {
@@ -139,9 +139,25 @@ async function serveStatic(request, response, pathname) {
   }
 }
 
+function dashboardAuthorized(request, authToken) {
+  if (!authToken) return true;
+  return request.headers.authorization === `Bearer ${authToken}`;
+}
+
 async function handle(request, response, config) {
   const url = new URL(request.url ?? '/', 'http://localhost');
   const path = url.pathname;
+
+  if (!dashboardAuthorized(request, config.authToken)) {
+    sendError(
+      response,
+      401,
+      'DASHBOARD_UNAUTHORIZED',
+      'Token do dashboard ausente ou inválido',
+      { 'www-authenticate': 'Bearer' },
+    );
+    return;
+  }
 
   if (path.startsWith('/api/')) {
     const apiPath = path.replace(/^\/api/, '');
@@ -162,7 +178,8 @@ async function handle(request, response, config) {
 export function createDashboardServer(options = {}) {
   const apiBaseUrl = (options.apiBaseUrl ?? process.env.ROTAZFM_API_URL ?? DEFAULT_API_URL).replace(/\/+$/, '');
   const apiKey = options.apiKey !== undefined ? options.apiKey : firstApiKey(process.env.IAV_MCP_API_KEYS);
-  const config = { apiBaseUrl, apiKey };
+  const authToken = options.authToken !== undefined ? options.authToken : process.env.DASHBOARD_AUTH_TOKEN ?? null;
+  const config = { apiBaseUrl, apiKey, authToken };
 
   return http.createServer((request, response) => {
     handle(request, response, config).catch(() => {

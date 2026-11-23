@@ -16,6 +16,25 @@ const SCENARIOS_PATH = join(ROOT, 'tests/e2e/scenarios.json');
 const REPORT_PATH = join(ROOT, 'test-results/e2e-scenarios.json');
 
 const OVERALL_STATUS_ORDER = ['NAO_VIAVEL', 'NAO_AVALIAVEL', 'VIAVEL_COM_RESSALVAS', 'VIAVEL'];
+const MISSING_REASON_BY_DOMAIN_CODE = Object.freeze({
+  AUSENTE: 'source_unavailable_no_observation',
+  DESATUALIZADO: 'stale_freshness_gt_24h',
+  CONFLITANTE: 'official_sources_conflict',
+  INDISPONIVEL: 'source_unavailable_no_fallback',
+  NAO_AVALIAVEL: 'source_unavailable_no_fallback',
+  FRESCOR_AUSENTE: 'freshness_missing',
+  SCORE_AUSENTE: 'score_missing',
+  PBTC_AUSENTE: 'pbtc_missing',
+  FORA_DE_VIGENCIA: 'out_of_validity',
+});
+
+function contractDimension(dimension) {
+  return dimension === 'nivel' ? 'nivel_do_rio' : dimension;
+}
+
+function contractMissingReason(reason) {
+  return MISSING_REASON_BY_DOMAIN_CODE[reason] ?? reason;
+}
 
 function snapshotFor(query, fixtureDir) {
   const input = buildDecisionInput(fixtureDir ? { query, fixtureDir } : { query });
@@ -133,9 +152,9 @@ function compareDecisionSnapshot(scenario, snapshot) {
   for (const expected of scenario.expected_missing_data ?? []) {
     const found = actualMissing.some(
       (missing) =>
-        missing.dimension === expected.dimension &&
+        contractDimension(missing.dimension) === expected.dimension &&
         missing.segment_id === expected.segment_id &&
-        missing.reason === expected.reason,
+        contractMissingReason(missing.reason) === expected.reason,
     );
     if (!found) failures.push(`missing_data ausente: ${JSON.stringify(expected)}`);
   }
@@ -235,7 +254,10 @@ async function runDashboardScenario(scenario, dashboard) {
     failures.push(`dashboard / esperado ${scenario.expected_http_status}, recebido ${index.status}`);
   }
   if (app.status !== 200) failures.push(`dashboard /app.js esperado 200, recebido ${app.status}`);
-  failures.push('EMPTY_STATE exige E2E de browser; runner HTTP só valida assets estáticos');
+  const appText = await app.text();
+  if (!appText.includes('empty-state') || !appText.includes('emptyState')) {
+    failures.push('EMPTY_STATE markers ausentes em /app.js');
+  }
   return { status: 'executed', failures, actual: { index: index.status, app: app.status } };
 }
 

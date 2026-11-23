@@ -253,6 +253,7 @@ function factFromCandidate(candidate, segmentIndex) {
 
   const score = extractScore(record);
   if (score !== null) fact.score = score;
+  if (Number.isFinite(record.pbtc_kg) && record.pbtc_kg > 0) fact.pbtc_kg = record.pbtc_kg;
   if (candidate.value && Object.keys(candidate.value).length > 0) fact.value = candidate.value;
 
   copyPresent(fact, record, EVIDENCE_FIELDS);

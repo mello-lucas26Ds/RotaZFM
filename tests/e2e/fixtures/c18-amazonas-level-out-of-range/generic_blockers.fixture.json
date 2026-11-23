@@ -1,0 +1,18 @@
+{
+  "fixture_version": "2026-11-23",
+  "fixture_kind": "generic_blockers",
+  "created_at": "2026-11-23T00:00:00-04:00",
+  "blockers": [
+    {
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "type": "CONFIRMED_RESTRICTION",
+      "confirmed": true,
+      "description": "navigation_threshold_out_of_range",
+      "source": "capitania-fluvial-portaria-2026-114",
+      "source_url": "https://example.com/fixture",
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27"
+    }
+  ]
+}

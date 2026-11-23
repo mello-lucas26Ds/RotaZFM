@@ -180,6 +180,15 @@ Data de abertura: 09/11/2026
 - Alternativas descartadas: fórmula multiplicativa no MVP sem dados suficientes para calibrar; exigir nível do rio em trechos rodoviários; premiação de estiagem sem fonte.
 - Responsável: Cris + Lucas.
 
+## DEC-023 — PostgreSQL adiado neste PR
+
+- Data: 23/11/2026
+- Decisão: adiar persistência PostgreSQL neste PR; manter execução stateless/em memória com fixtures versionadas.
+- Motivo: Lucas instruiu adiar formalmente PostgreSQL para reduzir superfície e fechar validação E2E primeiro.
+- Alternativas descartadas: criar schema/migrations agora ou depender de banco nos testes.
+- Responsável: Cris + Lucas.
+- TODO arquitetural: implementar `raw_payloads`, `evidences`, `route_condition_facts`, `iav_calculations` e `decision_snapshots` quando houver deploy/staging e fonte de dados real estável.
+
 ## Pendências que afetam decisões
 
 - Confirmar regulamento do Hack Brasil 2026 e prazo final.

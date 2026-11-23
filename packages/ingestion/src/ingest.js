@@ -61,6 +61,18 @@ export function buildDecisionInput({
       continue;
     }
 
+    if (payload.fixture_kind === 'generic_blockers') {
+      const shippingDate = typeof query?.data_embarque === 'string' ? query.data_embarque.slice(0, 10) : null;
+      for (const blocker of payload.blockers ?? []) {
+        if (!blocker || typeof blocker !== 'object') continue;
+        if (!blocker.route_id || !blocker.segment_id) continue;
+        if (shippingDate && blocker.effective_from && shippingDate < String(blocker.effective_from).slice(0, 10)) continue;
+        if (shippingDate && blocker.effective_until && shippingDate > String(blocker.effective_until).slice(0, 10)) continue;
+        blockers.push({ ...blocker, confirmed: blocker.confirmed === true });
+      }
+      continue;
+    }
+
     if (payload.fixture_kind !== 'dimension_evidence') continue;
 
     const normalized = normalizeDimensionFixtures([fixtureFile], segmentIndex);

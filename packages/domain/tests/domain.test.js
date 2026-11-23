@@ -62,13 +62,14 @@ function allFacts({ score = 90, overrides = {}, omit = new Set() } = {}) {
   return facts;
 }
 
-function makeSnapshot({ facts = allFacts(), query = makeQuery(), blockers = [] } = {}) {
+function makeSnapshot({ facts = allFacts(), query = makeQuery(), blockers = [], options = {} } = {}) {
   return createDecisionSnapshot({
     query,
     catalog,
     facts,
     blockers,
     referenceDate: REFERENCE_DATE,
+    ...options,
   });
 }
 
@@ -731,4 +732,35 @@ test('domain: fato confirmado sem score não sustenta dimensão', () => {
         missing.reason === 'SCORE_AUSENTE',
     ),
   );
+});
+
+test('domain: pesos injetáveis alteram IAV determinísticamente', () => {
+  const routeId = 'rota-2-fluvial-brasilia';
+  const segmentId = 'r2-s1-fluvial-amazonas';
+  const facts = allFacts({
+    overrides: Object.fromEntries(
+      IAV_DIMENSIONS.map((dimension, index) => [
+        key(routeId, segmentId, dimension),
+        { score: [90, 50, 60, 70, 80][index] },
+      ]),
+    ),
+  });
+
+  const snapshot = makeSnapshot({ facts });
+  const custom = makeSnapshot({
+    facts,
+    options: {
+      iavWeights: { nivel: 0.1, chuva: 0.4, trafego: 0.2, qualidade: 0.2, restricao: 0.1 },
+    },
+  });
+  const defaultSegment = routeById(snapshot, routeId).segments.find(
+    (item) => item.segment_id === segmentId,
+  );
+  const customSegment = routeById(custom, routeId).segments.find(
+    (item) => item.segment_id === segmentId,
+  );
+
+  assert.equal(defaultSegment.iav, 70);
+  assert.equal(customSegment.iav, 63);
+  assert.equal(customSegment.dimensions.nivel.weight, 0.1);
 });

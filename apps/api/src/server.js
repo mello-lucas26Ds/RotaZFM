@@ -138,7 +138,18 @@ export function createRateLimiter({ limit = DEFAULT_RATE_LIMIT, windowMs = DEFAU
   };
 }
 
-export function consultarViabilidade(query, { referenceDate } = {}) {
+function iavWeightsFromEnv(rawValue) {
+  if (typeof rawValue !== 'string' || rawValue.trim() === '') return undefined;
+  try {
+    const parsed = JSON.parse(rawValue);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : undefined;
+  } catch {
+    console.warn('IAV_WEIGHTS_JSON inválido; usando pesos padrão');
+    return undefined;
+  }
+}
+
+export function consultarViabilidade(query, { referenceDate, iavWeights } = {}) {
   const input = buildDecisionInput({ query });
   const snapshot = createDecisionSnapshot({
     query,
@@ -147,6 +158,7 @@ export function consultarViabilidade(query, { referenceDate } = {}) {
     blockers: input.blockers,
     relatedNews: input.relatedNews,
     referenceDate,
+    iavWeights: iavWeights ?? iavWeightsFromEnv(process.env.IAV_WEIGHTS_JSON),
   });
 
   if (!snapshot || typeof snapshot !== 'object') {

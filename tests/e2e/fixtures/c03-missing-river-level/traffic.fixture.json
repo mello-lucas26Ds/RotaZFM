@@ -1,0 +1,270 @@
+{
+  "fixture_version": "2026-11-23",
+  "fixture_kind": "dimension_evidence",
+  "dimension": "traffic",
+  "created_at": "2026-11-23T00:00:00-04:00",
+  "created_by": "E2E fixture materialization",
+  "mock": true,
+  "source_status": "CONFIRMADO",
+  "sources": [
+    {
+      "name": "fixture-e2e",
+      "verification_date": "2026-11-23",
+      "status": "CONFIRMADO"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "ev-rota-1-br-319-r1-s1-balsa-inicial-50v347",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s1-balsa-inicial",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "value": {
+        "vmd_estimated": 90,
+        "unit": "veh/day"
+      }
+    },
+    {
+      "id": "ev-rota-1-br-319-r1-s2-floresta-br319-jzt4l6",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s2-floresta-br319",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 76,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "value": {
+        "vmd_estimated": 76,
+        "unit": "veh/day"
+      }
+    },
+    {
+      "id": "ev-rota-1-br-319-r1-s3-rondonia-br364-lmpfzd",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s3-rondonia-br364",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "value": {
+        "vmd_estimated": 90,
+        "unit": "veh/day"
+      }
+    },
+    {
+      "id": "ev-rota-1-br-319-r1-s4-mato-grosso-br364-tvnrl4",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s4-mato-grosso-br364",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "value": {
+        "vmd_estimated": 90,
+        "unit": "veh/day"
+      }
+    },
+    {
+      "id": "ev-rota-1-br-319-r1-s5-goias-br364-a3brtw",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s5-goias-br364",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "value": {
+        "vmd_estimated": 90,
+        "unit": "veh/day"
+      }
+    },
+    {
+      "id": "ev-rota-1-br-319-r1-s6-minas-br365-br050-7rsddp",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s6-minas-br365-br050",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "value": {
+        "vmd_estimated": 90,
+        "unit": "veh/day"
+      }
+    },
+    {
+      "id": "ev-rota-1-br-319-r1-s7-sao-paulo-sp330-wal2ds",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s7-sao-paulo-sp330",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "value": {
+        "vmd_estimated": 90,
+        "unit": "veh/day"
+      }
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s1-fluvial-amazonas-s98y22",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 64,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "value": {
+        "vmd_estimated": 64,
+        "unit": "veh/day"
+      }
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s2-para-br316-br010-zmnpmi",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s2-para-br316-br010",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "value": {
+        "vmd_estimated": 90,
+        "unit": "veh/day"
+      }
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s3-maranhao-br010-k6o9u9",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s3-maranhao-br010",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "value": {
+        "vmd_estimated": 90,
+        "unit": "veh/day"
+      }
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s4-tocantins-br153-8vu7pf",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s4-tocantins-br153",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "value": {
+        "vmd_estimated": 90,
+        "unit": "veh/day"
+      }
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s5-goias-br153-50x1dn",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s5-goias-br153",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "value": {
+        "vmd_estimated": 90,
+        "unit": "veh/day"
+      }
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s6-minas-br153-br050-i32t1s",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s6-minas-br153-br050",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "value": {
+        "vmd_estimated": 90,
+        "unit": "veh/day"
+      }
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s7-sao-paulo-sp330-qh6cbn",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s7-sao-paulo-sp330",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "value": {
+        "vmd_estimated": 90,
+        "unit": "veh/day"
+      }
+    }
+  ]
+}

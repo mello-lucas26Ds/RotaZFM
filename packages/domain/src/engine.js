@@ -10,11 +10,22 @@ export const IAV_WEIGHTS = Object.freeze({
   restricao: 0.1,
 });
 export const IAV_DIMENSIONS = Object.freeze(Object.keys(IAV_WEIGHTS));
-const IAV_WEIGHT_UNITS = Object.freeze(
-  Object.fromEntries(
-    IAV_DIMENSIONS.map((dimension) => [dimension, Math.round(IAV_WEIGHTS[dimension] * 100)]),
-  ),
-);
+const IAV_WEIGHT_SCALE = 10_000;
+
+function weightUnitsFor(weights = IAV_WEIGHTS) {
+  const units = {};
+  let sum = 0;
+  for (const dimension of IAV_DIMENSIONS) {
+    const weight = weights[dimension] ?? IAV_WEIGHTS[dimension];
+    if (!Number.isFinite(weight) || weight < 0) {
+      fail(`Peso inválido para ${dimension}`, 'INVALID_WEIGHTS');
+    }
+    units[dimension] = Math.round(weight * IAV_WEIGHT_SCALE);
+    sum += units[dimension];
+  }
+  if (sum <= 0) fail('A soma dos pesos deve ser maior que zero', 'INVALID_WEIGHTS');
+  return units;
+}
 const SEGMENT_STATUS_RANK = Object.freeze({
   NAO_VIAVEL: 0,
   VIAVEL_COM_RESSALVAS: 1,
@@ -569,23 +580,23 @@ function rationalToNumber(numerator, denominator) {
   return Number((numerator * IAV_OUTPUT_SCALE) / denominator) / IAV_OUTPUT_SCALE_NUMBER;
 }
 
-function calculateIav(scores, dimensionList) {
+function calculateIav(scores, dimensionList, weightUnits) {
   const entries = dimensionList.map((dimension) => ({
     dimension,
     ...scoreDecimalParts(scores[dimension]),
   }));
-  const weightSum = dimensionList.reduce((total, dimension) => total + IAV_WEIGHT_UNITS[dimension], 0);
+  const weightSum = dimensionList.reduce((total, dimension) => total + weightUnits[dimension], 0);
   const scale = Math.max(0, ...entries.map((entry) => -entry.power));
   const denominator = BigInt(weightSum) * 10n ** BigInt(scale);
   const numerator = entries.reduce((total, entry) => {
     const scaledScore = entry.digits * 10n ** BigInt(entry.power + scale);
-    return total + BigInt(IAV_WEIGHT_UNITS[entry.dimension]) * scaledScore;
+    return total + BigInt(weightUnits[entry.dimension]) * scaledScore;
   }, 0n);
 
   return { iav: rationalToNumber(numerator, denominator), numerator, denominator };
 }
 
-function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadProfile, ruleVersion, shippingDate }) {
+function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadProfile, ruleVersion, shippingDate, weightUnits }) {
   const dimensions = {};
   const evaluations = {};
   const missingData = [];
@@ -594,13 +605,12 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
   const applicable = applicableDimensions(segment.mode);
   const applicableSet = new Set(applicable);
   const applicableWeightUnits = applicable.reduce(
-    (total, dimension) => total + IAV_WEIGHT_UNITS[dimension],
+    (total, dimension) => total + weightUnits[dimension],
     0,
   );
   const weightForDimension = (dimension) => {
     if (!applicableSet.has(dimension)) return 0;
-    if (applicable.length === IAV_DIMENSIONS.length) return IAV_WEIGHTS[dimension];
-    return IAV_WEIGHT_UNITS[dimension] / applicableWeightUnits;
+    return weightUnits[dimension] / applicableWeightUnits;
   };
 
   for (const dimension of IAV_DIMENSIONS) {
@@ -670,7 +680,7 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
       dimensions.nivel.weighted_score = round(adjustment.score * weightForDimension('nivel'), 4);
       dimensions.nivel.hydro_adjustment = adjustment.adjustment;
     }
-    calculation = calculateIav(calculationScores, applicable);
+    calculation = calculateIav(calculationScores, applicable, weightUnits);
   }
   const iav = calculation?.iav ?? null;
   const meetsThreshold = (threshold) =>
@@ -882,6 +892,7 @@ export function assessDecision({
   relatedNews = [],
   ruleVersion = RULE_VERSION,
   referenceDate,
+  iavWeights = IAV_WEIGHTS,
 }) {
   const validQuery = assertIavQuery(query, { referenceDate });
   if (typeof ruleVersion !== 'string' || ruleVersion.trim() === '') {
@@ -899,6 +910,7 @@ export function assessDecision({
     loadProfile: validQuery.carga,
     relatedNews,
     ruleVersion,
+    weightUnits: weightUnitsFor(iavWeights),
   };
 
   const routeAssessments = routes.map((route) => assessRoute(route, context));
@@ -929,6 +941,7 @@ export function createDecisionSnapshot({
   relatedNews = [],
   ruleVersion = RULE_VERSION,
   referenceDate,
+  iavWeights,
 }) {
   return assessDecision({
     query,
@@ -938,5 +951,6 @@ export function createDecisionSnapshot({
     relatedNews,
     ruleVersion,
     referenceDate,
+    iavWeights,
   });
 }

@@ -161,3 +161,31 @@ test('dashboard: proxy rejeita rota desconhecida e api key ausente', async () =>
     await upstream.close();
   }
 });
+
+test('dashboard: DASHBOARD_AUTH_TOKEN protege assets e proxy', async () => {
+  const upstream = await startUpstream();
+  const dashboard = await startDashboard({
+    apiBaseUrl: upstream.baseUrl,
+    apiKey: API_KEY,
+    authToken: 'dashboard-token',
+  });
+  try {
+    const anonymous = await fetch(`${dashboard.baseUrl}/`);
+    assert.equal(anonymous.status, 401);
+    assert.equal((await anonymous.json()).error.code, 'DASHBOARD_UNAUTHORIZED');
+    assert.equal(anonymous.headers.get('www-authenticate'), 'Bearer');
+
+    const wrong = await fetch(`${dashboard.baseUrl}/app.js`, {
+      headers: { authorization: 'Bearer wrong' },
+    });
+    assert.equal(wrong.status, 401);
+
+    const authorized = await fetch(`${dashboard.baseUrl}/`, {
+      headers: { authorization: 'Bearer dashboard-token' },
+    });
+    assert.equal(authorized.status, 200);
+  } finally {
+    await dashboard.close();
+    await upstream.close();
+  }
+});
