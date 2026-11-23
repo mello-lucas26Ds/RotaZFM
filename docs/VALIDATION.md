@@ -166,3 +166,11 @@ Data: 23/11/2026. Script: `scripts/run-scenarios.mjs` (`npm run scenarios:run`).
 Resultado nesta rodada: **7/20 cenários passaram**. Passaram C09–C15, que cobrem contrato de entrada, data fora da janela, peso inválido, rota inexistente, auth MCP e rate limit. Falharam C01–C08 e C16–C20 porque as fixtures lógicas da matriz ainda não foram materializadas com `score`, frescor e reason codes alinhados ao domínio; C18 também depende de um bloqueador genérico `confirmed_restriction` que a ingestão ainda não emite; C20 exige E2E de browser para provar `EMPTY_STATE`.
 
 Implicação: o runner está pronto e determinístico, mas a matriz numérica só fecha depois que Maria materializar fixtures por cenário e Cris alinhar os reason codes/bloqueadores esperados. Persistência PostgreSQL (`raw_payloads`, `evidences`, `route_condition_facts`, `iav_calculations`, `decision_snapshots`) segue como pendência de decisão antes do deploy.
+
+## 9. Evidências da Etapa 6 — carga local e runbook
+
+Data: 23/11/2026. Script: `scripts/load-test.mjs` (`npm run load:local`). O teste sobe a API local e dispara 10 chamadas simultâneas a `POST /v1/viabilidade` com a mesma query válida.
+
+Resultado: **10/10 chamadas OK**, 0 falhas, elapsed ~90 ms, duração por chamada min ~38 ms, p50 ~57 ms, max ~74 ms na VM local. Isso valida o critério de "10 chamadas simultâneas sem erro" para a carga de referência do MVP; não substitui teste com dados reais externos.
+
+Runbook operacional criado em `docs/RUNBOOK.md` com comandos, variáveis (`IAV_MCP_API_KEYS`, `API_PORT`, `MCP_PORT`, `DASHBOARD_PORT`, `ROTAZFM_API_URL`), endpoints e limites de segurança. Revisão de segurança da Etapa 6: API/MCP têm Bearer auth, rate limit por chave e limite de corpo; dashboard injeta a chave no proxy server-side e ainda não autentica o chamador, portanto exposição não-local/Vercel depende de decisão explícita.

@@ -4,7 +4,7 @@ Plataforma de apoio à decisão de escoamento do Polo Industrial de Manaus, com 
 
 Trilha: **Logística & Automação — Hack Brasil 2026**
 
-> Status: documentação e plano aprovados; código do produto ainda não implementado. Deploy público somente na Vercel e somente na etapa final.
+> Status: Etapas 0–5 implementadas e validadas com limitações; Etapa 6 em hardening. Deploy público somente na Vercel e somente na etapa final.
 
 ## Documentos principais
 
@@ -14,6 +14,7 @@ Trilha: **Logística & Automação — Hack Brasil 2026**
 - [`docs/SDD.md`](docs/SDD.md) — arquitetura, domínio, fontes, evidências, API/MCP, segurança e deploy.
 - [`docs/VALIDATION.md`](docs/VALIDATION.md) — validação substituta, premissas, critérios objetivos e caso retrospectivo.
 - [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md) — matriz C01..C20 e estratégia de testes.
+- [`docs/RUNBOOK.md`](docs/RUNBOOK.md) — comandos locais, variáveis, endpoints e segurança operacional.
 - [`docs/EXECUTION_BOARD.md`](docs/EXECUTION_BOARD.md) — etapas e papéis dos subagents.
 - [`docs/SUBAGENT_PROMPTS.md`](docs/SUBAGENT_PROMPTS.md) — prompts executáveis para Samuelson, Maria e Cris.
 - [`docs/PROJECT_STRUCTURE.md`](docs/PROJECT_STRUCTURE.md) — estrutura de pastas e responsabilidades.
@@ -38,6 +39,19 @@ Regras centrais:
 5. Notícia relacionada é contextual e nunca bloqueia sem confirmação oficial.
 6. LLM não calcula IAV nem escolhe rota.
 
+## Como rodar
+
+```bash
+npm install
+npm run lint
+npm run test
+npm run build
+npm run load:local
+npm run scenarios:run
+```
+
+Detalhes de portas, variáveis de ambiente e limites de segurança em [`docs/RUNBOOK.md`](docs/RUNBOOK.md).
+
 ## Estrutura de dados planejada
 
 ```text
@@ -49,6 +63,7 @@ fontes públicas/fixtures → raw_payloads → evidences/facts/news → IAV por 
 - Nome oficial: **RotaZFM**.
 - Índice oficial: **IAV — Índice de Antecipação de Viabilidade**.
 - Rotas do MVP: `rota-1-br-319` e `rota-2-fluvial-brasilia`, em `data/routes/mvp-routes.json`.
+- Implementado: contratos, domínio determinístico, ingestão por fixtures, API, MCP, dashboard e scripts de validação.
 - Perfil de carga: `SECA` ou `CONTEINERIZADA`, com `peso_bruto_total_kg`.
 - Deploy: Vercel somente na etapa final.
-- Fase atual: Etapa 1 — contratos, domínio, catálogo e matriz de cenários.
+- Fase atual: Etapa 6 — hardening. `npm run load:local` passou 10/10; `npm run scenarios:run` está em 7/20 com gaps documentados em `docs/VALIDATION.md`.

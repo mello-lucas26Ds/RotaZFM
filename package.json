@@ -13,7 +13,8 @@
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "sources:probe": "node scripts/probe-sources.mjs",
-    "scenarios:run": "node scripts/run-scenarios.mjs"
+    "scenarios:run": "node scripts/run-scenarios.mjs",
+    "load:local": "node scripts/load-test.mjs"
   },
   "engines": {
     "node": ">=20"
