@@ -1,0 +1,177 @@
+{
+  "fixture_version": "2026-11-23",
+  "fixture_kind": "dimension_evidence",
+  "dimension": "road_quality",
+  "created_at": "2026-11-23T00:00:00-04:00",
+  "created_by": "Maria - validação documental Etapa 1",
+  "mock": false,
+  "source_status": "PARCIAL",
+  "sources": [
+    {
+      "name": "DNIT - Índice de Condição de Manutenção (ICM)",
+      "page_url": "https://www.gov.br/dnit/pt-br/assuntos/infraestrutura-rodoviaria/icm",
+      "dataset_page_url": "https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento",
+      "paved_csv_2026_10_url": "https://servicos.dnit.gov.br/dadosabertos/dataset/b41e3382-79f5-4b1d-b936-dc75aaa82dfa/resource/d1edf904-efd9-4ca0-9e59-1560ac6acb94/download/levantamentos_pavimentada_2026_10.csv",
+      "non_paved_csv_2026_10_url": "https://servicos.dnit.gov.br/dadosabertos/dataset/b41e3382-79f5-4b1d-b936-dc75aaa82dfa/resource/ad4dc3dc-6231-4e4f-b703-913843f75f49/download/levantamentos_nao_pavimentada_2026_10.csv",
+      "verification_date": "2026-11-23",
+      "status": "CONFIRMADO",
+      "notes": "Página e dataset existem; extração por segmento MVP ainda pendente."
+    },
+    {
+      "name": "DNIT - RIMA BR-319 Trecho do Meio",
+      "source_url": "https://www.gov.br/dnit/pt-br/assuntos/portais-tematicos/br-319-am-ro/audiencias-publicas/br319rima_eleitoral_compressed.pdf",
+      "verification_date": "2026-11-23",
+      "status": "CONFIRMADO",
+      "notes": "Documento confirma segmento BR-319 km 250,7-656,4, extensão 405,7 km, como trecho não pavimentado/ Trecho do Meio."
+    },
+    {
+      "name": "DNIT - notícias BR-319 2026",
+      "source_url": "https://www.gov.br/dnit/pt-br/assuntos/noticias/dnit-no-trecho-equipes-acompanham-obras-de-pavimentacao-na-br-319-no-amazonas",
+      "verification_date": "2026-11-23",
+      "status": "CONFIRMADO",
+      "notes": "Notícia de 29/10/2026 confirma pavimentação em Lote C km 198,2-218,2; não invalida o trecho não pavimentado posterior."
+    }
+  ],
+  "records": [
+    {
+      "id": "road-quality-r1-s2-br319-unpaved",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s2-floresta-br319",
+      "road": "BR-319",
+      "uf": "AM/RO",
+      "surface": "nao_pavimentada",
+      "km_range": {
+        "start_km": 250.7,
+        "end_km": 656.4,
+        "length_km": 405.7
+      },
+      "municipalities": [
+        "Borba",
+        "Beruri",
+        "Manicoré",
+        "Tapauá",
+        "Canutama",
+        "Humaitá"
+      ],
+      "icm_value": null,
+      "icm_classification": null,
+      "confirmation_status": "CONFIRMADO",
+      "effective_from": "2026-11-23",
+      "effective_until": null,
+      "freshness_hours": null,
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "source_urls": [
+        "https://www.gov.br/dnit/pt-br/assuntos/portais-tematicos/br-319-am-ro/audiencias-publicas/br319rima_eleitoral_compressed.pdf",
+        "https://www.gov.br/dnit/pt-br/assuntos/noticias/dnit-no-trecho-equipes-acompanham-obras-de-pavimentacao-na-br-319-no-amazonas"
+      ],
+      "method": "documental_snapshot",
+      "content_hash": "sha256:175a17b3c646d3706f2a01210cd25fd28e5d1dc70c9300c5722047473a4242b5",
+      "notes": "Fato de superfície não pavimentada confirmado documentalmente; ICM numérico por km ainda não extraído.",
+      "source": "DNIT RIMA BR-319 / DNIT ICM",
+      "source_url": "https://www.gov.br/dnit/pt-br/assuntos/portais-tematicos/br-319-am-ro/audiencias-publicas/br319rima_eleitoral_compressed.pdf",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00"
+    },
+    {
+      "id": "road-quality-r1-s2-br319-icm-pending",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s2-floresta-br319",
+      "road": "BR-319",
+      "uf": "AM/RO",
+      "surface": "nao_pavimentada",
+      "icm_value": null,
+      "icm_classification": null,
+      "confirmation_status": "NAO_CONFIRMADO",
+      "effective_from": null,
+      "effective_until": null,
+      "freshness_hours": null,
+      "last_valid_at": null,
+      "source_urls": [
+        "https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento"
+      ],
+      "method": "dataset_pending_extraction",
+      "content_hash": "sha256:175a17b3c646d3706f2a01210cd25fd28e5d1dc70c9300c5722047473a4242b5",
+      "notes": "CSV de levantamentos não pavimentados existe; valores ICM por km/segmento ainda precisam ser extraídos e validados.",
+      "source": "DNIT RIMA BR-319 / DNIT ICM",
+      "source_url": "https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00"
+    },
+    {
+      "id": "road-quality-federal-paved-pending",
+      "route_id": null,
+      "segment_id": null,
+      "road": "BR-364/BR-365/BR-050/BR-153/BR-010/BR-316",
+      "uf": "RO/MT/GO/MG/PA/MA/TO",
+      "surface": "pavimentada",
+      "icm_value": null,
+      "icm_classification": null,
+      "confirmation_status": "NAO_CONFIRMADO",
+      "effective_from": null,
+      "effective_until": null,
+      "freshness_hours": null,
+      "last_valid_at": null,
+      "source_urls": [
+        "https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento"
+      ],
+      "method": "dataset_pending_extraction",
+      "content_hash": "sha256:175a17b3c646d3706f2a01210cd25fd28e5d1dc70c9300c5722047473a4242b5",
+      "notes": "Trechos federais pavimentados têm dataset DNIT ICM, mas valores por segmento MVP não foram extraídos nesta etapa.",
+      "source": "DNIT ICM - dataset condições do pavimento",
+      "source_url": "https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00"
+    },
+    {
+      "id": "road-quality-sp330-state-pending",
+      "route_id": null,
+      "segment_id": null,
+      "road": "SP-330",
+      "uf": "SP",
+      "surface": "pavimentada",
+      "icm_value": null,
+      "icm_classification": null,
+      "confirmation_status": "INDISPONIVEL",
+      "effective_from": null,
+      "effective_until": null,
+      "freshness_hours": null,
+      "last_valid_at": null,
+      "source_urls": [],
+      "method": "source_search_pending",
+      "content_hash": "sha256:175a17b3c646d3706f2a01210cd25fd28e5d1dc70c9300c5722047473a4242b5",
+      "notes": "SP-330 é rodovia estadual; fonte DNIT ICM provavelmente não cobre. Precisa DER-SP/ARTESP ou fallback documentado.",
+      "source": "Busca documental Etapa 1 - fonte estadual pendente",
+      "source_url": null,
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00"
+    },
+    {
+      "id": "road-quality-fluvial-n-a",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "road": null,
+      "uf": "AM/PA",
+      "surface": "hidroviario",
+      "icm_value": null,
+      "icm_classification": null,
+      "confirmation_status": "INDISPONIVEL",
+      "effective_from": null,
+      "effective_until": null,
+      "freshness_hours": null,
+      "last_valid_at": null,
+      "source_urls": [],
+      "method": "not_applicable",
+      "content_hash": "sha256:175a17b3c646d3706f2a01210cd25fd28e5d1dc70c9300c5722047473a4242b5",
+      "notes": "Qualidade de via terrestre não se aplica ao trecho fluvial; dimensão deve ser tratada como N/A ou substituída por proxy de navegabilidade somente se especificado.",
+      "source": "Não aplicável - trecho hidroviário",
+      "source_url": null,
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00"
+    }
+  ],
+  "rules_for_implementation": [
+    "BR-319 trecho florestal deve ser tratado como não pavimentado até prova documental de pavimentação do segmento específico.",
+    "Obras pontuais (ex.: Lote C km 198,2-218,2) não devem ser generalizadas para todo o corredor.",
+    "SP-330 e o trecho fluvial não têm fonte de qualidade de via terrestre confirmada; usar fallback explícito ou NAO_AVALIAVEL conforme criticidade."
+  ]
+}

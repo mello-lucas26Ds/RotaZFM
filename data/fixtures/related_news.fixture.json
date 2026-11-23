@@ -1,0 +1,157 @@
+{
+  "fixture_version": "2026-11-23",
+  "fixture_kind": "related_news",
+  "dimension": "related_news",
+  "created_at": "2026-11-23T00:00:00-04:00",
+  "created_by": "Maria - validação documental Etapa 1",
+  "mock": false,
+  "source_status": "PARCIAL",
+  "source_policy": "Notícias são evidência contextual por rota/trecho; nunca criam bloqueador de IAV sem confirmation_status=CONFIRMADO e validação de fonte oficial quando aplicável.",
+  "items": [
+    {
+      "id": "news-sgb-river-levels-stable-2026-11",
+      "title": "Níveis do Rio Negro e das grandes calhas da Bacia do Amazonas mantêm-se estáveis",
+      "url": "https://www.sgb.gov.br/w/niveis-do-rio-negro-e-das-grandes-calhas-da-bacia-do-amazonas-mantem-se-estaveis",
+      "source_name": "SGB",
+      "published_at": "2026-11-04T18:50:00-04:00",
+      "updated_at": "2026-11-19T17:15:00-04:00",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "matched_segments": [
+        "r2-s1-fluvial-amazonas"
+      ],
+      "relevance": "Níveis do Amazonas em Itacoatiara, Parintins, Óbidos e Almeirim; vazante e chuvas abaixo do esperado.",
+      "confirmation_status": "CONFIRMADO",
+      "evidence_role": "contextual_official",
+      "blocker": false,
+      "freshness_hours": 96,
+      "last_valid_at": "2026-11-19T17:15:00-04:00",
+      "source": "SGB",
+      "source_url": "https://www.sgb.gov.br/w/niveis-do-rio-negro-e-das-grandes-calhas-da-bacia-do-amazonas-mantem-se-estaveis",
+      "collected_at": "2026-11-23T00:00:00-04:00"
+    },
+    {
+      "id": "news-dnit-br319-pavement-lote-c-2026-10",
+      "title": "DNIT no trecho: equipes acompanham obras de pavimentação na BR-319 no Amazonas",
+      "url": "https://www.gov.br/dnit/pt-br/assuntos/noticias/dnit-no-trecho-equipes-acompanham-obras-de-pavimentacao-na-br-319-no-amazonas",
+      "source_name": "DNIT",
+      "published_at": "2026-10-29T00:00:00-03:00",
+      "updated_at": null,
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s2-floresta-br319",
+      "matched_segments": [
+        "r1-s2-floresta-br319"
+      ],
+      "relevance": "Pavimentação em Lote C km 198,2-218,2; mostra obras ativas, mas não elimina o trecho não pavimentado documentado.",
+      "confirmation_status": "CONFIRMADO",
+      "evidence_role": "contextual_official",
+      "blocker": false,
+      "freshness_hours": 720,
+      "last_valid_at": "2026-10-29T00:00:00-03:00",
+      "source": "DNIT",
+      "source_url": "https://www.gov.br/dnit/pt-br/assuntos/noticias/dnit-no-trecho-equipes-acompanham-obras-de-pavimentacao-na-br-319-no-amazonas",
+      "collected_at": "2026-11-23T00:00:00-04:00"
+    },
+    {
+      "id": "news-dnit-igarape-realidade-closed-2026-11",
+      "title": "Moradores fecham trecho da BR-319 em protesto por falta de energia elétrica no Amazonas",
+      "url": "https://18horas.com.br/amazonas/moradores-fecham-trecho-da-br-319-em-protesto-por-falta-de-energia-eletrica-no-amazonas/",
+      "source_name": "18 Horas",
+      "published_at": "2026-11-05T11:52:19-04:00",
+      "updated_at": null,
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s2-floresta-br319",
+      "matched_segments": [
+        "r1-s2-floresta-br319"
+      ],
+      "relevance": "Bloqueio temporário na ponte sobre Igarapé Realidade, Humaitá; DNIT depois informou liberação total do tráfego no km 588.",
+      "confirmation_status": "NAO_CONFIRMADO",
+      "evidence_role": "contextual_news",
+      "blocker": false,
+      "follow_up_url": "https://www.gov.br/dnit/pt-br/central-de-conteudos/noticias-alerta-de-servicos/dnit-alerta-para-liberacao-total-do-trafego-na-ponte-sobre-o-igarape-realidade-na-br-319-am",
+      "freshness_hours": 24,
+      "last_valid_at": "2026-11-06T11:21:00-03:00",
+      "source": "18 Horas",
+      "source_url": "https://18horas.com.br/amazonas/moradores-fecham-trecho-da-br-319-em-protesto-por-falta-de-energia-eletrica-no-amazonas/",
+      "collected_at": "2026-11-23T00:00:00-04:00"
+    },
+    {
+      "id": "news-bnc-balsa-manaus-belem-2026-11",
+      "title": "Balsa naufraga no rio Amazonas com motos e eletrônicos na rota Manaus–Belém",
+      "url": "https://www.bncamazonas.com.br/municipios/balsa-naufraga-no-rio-amazonas-com-motos-e-eletronicos-na-rota-manaus-belem/",
+      "source_name": "BNC Amazonas",
+      "published_at": "2026-11-02T20:03:52-04:00",
+      "updated_at": "2026-11-02T20:03:52-04:00",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "matched_segments": [
+        "r2-s1-fluvial-amazonas"
+      ],
+      "relevance": "Naufrágio parcial de comboio próximo a Santarém; relevante para risco operacional fluvial, mas sem confirmação oficial completa de cargas/causa.",
+      "confirmation_status": "NAO_CONFIRMADO",
+      "evidence_role": "contextual_news",
+      "blocker": false,
+      "freshness_hours": 48,
+      "last_valid_at": "2026-11-02T20:03:52-04:00",
+      "source": "BNC Amazonas",
+      "source_url": "https://www.bncamazonas.com.br/municipios/balsa-naufraga-no-rio-amazonas-com-motos-e-eletronicos-na-rota-manaus-belem/",
+      "collected_at": "2026-11-23T00:00:00-04:00"
+    },
+    {
+      "id": "news-g1-itacoatiara-drought-piers-2026-11",
+      "title": "Píeres em Itacoatiara movimentam milhares de contêineres durante seca no Amazonas",
+      "url": "https://g1.globo.com/am/amazonas/noticia/2026/11/05/pieres-em-itacoatiara-movimentam-milhares-de-conteineres-durante-a-seca-no-amazonas.ghtml",
+      "source_name": "G1 Amazonas",
+      "published_at": "2026-11-06T01:49:54-03:00",
+      "updated_at": null,
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "matched_segments": [
+        "r2-s1-fluvial-amazonas"
+      ],
+      "relevance": "Contexto de vazante/seca no eixo fluvial e movimento de contêineres em Itacoatiara.",
+      "confirmation_status": "NAO_CONFIRMADO",
+      "evidence_role": "contextual_news",
+      "blocker": false,
+      "freshness_hours": 72,
+      "last_valid_at": "2026-11-06T01:49:54-03:00",
+      "source": "G1 Amazonas",
+      "source_url": "https://g1.globo.com/am/amazonas/noticia/2026/11/05/pieres-em-itacoatiara-movimentam-milhares-de-conteineres-durante-a-seca-no-amazonas.ghtml",
+      "collected_at": "2026-11-23T00:00:00-04:00"
+    },
+    {
+      "id": "news-dnit-br010-316-interdicao-2022",
+      "title": "DNIT alerta para interdição total da BR-010/316/PA no km 165 e km 168",
+      "url": "https://www.gov.br/dnit/pt-br/central-de-conteudos/noticias-alerta-de-servicos/dnit-alerta-para-interdicao-total-da-br-010-316-pa-no-km-165-e-km-168",
+      "source_name": "DNIT",
+      "published_at": "2022-05-24T12:15:00-03:00",
+      "updated_at": null,
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s2-para-br316-br010",
+      "matched_segments": [
+        "r2-s2-para-br316-br010"
+      ],
+      "relevance": "Exemplo histórico de interdição na BR-010/316/PA; deve ser tratado como expirado/não vigente sem confirmação atual.",
+      "confirmation_status": "EXPIRADO",
+      "evidence_role": "contextual_news",
+      "blocker": false,
+      "freshness_hours": 0,
+      "last_valid_at": null,
+      "source": "DNIT",
+      "source_url": "https://www.gov.br/dnit/pt-br/central-de-conteudos/noticias-alerta-de-servicos/dnit-alerta-para-interdicao-total-da-br-010-316-pa-no-km-165-e-km-168",
+      "collected_at": "2026-11-23T00:00:00-04:00"
+    }
+  ],
+  "firecrawl_alexandria_evaluation": {
+    "can_help_news_filtering": true,
+    "role": "descoberta e filtro contextual de notícias por rota/trecho",
+    "primary_iav_source": false,
+    "limits": {
+      "firecrawl_free_plan": "1.000 créditos/mês; Search 2 créditos/10 resultados; Scrape 1 crédito/página; planos pagos conforme pricing.",
+      "alexandria": "Discovery de tools é gratuito; execução cobra o preço listado por tool; providers podem exigir aceite de termos por admin; keyless não inclui Alexandria.",
+      "terms": "Termos Firecrawl atualizados em 07/10/2026; uso deve respeitar termos do serviço e termos de providers terceiros.",
+      "cost_this_stage": "R$0; nenhuma chamada paga Firecrawl/Alexandria/routekit foi feita nesta etapa."
+    },
+    "prohibited_without_normalization": "Usar saída Firecrawl/Alexandria como fonte primária de dimensão do IAV sem normalização, confirmação oficial e schema de evidência."
+  }
+}
