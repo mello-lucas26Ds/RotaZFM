@@ -188,6 +188,14 @@ test('api: GET /v1/noticias filtra por rota_id e janela_horas', async () => {
     const invalidJanela = await getJson(server.baseUrl, '/v1/noticias?janela_horas=abc');
     assert.equal(invalidJanela.status, 400);
     assert.equal((await invalidJanela.json()).error.code, 'INVALID_QUERY');
+
+    const emptyRoute = await getJson(server.baseUrl, '/v1/noticias?rota_id=');
+    assert.equal(emptyRoute.status, 400);
+    assert.equal((await emptyRoute.json()).error.code, 'INVALID_QUERY');
+
+    const emptyJanela = await getJson(server.baseUrl, '/v1/noticias?janela_horas=');
+    assert.equal(emptyJanela.status, 400);
+    assert.equal((await emptyJanela.json()).error.code, 'INVALID_QUERY');
   } finally {
     await server.close();
   }

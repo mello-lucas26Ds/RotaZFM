@@ -175,7 +175,7 @@ function normalizedNews(searchParams = new URLSearchParams(), { now = Date.now()
   let noticias = input.relatedNews;
 
   const rotaId = searchParams.get('rota_id');
-  if (rotaId) {
+  if (rotaId !== null) {
     const route = input.catalog.routes.find((candidate) => candidate.id === rotaId);
     if (!route) {
       throw new HttpError(400, 'INVALID_QUERY', 'rota_id desconhecido');
@@ -185,7 +185,7 @@ function normalizedNews(searchParams = new URLSearchParams(), { now = Date.now()
   }
 
   const janela = searchParams.get('janela_horas');
-  if (janela) {
+  if (janela !== null) {
     if (!/^\d+$/.test(janela) || Number(janela) <= 0) {
       throw new HttpError(400, 'INVALID_QUERY', 'janela_horas inválida');
     }
