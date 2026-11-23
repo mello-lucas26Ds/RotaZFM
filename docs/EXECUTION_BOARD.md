@@ -102,8 +102,8 @@ Prompts de tarefa por papel estão em `docs/SUBAGENT_PROMPTS.md`.
 
 ## Sequência imediata
 
-1. Etapas 0–3 concluídas: decisões congeladas, contratos/domínio/testes, fixtures/ingestão, auditoria de cobertura, API interna e MCP integrados.
-2. Próxima: dashboard (Etapa 4) consumindo o mesmo `DecisionSnapshot`, sem recalcular IAV.
-3. Depois: fontes reais controladas/retrospectivo documental (Etapa 5), integração/hardening (Etapa 6) e deploy final Vercel (Etapa 7).
+1. Etapas 0–4 concluídas: decisões congeladas, contratos/domínio/testes, fixtures/ingestão, auditoria de cobertura, API interna, MCP e dashboard integrado ao `DecisionSnapshot`.
+2. Próxima: fontes reais controladas/retrospectivo documental (Etapa 5), com amostras mínimas e fallback documentado.
+3. Depois: integração/hardening (Etapa 6) e deploy final Vercel (Etapa 7), somente com aprovação explícita.
 4. Samuelson mantém matriz C01–C20 e decisões de corte; Maria cobre lacunas de fixtures/fontes.
 5. Lucas revisa cada PR e só autoriza deploy na Etapa 7.
