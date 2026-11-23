@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildDecisionInput, buildPbtcBlockers } from '../src/index.js';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { buildBlockerEvidenceBlockers, buildDecisionInput, buildPbtcBlockers } from '../src/index.js';
 import { createDecisionSnapshot } from '../../domain/src/index.js';
 
 const REFERENCE_DATE = '2026-11-23';
@@ -350,4 +353,128 @@ test('ingestion: conflito de PBTC do trecho BR-319 vira fato CONFLITANTE', () =>
   const segment = route.segments.find((item) => item.segment_id === 'r1-s2-floresta-br319');
   assert.equal(segment.dimensions.restricao.status, 'NAO_AVALIAVEL');
   assert.equal(segment.dimensions.restricao.reason, 'CONFLITANTE');
+});
+
+test('ingestion: blocker_evidence vira blocker explícito no formato do domínio', () => {
+  const segmentIndex = {
+    get: (routeId, segmentId) =>
+      routeId === 'rota-2-fluvial-brasilia' && segmentId === 'r2-s1-fluvial-amazonas'
+        ? { routeId, segmentId, mode: 'hidroviario' }
+        : null,
+  };
+  const payload = {
+    fixture_version: '2026-11-23',
+    fixture_kind: 'blocker_evidence',
+    created_at: '2026-11-23T00:00:00Z',
+    items: [
+      {
+        id: 'restricao-fluvial-01',
+        route_id: 'rota-2-fluvial-brasilia',
+        segment_id: 'r2-s1-fluvial-amazonas',
+        type: 'CONFIRMED_RESTRICTION',
+        confirmed: true,
+        description: 'Nível do rio fora da faixa operacional',
+        source: 'capitania-fluvial-portaria-2026-114',
+        source_url: 'https://example.com/portaria-114',
+        effective_from: '2026-11-01',
+        effective_until: '2026-12-31',
+        published_at: '2026-11-20T00:00:00Z',
+        collected_at: '2026-11-23T00:00:00Z',
+        method: 'fixture',
+        content_hash: 'sha256:abc',
+      },
+      {
+        id: 'item-sem-tipo',
+        route_id: 'rota-2-fluvial-brasilia',
+        segment_id: 'r2-s1-fluvial-amazonas',
+        confirmed: true,
+      },
+      {
+        id: 'item-trecho-desconhecido',
+        route_id: 'rota-9-inexistente',
+        segment_id: 'r9-s1',
+        type: 'CONFIRMED_RESTRICTION',
+        confirmed: true,
+      },
+    ],
+  };
+
+  const blockers = buildBlockerEvidenceBlockers({ payload, segmentIndex });
+
+  assert.equal(blockers.length, 1);
+  assert.deepEqual(blockers[0], {
+    route_id: 'rota-2-fluvial-brasilia',
+    segment_id: 'r2-s1-fluvial-amazonas',
+    type: 'CONFIRMED_RESTRICTION',
+    confirmed: true,
+    evidence_id: 'restricao-fluvial-01',
+    description: 'Nível do rio fora da faixa operacional',
+    source: 'capitania-fluvial-portaria-2026-114',
+    source_url: 'https://example.com/portaria-114',
+    effective_from: '2026-11-01',
+    effective_until: '2026-12-31',
+  });
+});
+
+test('ingestion: blocker_evidence confirmado vira NAO_VIAVEL no snapshot sem afetar PBTC', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'rotazfm-blocker-evidence-'));
+  const payload = {
+    fixture_version: '2026-11-23',
+    fixture_kind: 'blocker_evidence',
+    created_at: '2026-11-23T00:00:00Z',
+    items: [
+      {
+        id: 'restricao-fluvial-01',
+        route_id: 'rota-2-fluvial-brasilia',
+        segment_id: 'r2-s1-fluvial-amazonas',
+        type: 'CONFIRMED_RESTRICTION',
+        confirmed: true,
+        description: 'Nível do rio fora da faixa operacional',
+        source: 'capitania-fluvial-portaria-2026-114',
+        source_url: 'https://example.com/portaria-114',
+        effective_from: '2026-11-01',
+        effective_until: '2026-12-31',
+      },
+      {
+        id: 'restricao-nao-confirmada',
+        route_id: 'rota-1-br-319',
+        segment_id: 'r1-s2-floresta-br319',
+        type: 'CONFIRMED_RESTRICTION',
+        confirmed: false,
+        description: 'Restrição apenas rumor',
+        source: 'portal-regional-exemplo',
+      },
+    ],
+  };
+
+  try {
+    await writeFile(join(dir, 'blocker_evidence.fixture.json'), `${JSON.stringify(payload, null, 2)}\n`);
+
+    const query = makeQuery();
+    const first = buildDecisionInput({ fixtureDir: dir, query });
+    const second = buildDecisionInput({ fixtureDir: dir, query });
+    assert.deepEqual(first, second);
+
+    assert.equal(first.blockers.length, 2);
+    const snapshot = snapshotFrom(first, query);
+
+    const fluvial = snapshot.routes.find((route) => route.route_id === 'rota-2-fluvial-brasilia');
+    assert.equal(fluvial.status, 'NAO_VIAVEL');
+    assert.equal(fluvial.iav, null);
+    assert.ok(
+      fluvial.blockers.some(
+        (blocker) =>
+          blocker.type === 'CONFIRMED_RESTRICTION' &&
+          blocker.segment_id === 'r2-s1-fluvial-amazonas' &&
+          blocker.source === 'capitania-fluvial-portaria-2026-114' &&
+          blocker.evidence_id === 'restricao-fluvial-01',
+      ),
+    );
+
+    const rodoviaria = snapshot.routes.find((route) => route.route_id === 'rota-1-br-319');
+    assert.ok(!rodoviaria.blockers.some((blocker) => blocker.type === 'CONFIRMED_RESTRICTION'));
+    assert.ok(!snapshot.blockers.some((blocker) => blocker.evidence_id === 'restricao-nao-confirmada'));
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });
