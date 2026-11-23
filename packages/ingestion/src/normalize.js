@@ -27,7 +27,6 @@ const EVIDENCE_FIELDS = [
   'last_valid_at',
   'effective_from',
   'effective_until',
-  'freshness_hours',
 ];
 
 function isPlainObject(value) {
@@ -65,6 +64,26 @@ function pick(record, fields) {
     if (record[field] !== undefined) value[field] = record[field];
   }
   return value;
+}
+
+function parseTimestamp(value) {
+  if (typeof value !== 'string' || value.trim() === '') return null;
+  const time = Date.parse(value);
+  return Number.isNaN(time) ? null : time;
+}
+
+function computeFreshnessHours(record, payload) {
+  const collectedRaw = record.collected_at ?? payload?.created_at;
+  const baseRaw =
+    record.last_valid_at ??
+    record.published_at ??
+    record.observed_at ??
+    record.period_date ??
+    record.effective_from;
+  const collected = parseTimestamp(collectedRaw);
+  const base = parseTimestamp(baseRaw);
+  if (collected === null || base === null) return undefined;
+  return Math.round(Math.max(0, (collected - base) / 3_600_000) * 100) / 100;
 }
 
 function rainValue(record) {
@@ -193,6 +212,8 @@ function baseEvidence(candidate) {
   }
 
   copyPresent(evidence, record, EVIDENCE_FIELDS);
+  const freshnessHours = computeFreshnessHours(record, payload);
+  if (freshnessHours !== undefined) evidence.freshness_hours = freshnessHours;
   if (record.notes !== undefined) evidence.notes = record.notes;
 
   return evidence;
@@ -233,6 +254,8 @@ function factFromCandidate(candidate, segmentIndex) {
   if (score !== null) fact.score = score;
 
   copyPresent(fact, record, EVIDENCE_FIELDS);
+  const freshnessHours = computeFreshnessHours(record, candidate.payload);
+  if (freshnessHours !== undefined) fact.freshness_hours = freshnessHours;
 
   return fact;
 }

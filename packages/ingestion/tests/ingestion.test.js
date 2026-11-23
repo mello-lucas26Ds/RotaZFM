@@ -130,6 +130,28 @@ test('ingestion: related_news permanece contexto e nunca vira blocker', () => {
   assert.ok(snapshot.related_news.length > 0);
 });
 
+test('ingestion: freshness_hours é calculado, não copiado da fixture', () => {
+  const input = buildDecisionInput({ query: makeQuery() });
+
+  assert.ok(input.evidences.length > 0);
+  assert.ok(input.evidences.every((evidence) => evidence.freshness_hours !== 96));
+
+  const rainEvidence = input.evidences.find(
+    (evidence) => evidence.fixture_dimension === 'rain' && evidence.value?.municipality === 'Manaus',
+  );
+  assert.ok(rainEvidence);
+  assert.ok(rainEvidence.freshness_hours <= 1);
+
+  const riverEvidence = input.evidences.find(
+    (evidence) =>
+      evidence.fixture_dimension === 'river_level' &&
+      evidence.segment_id === 'r2-s1-fluvial-amazonas' &&
+      evidence.confirmation_status === 'CONFIRMADO',
+  );
+  assert.ok(riverEvidence);
+  assert.ok(riverEvidence.freshness_hours > 24);
+});
+
 test('ingestion: não depende de rede para normalizar fixtures', () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = () => {
