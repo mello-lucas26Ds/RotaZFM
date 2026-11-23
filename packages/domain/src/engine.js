@@ -10,13 +10,16 @@ export const IAV_WEIGHTS = Object.freeze({
   restricao: 0.1,
 });
 export const IAV_DIMENSIONS = Object.freeze(Object.keys(IAV_WEIGHTS));
-const IAV_SCALE = 1_000_000_000;
-const IAV_DENOMINATOR = 100 * IAV_SCALE;
 const IAV_WEIGHT_UNITS = Object.freeze(
   Object.fromEntries(
     IAV_DIMENSIONS.map((dimension) => [dimension, Math.round(IAV_WEIGHTS[dimension] * 100)]),
   ),
 );
+const SEGMENT_STATUS_RANK = Object.freeze({
+  NAO_VIAVEL: 0,
+  VIAVEL_COM_RESSALVAS: 1,
+  VIAVEL: 2,
+});
 
 export const SCOPE_WARNING =
   'IAV mede viabilidade física/regulatória; não mede custo, disponibilidade de caminhão ou eventos fora das fontes.';
@@ -24,8 +27,6 @@ export const SCOPE_WARNING =
 const MAX_FRESHNESS_HOURS = 24;
 const VIABLE_THRESHOLD = 70;
 const NOT_VIABLE_THRESHOLD = 50;
-const VIABLE_THRESHOLD_NUMERATOR = VIABLE_THRESHOLD * IAV_DENOMINATOR;
-const NOT_VIABLE_THRESHOLD_NUMERATOR = NOT_VIABLE_THRESHOLD * IAV_DENOMINATOR;
 const DATE_PREFIX_PATTERN = /^(\d{4})-(\d{2})-(\d{2})/;
 const CONFIRMATION_STATUSES = new Set([
   'CONFIRMADO',
@@ -111,7 +112,9 @@ function normalizeDateValue(value, field) {
     fail(`${field} deve ser uma data válida`, 'INVALID_BLOCKER');
   }
   if (value === parts.dateOnly) return value;
-  if (!value.startsWith(`${parts.dateOnly}T`) || Number.isNaN(Date.parse(value))) {
+
+  const separator = value[parts.dateOnly.length];
+  if ((separator !== 'T' && separator !== ' ') || Number.isNaN(Date.parse(value))) {
     fail(`${field} deve ser uma data válida`, 'INVALID_BLOCKER');
   }
   return value;
@@ -394,17 +397,45 @@ function blockerSort(left, right) {
   );
 }
 
-function scoreUnits(score) {
-  return Math.round(score * IAV_SCALE);
+const DECIMAL_PATTERN = /^(\d+)(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/;
+const IAV_OUTPUT_SCALE = 1_000_000_000_000n;
+const IAV_OUTPUT_SCALE_NUMBER = 1_000_000_000_000;
+
+function scoreDecimalParts(value) {
+  const match = DECIMAL_PATTERN.exec(String(value));
+  if (!match) {
+    fail(`Score inválido: ${value}`, 'INVALID_SCORE');
+  }
+
+  const [, integerPart, fractionPart = '', exponentPart] = match;
+  const exponent = exponentPart === undefined ? 0 : Number(exponentPart);
+  return {
+    digits: BigInt(`${integerPart}${fractionPart}`),
+    power: exponent - fractionPart.length,
+  };
+}
+
+function rationalToNumber(numerator, denominator) {
+  const scaled = numerator * IAV_OUTPUT_SCALE;
+  const quotient = scaled / denominator;
+  const remainder = scaled % denominator;
+  const rounded = remainder * 2n >= denominator ? quotient + 1n : quotient;
+  return Number(rounded) / IAV_OUTPUT_SCALE_NUMBER;
 }
 
 function calculateIav(dimensions) {
-  const numerator = IAV_DIMENSIONS.reduce(
-    (total, dimension) => total + IAV_WEIGHT_UNITS[dimension] * scoreUnits(dimensions[dimension].score),
-    0,
-  );
+  const entries = IAV_DIMENSIONS.map((dimension) => ({
+    dimension,
+    ...scoreDecimalParts(dimensions[dimension].score),
+  }));
+  const scale = Math.max(0, ...entries.map((entry) => -entry.power));
+  const denominator = 100n * 10n ** BigInt(scale);
+  const numerator = entries.reduce((total, entry) => {
+    const scaledScore = entry.digits * 10n ** BigInt(entry.power + scale);
+    return total + BigInt(IAV_WEIGHT_UNITS[entry.dimension]) * scaledScore;
+  }, 0n);
 
-  return { iav: numerator / IAV_DENOMINATOR, numerator };
+  return { iav: rationalToNumber(numerator, denominator), numerator, denominator };
 }
 
 function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadProfile, ruleVersion }) {
@@ -467,7 +498,8 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
   const allDimensionsValid = IAV_DIMENSIONS.every((dimension) => dimensions[dimension].score !== null);
   const calculation = allDimensionsValid ? calculateIav(dimensions) : null;
   const iav = calculation?.iav ?? null;
-  const iavNumerator = calculation?.numerator ?? null;
+  const meetsThreshold = (threshold) =>
+    calculation !== null && calculation.numerator >= BigInt(threshold) * calculation.denominator;
 
   if (iav !== null && (iav < 0 || iav > 100)) {
     fail(`IAV fora do intervalo 0..100 no trecho ${segment.id}`, 'INVALID_SCORE');
@@ -478,9 +510,9 @@ function assessSegment({ route, segment, factsBySegment, explicitBlockers, loadP
     status = 'NAO_VIAVEL';
   } else if (!allDimensionsValid) {
     status = 'NAO_AVALIAVEL';
-  } else if (iavNumerator < NOT_VIABLE_THRESHOLD_NUMERATOR) {
+  } else if (!meetsThreshold(NOT_VIABLE_THRESHOLD)) {
     status = 'NAO_VIAVEL';
-  } else if (iavNumerator < VIABLE_THRESHOLD_NUMERATOR) {
+  } else if (!meetsThreshold(VIABLE_THRESHOLD)) {
     status = 'VIAVEL_COM_RESSALVAS';
   } else {
     status = 'VIAVEL';
@@ -532,28 +564,24 @@ function assessRoute(route, context) {
     : null;
 
   let worstSegment = null;
+  let status;
   if (blockers.length > 0) {
     const blockerSegmentIds = new Set(blockers.map((blocker) => blocker.segment_id));
     worstSegment = segments.find((segment) => blockerSegmentIds.has(segment.segment_id)) ?? null;
+    status = 'NAO_VIAVEL';
   } else if (segments.some((segment) => segment.iav === null)) {
     worstSegment = segments.find((segment) => segment.iav === null) ?? null;
-  } else {
-    worstSegment = segments.reduce((minimum, segment) =>
-      segment.iav < minimum.iav ? segment : minimum,
-    );
-  }
-
-  let status;
-  if (blockers.length > 0) {
-    status = 'NAO_VIAVEL';
-  } else if (segments.some((segment) => segment.status === 'NAO_AVALIAVEL')) {
     status = 'NAO_AVALIAVEL';
-  } else if (minimumIav < NOT_VIABLE_THRESHOLD) {
-    status = 'NAO_VIAVEL';
-  } else if (minimumIav < VIABLE_THRESHOLD) {
-    status = 'VIAVEL_COM_RESSALVAS';
   } else {
-    status = 'VIAVEL';
+    const worstStatus = segments.reduce(
+      (worst, segment) =>
+        SEGMENT_STATUS_RANK[segment.status] < SEGMENT_STATUS_RANK[worst] ? segment.status : worst,
+      'VIAVEL',
+    );
+    worstSegment = segments
+      .filter((segment) => segment.status === worstStatus)
+      .reduce((minimum, segment) => (segment.iav < minimum.iav ? segment : minimum));
+    status = worstStatus;
   }
 
   return {

@@ -455,3 +455,68 @@ test('domain: bloqueador com data de expiração inválida é rejeitado', () => 
     (error) => error?.code === 'INVALID_BLOCKER',
   );
 });
+
+test('domain: bloqueador aceita timestamp ISO com espaço', () => {
+  const segmentId = 'r1-s2-floresta-br319';
+  const routeId = 'rota-1-br-319';
+  const baseBlocker = {
+    route_id: routeId,
+    segment_id: segmentId,
+    type: 'INTERDICAO',
+    confirmed: true,
+    description: 'Interdição temporária',
+    source: 'DNIT',
+  };
+
+  const expired = makeSnapshot({
+    blockers: [{ ...baseBlocker, effective_until: '2026-11-24 23:59:59Z' }],
+  });
+  assert.equal(routeById(expired, routeId).status, 'VIAVEL');
+
+  const active = makeSnapshot({
+    blockers: [{ ...baseBlocker, effective_until: '2026-11-25 00:00:00Z' }],
+  });
+  assert.equal(routeById(active, routeId).status, 'NAO_VIAVEL');
+});
+
+test('domain: score abaixo do limiar não sobe por arredondamento', () => {
+  const routeId = 'rota-1-br-319';
+  const below70Segment = 'r1-s2-floresta-br319';
+  const below50Segment = 'r1-s3-rondonia-br364';
+  const scores70 = [70.0000000076, 69.9999999231, 70.0000000522, 70.0000000394, 70.0000000059];
+  const scores50 = [50.0000000261, 49.9999999391, 50.0000000067, 50.0000000589, 49.9999999717];
+
+  const below70 = makeSnapshot({
+    facts: allFacts({
+      overrides: Object.fromEntries(
+        IAV_DIMENSIONS.map((dimension, index) => [
+          key(routeId, below70Segment, dimension),
+          { score: scores70[index] },
+        ]),
+      ),
+    }),
+  });
+  const route70 = routeById(below70, routeId);
+  const segment70 = route70.segments.find((item) => item.segment_id === below70Segment);
+  assert.equal(segment70.status, 'VIAVEL_COM_RESSALVAS');
+  assert.ok(segment70.iav < 70);
+  assert.equal(route70.status, 'VIAVEL_COM_RESSALVAS');
+  assert.ok(route70.iav < 70);
+
+  const below50 = makeSnapshot({
+    facts: allFacts({
+      overrides: Object.fromEntries(
+        IAV_DIMENSIONS.map((dimension, index) => [
+          key(routeId, below50Segment, dimension),
+          { score: scores50[index] },
+        ]),
+      ),
+    }),
+  });
+  const route50 = routeById(below50, routeId);
+  const segment50 = route50.segments.find((item) => item.segment_id === below50Segment);
+  assert.equal(segment50.status, 'NAO_VIAVEL');
+  assert.ok(segment50.iav < 50);
+  assert.equal(route50.status, 'NAO_VIAVEL');
+  assert.ok(route50.iav < 50);
+});
