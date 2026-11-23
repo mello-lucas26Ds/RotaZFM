@@ -303,7 +303,7 @@ test('domain: dimensão com freshness_hours > 24 vira NAO_AVALIAVEL', () => {
   );
 
   const staleEvidence = segment.evidences.find(
-    (evidence) => evidence.dimension === 'nivel' && evidence.freshness_hours === 25,
+    (evidence) => evidence.dimension === 'chuva' && evidence.freshness_hours === 25,
   );
   assert.ok(staleEvidence);
   assert.equal(staleEvidence.last_valid_at, '2026-11-23T00:00:00Z');
