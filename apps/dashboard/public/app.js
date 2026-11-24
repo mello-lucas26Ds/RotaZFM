@@ -5,6 +5,12 @@ const snapshotRoot = document.getElementById('snapshot');
 const fontesList = document.getElementById('fontes');
 const newsList = document.getElementById('news');
 
+let dashboardToken = null;
+
+function authHeaders(headers = {}) {
+  return dashboardToken ? { ...headers, authorization: `Bearer ${dashboardToken}` } : headers;
+}
+
 const manausDateFormatter = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'America/Manaus',
   year: 'numeric',
@@ -277,6 +283,31 @@ async function readError(response) {
   }
 }
 
+async function requestJson(path, { method = 'GET', body } = {}) {
+  const send = () =>
+    fetch(path, {
+      method,
+      headers: authHeaders({
+        accept: 'application/json',
+        ...(body !== undefined ? { 'content-type': 'application/json' } : {}),
+      }),
+      body,
+    });
+
+  let response = await send();
+  if (response.status === 401) {
+    const body = await response.clone().json().catch(() => null);
+    if (body?.error?.code === 'DASHBOARD_UNAUTHORIZED') {
+      const token = window.prompt('Informe o token do dashboard (DASHBOARD_AUTH_TOKEN):');
+      if (!token || token.trim() === '') throw new Error('Token do dashboard não informado');
+      dashboardToken = token.trim();
+      response = await send();
+    }
+  }
+  if (!response.ok) throw new Error(await readError(response));
+  return response.json();
+}
+
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
   clearError();
@@ -297,13 +328,11 @@ form.addEventListener('submit', async (event) => {
   if (caminhao) query.carga.quantidade_caminhoes = Number(caminhao);
 
   try {
-    const response = await fetch('/api/v1/viabilidade', {
+    const snapshot = await requestJson('/api/v1/viabilidade', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
       body: JSON.stringify(query),
     });
-    if (!response.ok) throw new Error(await readError(response));
-    renderSnapshot(await response.json());
+    renderSnapshot(snapshot);
   } catch (error) {
     snapshotRoot.hidden = true;
     emptyState.hidden = false;
@@ -314,9 +343,7 @@ form.addEventListener('submit', async (event) => {
 });
 
 async function loadJson(path) {
-  const response = await fetch(path, { headers: { accept: 'application/json' } });
-  if (!response.ok) throw new Error(await readError(response));
-  return response.json();
+  return requestJson(path);
 }
 
 async function loadFontes() {

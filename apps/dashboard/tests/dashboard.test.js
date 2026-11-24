@@ -162,7 +162,7 @@ test('dashboard: proxy rejeita rota desconhecida e api key ausente', async () =>
   }
 });
 
-test('dashboard: DASHBOARD_AUTH_TOKEN protege assets e proxy', async () => {
+test('dashboard: DASHBOARD_AUTH_TOKEN protege proxy e assets estáticos ficam públicos', async () => {
   const upstream = await startUpstream();
   const dashboard = await startDashboard({
     apiBaseUrl: upstream.baseUrl,
@@ -170,20 +170,29 @@ test('dashboard: DASHBOARD_AUTH_TOKEN protege assets e proxy', async () => {
     authToken: 'dashboard-token',
   });
   try {
-    const anonymous = await fetch(`${dashboard.baseUrl}/`);
-    assert.equal(anonymous.status, 401);
-    assert.equal((await anonymous.json()).error.code, 'DASHBOARD_UNAUTHORIZED');
-    assert.equal(anonymous.headers.get('www-authenticate'), 'Bearer');
+    const index = await fetch(`${dashboard.baseUrl}/`);
+    assert.equal(index.status, 200);
+    assert.match(await index.text(), /RotaZFM/);
 
-    const wrong = await fetch(`${dashboard.baseUrl}/app.js`, {
+    const app = await fetch(`${dashboard.baseUrl}/app.js`);
+    assert.equal(app.status, 200);
+
+    const anonymousApi = await fetch(`${dashboard.baseUrl}/api/v1/fontes`);
+    assert.equal(anonymousApi.status, 401);
+    assert.equal((await anonymousApi.json()).error.code, 'DASHBOARD_UNAUTHORIZED');
+    assert.equal(anonymousApi.headers.get('www-authenticate'), 'Bearer');
+
+    const wrong = await fetch(`${dashboard.baseUrl}/api/v1/fontes`, {
       headers: { authorization: 'Bearer wrong' },
     });
     assert.equal(wrong.status, 401);
 
-    const authorized = await fetch(`${dashboard.baseUrl}/`, {
+    const authorized = await fetch(`${dashboard.baseUrl}/api/v1/fontes`, {
       headers: { authorization: 'Bearer dashboard-token' },
     });
     assert.equal(authorized.status, 200);
+    assert.equal((await authorized.json()).fontes[0].source, 'INMET');
+    assert.equal(upstream.requests[upstream.requests.length - 1].authorization, `Bearer ${API_KEY}`);
   } finally {
     await dashboard.close();
     await upstream.close();

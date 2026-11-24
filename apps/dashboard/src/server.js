@@ -148,18 +148,18 @@ async function handle(request, response, config) {
   const url = new URL(request.url ?? '/', 'http://localhost');
   const path = url.pathname;
 
-  if (!dashboardAuthorized(request, config.authToken)) {
-    sendError(
-      response,
-      401,
-      'DASHBOARD_UNAUTHORIZED',
-      'Token do dashboard ausente ou inválido',
-      { 'www-authenticate': 'Bearer' },
-    );
-    return;
-  }
-
   if (path.startsWith('/api/')) {
+    if (!dashboardAuthorized(request, config.authToken)) {
+      sendError(
+        response,
+        401,
+        'DASHBOARD_UNAUTHORIZED',
+        'Token do dashboard ausente ou inválido',
+        { 'www-authenticate': 'Bearer' },
+      );
+      return;
+    }
+
     const apiPath = path.replace(/^\/api/, '');
     await proxyApi({
       apiBaseUrl: config.apiBaseUrl,
