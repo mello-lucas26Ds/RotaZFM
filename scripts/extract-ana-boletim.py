@@ -417,7 +417,16 @@ def extract_stations(pdf_bytes: bytes, station_codes: list[str], selected: dict[
             "sinal_navegabilidade": navigation_signal(latest),
         })
 
-    bulletin_date = selected["date"].isoformat()
+    row_dates = [
+        row["data"]
+        for station in stations
+        for row in station.get("linhas", [])
+        if row.get("data")
+    ]
+    if selected.get("selection_reason") == "pdf_local" and row_dates:
+        bulletin_date = max(row_dates)
+    else:
+        bulletin_date = selected["date"].isoformat()
     return {
         "fonte": "ANA Sala de Situação — Boletins diários Rio Amazonas",
         "pagina": selected.get("listing_pages_checked", [LISTING_URL]),
