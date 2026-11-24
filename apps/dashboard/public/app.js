@@ -298,13 +298,21 @@ async function requestJson(path, { method = 'GET', body } = {}) {
   if (response.status === 401) {
     const body = await response.clone().json().catch(() => null);
     if (body?.error?.code === 'DASHBOARD_UNAUTHORIZED') {
-      const token = window.prompt('Informe o token do dashboard (DASHBOARD_AUTH_TOKEN):');
-      if (!token || token.trim() === '') throw new Error('Token do dashboard não informado');
-      dashboardToken = token.trim();
+      if (!dashboardToken) {
+        const token = window.prompt('Informe o token do dashboard (DASHBOARD_AUTH_TOKEN):');
+        if (!token || token.trim() === '') throw new Error('Token do dashboard não informado');
+        dashboardToken = token.trim();
+      }
       response = await send();
     }
   }
-  if (!response.ok) throw new Error(await readError(response));
+  if (!response.ok) {
+    if (response.status === 401) {
+      const retryBody = await response.clone().json().catch(() => null);
+      if (retryBody?.error?.code === 'DASHBOARD_UNAUTHORIZED') dashboardToken = null;
+    }
+    throw new Error(await readError(response));
+  }
   return response.json();
 }
 
