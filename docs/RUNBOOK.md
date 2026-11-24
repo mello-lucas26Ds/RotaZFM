@@ -16,7 +16,7 @@ npm run scenarios:run    # matriz C01–C20; relatório em test-results/e2e-scen
 npm run sources:probe    # probe externo opt-in; saída deve ser redirecionada para docs/source-probes/
 ```
 
-Estado em 23/11/2026: lint/test/build passam; `load:local` passou 10/10; `scenarios:run` está em 7/20 com falhas documentadas em `docs/VALIDATION.md` seção 8.
+Estado em 24/11/2026: lint/test/build passam; `load:local` passou 10/10; `scenarios:run` passou 20/20; E2E de browser validou `EMPTY_STATE`; detalhes em `docs/VALIDATION.md` seções 7–9.
 
 ## Subir serviços locais
 
@@ -41,6 +41,9 @@ ROTAZFM_API_URL=http://127.0.0.1:3001 DASHBOARD_PORT=3003 npm run start --worksp
 Variáveis relevantes:
 
 - `IAV_MCP_API_KEYS`: chaves Bearer aceitas pela API e pelo MCP; o dashboard reutiliza a primeira chave para o proxy server-side.
+- `DASHBOARD_AUTH_TOKEN`: Bearer token opcional que protege assets e `/api/*` do dashboard fora de localhost; sem a variável, o dashboard permanece sem auth apenas para uso local.
+- `IAV_WEIGHTS_JSON`: override JSON opcional para experimentos de sensibilidade dos pesos do IAV.
+- `FIRECRAWL_API_KEY`: opcional para descoberta/filtro de notícias; sem ela, o sistema usa fixtures e declara fonte indisponível.
 - `API_PORT`/`PORT` e `HOST`: escuta da API.
 - `MCP_PORT`/`PORT` e `HOST`: escuta do MCP.
 - `DASHBOARD_PORT`/`PORT` e `HOST`: escuta do dashboard.
@@ -55,14 +58,14 @@ Variáveis relevantes:
 ## Segurança operacional
 
 - API e MCP exigem `Authorization: Bearer <chave>`; rate limit de 60 requisições/minuto por chave e corpo limitado a 64 KiB.
-- O dashboard guarda a chave da API no servidor e a injeta no proxy; ele não autentica o chamador local. Isso é aceitável apenas para uso local; exposição não-local/Vercel depende de decisão de autenticação do dashboard.
+- O dashboard protege assets e proxy com `DASHBOARD_AUTH_TOKEN` quando configurado; ele guarda a chave da API no servidor e a injeta apenas no proxy, sem expor ao browser.
 - Não versionar `.env`, tokens ou chaves; em produção, usar variáveis de ambiente do provedor.
-- O probe de fontes não persiste payload bruto; grava apenas status, content-type, bytes, SHA-256, duração e parseabilidade.
-- Persistência atual é em memória/fixtures; PostgreSQL está especificado em `docs/SDD.md`, mas ainda não implementado.
+- O probe de fontes não persiste payload bruto; grava apenas status, content-type, bytes, SHA-256, duração e parseabilidade/fallback.
+- Persistência atual é stateless/em memória com fixtures; PostgreSQL está adiado formalmente em `DEC-023`.
 
 ## Limitações conhecidas da Etapa 6
 
-- Matriz numérica C01–C20 ainda depende de fixtures por cenário com scores, frescor e reason codes alinhados.
-- DNIT PNCT/ICM deram timeout a partir da VM; fixtures/fallback permanecem.
-- Sensibilidade de pesos ainda não tem runner porque o domínio usa `IAV_WEIGHTS` fixos.
-- C20 (`EMPTY_STATE` do dashboard) exige E2E de browser; o runner HTTP só valida assets estáticos.
+- Matriz C01–C20 está fechada em 20/20; E2E de browser do `EMPTY_STATE` foi validado via Playwright.
+- DNIT PNCT/ICM deram timeout/`FETCH_ERROR` a partir da VM; fixtures/fallback permanecem e o probe registra warning por fonte.
+- Pesos do IAV são injetáveis por `IAV_WEIGHTS_JSON` e documentados em `docs/pesos.md`; não há runner dedicado de sensibilidade neste PR.
+- Nível do rio usa boletim ANA gov.br/PDF via `scripts/extract-ana-boletim.py`; não há credencial ANA.

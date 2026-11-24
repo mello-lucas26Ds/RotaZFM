@@ -147,12 +147,13 @@ Validação executada: todos os JSONs foram parseados com `python -m json.tool` 
 
 ## 7. Evidências da Etapa 5 — probe de fontes e retrospectivo
 
-Data: 23/11/2026. Escopo: chamadas externas mínimas e gratuitas; nenhuma chamada paga Firecrawl/Alexandria; payloads não são persistidos, apenas hash/tamanho. Script: `scripts/probe-sources.mjs` (`npm run sources:probe`); resultado: `docs/source-probes/2026-11-23.json`.
+Data: 23/11/2026, atualizado em 24/11/2026. Escopo: chamadas externas mínimas e gratuitas; nenhuma chamada paga Firecrawl/Alexandria; payloads não são persistidos, apenas hash/tamanho. Script: `scripts/probe-sources.mjs` (`npm run sources:probe`); resultado mais recente: `docs/source-probes/2026-11-24.json`.
 
 | Fonte | Dimensão | Resultado do probe | Decisão |
 |---|---|---|---|
 | INMET previsão Manaus | chuva | HTTP 200, JSON parseável, 236.567 bytes | CONFIRMADO para fixture/fallback; valor numérico ainda depende de normalizador. |
 | SGB/SACE | nível | HTTP 200, HTML 12.132 bytes em `https://sace.sgb.gov.br/` | CONFIRMADO endpoint; série histórica 2023 não validada. |
+| ANA gov.br/Sala de Situação | nível | HTTP 200, HTML 220.455 bytes na listagem de boletins diários | CONFIRMADO para PDF diário via `scripts/extract-ana-boletim.py`; sem credencial/token ANA. |
 | DNIT PNCT contagem | tráfego | `FETCH_ERROR`/timeout a partir da VM | Mantém fixture/fallback; extração PNCT segue pendente. |
 | DNIT ICM pavimento | qualidade | `FETCH_ERROR`/timeout a partir da VM | Mantém fixture/fallback; extração ICM segue pendente. |
 | Portarias DNIT/DOU | restrição | Sem chamada nova; evidência documental anterior mantida | Mantém regra conservadora e conflito BR-319 documentado. |
@@ -161,16 +162,16 @@ Firecrawl/Alexandria: nenhuma chamada paga nesta etapa. Permanecem discovery/fil
 
 ## 8. Evidências da Etapa 6 — matriz C01–C20 executável
 
-Data: 23/11/2026. Script: `scripts/run-scenarios.mjs` (`npm run scenarios:run`). O runner executa `tests/e2e/scenarios.json` contra API/MCP/dashboard locais e grava relatório em `test-results/e2e-scenarios.json` (diretório gitignored).
+Data: 24/11/2026. Script: `scripts/run-scenarios.mjs` (`npm run scenarios:run`). O runner executa `tests/e2e/scenarios.json` contra API/MCP/dashboard locais e grava relatório em `test-results/e2e-scenarios.json` (diretório gitignored).
 
-Resultado nesta rodada: **7/20 cenários passaram**. Passaram C09–C15, que cobrem contrato de entrada, data fora da janela, peso inválido, rota inexistente, auth MCP e rate limit. Falharam C01–C08 e C16–C20 porque as fixtures lógicas da matriz ainda não foram materializadas com `score`, frescor e reason codes alinhados ao domínio; C18 também depende de um bloqueador genérico `confirmed_restriction` que a ingestão ainda não emite; C20 exige E2E de browser para provar `EMPTY_STATE`.
+Resultado nesta rodada: **20/20 cenários passaram**. As fixtures C01–C20 foram materializadas com score/frescor/reason codes alinhados, C18 emite `confirmed_restriction` para restrição vigente e C20 mantém `EMPTY_STATE` sem score. Validação complementar de browser via Playwright confirmou que o dashboard mostra `API indisponível`, preserva o empty state e não exibe score quando a API falha.
 
-Implicação: o runner está pronto e determinístico, mas a matriz numérica só fecha depois que Maria materializar fixtures por cenário e Cris alinhar os reason codes/bloqueadores esperados. Persistência PostgreSQL (`raw_payloads`, `evidences`, `route_condition_facts`, `iav_calculations`, `decision_snapshots`) segue como pendência de decisão antes do deploy.
+Implicação: matriz executável fechada no MVP. Pesos do IAV estão documentados em `docs/pesos.md` e são injetáveis por configuração; dashboard aceita `DASHBOARD_AUTH_TOKEN`; PostgreSQL foi adiado formalmente em `DEC-023`, mantendo execução stateless/em memória com fixtures.
 
 ## 9. Evidências da Etapa 6 — carga local e runbook
 
-Data: 23/11/2026. Script: `scripts/load-test.mjs` (`npm run load:local`). O teste sobe a API local e dispara 10 chamadas simultâneas a `POST /v1/viabilidade` com a mesma query válida.
+Data: 24/11/2026. Script: `scripts/load-test.mjs` (`npm run load:local`). O teste sobe a API local e dispara 10 chamadas simultâneas a `POST /v1/viabilidade` com a mesma query válida.
 
-Resultado: **10/10 chamadas OK**, 0 falhas, elapsed ~90 ms, duração por chamada min ~38 ms, p50 ~57 ms, max ~74 ms na VM local. Isso valida o critério de "10 chamadas simultâneas sem erro" para a carga de referência do MVP; não substitui teste com dados reais externos.
+Resultado: **10/10 chamadas OK**, 0 falhas, elapsed ~76 ms, duração por chamada min ~32 ms, p50 ~52 ms, max ~68 ms na VM local. Isso valida o critério de "10 chamadas simultâneas sem erro" para a carga de referência do MVP; não substitui teste com dados reais externos.
 
-Runbook operacional criado em `docs/RUNBOOK.md` com comandos, variáveis (`IAV_MCP_API_KEYS`, `API_PORT`, `MCP_PORT`, `DASHBOARD_PORT`, `ROTAZFM_API_URL`), endpoints e limites de segurança. Revisão de segurança da Etapa 6: API/MCP têm Bearer auth, rate limit por chave e limite de corpo; dashboard injeta a chave no proxy server-side e ainda não autentica o chamador, portanto exposição não-local/Vercel depende de decisão explícita.
+Runbook operacional em `docs/RUNBOOK.md` com comandos, variáveis (`IAV_MCP_API_KEYS`, `DASHBOARD_AUTH_TOKEN`, `IAV_WEIGHTS_JSON`, `API_PORT`, `MCP_PORT`, `DASHBOARD_PORT`, `ROTAZFM_API_URL`), endpoints e limites de segurança. Revisão de segurança da Etapa 6: API/MCP têm Bearer auth, rate limit por chave e limite de corpo; dashboard protege assets/proxy com `DASHBOARD_AUTH_TOKEN` quando configurado e injeta a chave da API apenas no proxy server-side.

@@ -91,7 +91,7 @@ Prompts de tarefa por papel estão em `docs/SUBAGENT_PROMPTS.md`.
 - **Dependências:** Etapas 1–5.
 - **Validação:** lint/test/build verdes; 10 chamadas simultâneas sem erro na meta; fontes falhando não derrubam o sistema.
 - **Critério de aceite:** nenhuma feature Could/Won’t entrou no caminho crítico; limites declarados.
-- **Status 23/11/2026:** runner `npm run scenarios:run` executa a matriz C01–C20; resultado atual 7/20 (C09–C15 passam). `npm run load:local` passou 10/10 chamadas simultâneas. Falhas restantes são fixtures/scores/reason codes, bloqueador `confirmed_restriction`, sensibilidade de pesos, E2E de browser para `EMPTY_STATE` e decisão de persistência; detalhes em `docs/VALIDATION.md` seções 8–9 e `docs/RUNBOOK.md`.
+- **Status 24/11/2026:** `npm run scenarios:run` passou **20/20** após materialização das fixtures C01–C20, `confirmed_restriction`, pesos injetáveis/documentados e auth do dashboard. `npm run load:local` passou 10/10 chamadas simultâneas. E2E de browser via Playwright validou `EMPTY_STATE` sem score. PostgreSQL foi adiado formalmente em `DEC-023`; detalhes em `docs/VALIDATION.md` seções 8–9 e `docs/RUNBOOK.md`.
 
 ## Etapa 7 — Deploy final na Vercel e entrega
 
@@ -104,8 +104,8 @@ Prompts de tarefa por papel estão em `docs/SUBAGENT_PROMPTS.md`.
 
 ## Sequência imediata
 
-1. Etapas 0–5 concluídas com limitações registradas: decisões congeladas, contratos/domínio/testes, fixtures/ingestão, auditoria de cobertura, API interna, MCP, dashboard integrado ao `DecisionSnapshot`, probe de fontes e retrospectivo descartado formalmente.
-2. Próxima: integração/hardening (Etapa 6), incluindo extração DNIT pendente, sensibilidade e runbook.
-3. Depois: deploy final Vercel (Etapa 7), somente com aprovação explícita.
+1. Etapas 0–6 concluídas no código/documentação: decisões congeladas, contratos/domínio/testes, fixtures/ingestão, auditoria de cobertura, API interna, MCP, dashboard integrado ao `DecisionSnapshot`, probe de fontes, retrospectivo descartado, matriz C01–C20, load local, runbook, auth do dashboard e nível do rio via boletim ANA gov.br/PDF.
+2. Próxima: revisão do PR #1 e correções de review; deploy final Vercel (Etapa 7) somente com aprovação explícita.
+3. Pitch/submissão final permanece na entrega da hackathon.
 4. Samuelson mantém matriz C01–C20 e decisões de corte; Maria cobre lacunas de fixtures/fontes.
 5. Lucas revisa cada PR e só autoriza deploy na Etapa 7.
