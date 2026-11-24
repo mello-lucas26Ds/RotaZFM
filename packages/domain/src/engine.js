@@ -390,7 +390,14 @@ function evaluateActiveDimension(facts) {
   const staleConfirmed = confirmed.filter(
     (fact) => Number.isFinite(fact.freshness_hours) && fact.freshness_hours > MAX_FRESHNESS_HOURS,
   );
-  if (staleConfirmed.length > 0) {
+  const freshUnscored = confirmed.filter(
+    (fact) =>
+      Number.isFinite(fact.freshness_hours) &&
+      fact.freshness_hours <= MAX_FRESHNESS_HOURS &&
+      !Number.isFinite(fact.score),
+  );
+
+  if (staleConfirmed.length > 0 && freshUnscored.length === 0) {
     return { ok: false, reason: 'DESATUALIZADO', facts: staleConfirmed };
   }
 
@@ -398,14 +405,8 @@ function evaluateActiveDimension(facts) {
     return { ok: false, reason: 'FRESCOR_AUSENTE', facts: confirmed };
   }
 
-  const freshUnscored = confirmed.filter(
-    (fact) =>
-      Number.isFinite(fact.freshness_hours) &&
-      fact.freshness_hours <= MAX_FRESHNESS_HOURS &&
-      !Number.isFinite(fact.score),
-  );
   if (freshUnscored.length > 0) {
-    return { ok: false, reason: 'SCORE_AUSENTE', facts: freshUnscored };
+    return { ok: false, reason: 'SCORE_AUSENTE', facts: [...freshUnscored, ...staleConfirmed] };
   }
 
   const nonConfirmed = facts.find((fact) => fact.confirmation_status !== 'CONFIRMADO');

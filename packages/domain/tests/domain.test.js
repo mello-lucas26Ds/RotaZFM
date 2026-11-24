@@ -734,6 +734,62 @@ test('domain: fato confirmado sem score não sustenta dimensão', () => {
   );
 });
 
+test('domain: leitura fluvial fresca sem score não é escondida por leitura velha com score', () => {
+  const routeId = 'rota-1-br-319';
+  const segmentId = 'r1-s1-balsa-inicial';
+  const dimensionKey = key(routeId, segmentId, 'nivel');
+  const facts = allFacts({ omit: new Set([dimensionKey]) });
+
+  facts.push(
+    {
+      route_id: routeId,
+      segment_id: segmentId,
+      dimension: 'nivel',
+      score: 80,
+      confirmation_status: 'CONFIRMADO',
+      freshness_hours: 96,
+      source: 'SGB/SAH Amazonas',
+      source_url: 'https://sace.sgb.gov.br/amazonas/',
+      evidence_id: 'sgb-stale-river',
+      last_valid_at: '2026-11-19T17:15:00-04:00',
+      effective_from: '2026-11-01',
+      effective_until: '2026-11-30',
+      value: { level_m: 4.07 },
+    },
+    {
+      route_id: routeId,
+      segment_id: segmentId,
+      dimension: 'nivel',
+      confirmation_status: 'CONFIRMADO',
+      freshness_hours: 1,
+      source: 'ANA Sala de Situação — Boletins diários Rio Amazonas',
+      source_url:
+        'https://www.gov.br/ana/pt-br/sala-de-situacao/rio-amazonas/boletins/diario/boletim_01_amazonas_publica2411-1.pdf/@@download/file',
+      evidence_id: 'ana-fresh-river',
+      published_at: '2026-11-24T16:01:00-04:00',
+      collected_at: '2026-11-24T19:37:21-04:00',
+      effective_from: '2026-11-24',
+      effective_until: '2026-11-26',
+      value: { station: 'Manaus', station_code: '14990000', level_m: 15.86 },
+    },
+  );
+
+  const snapshot = makeSnapshot({ facts });
+  const segment = routeById(snapshot, routeId).segments.find((item) => item.segment_id === segmentId);
+
+  assert.equal(segment.status, 'NAO_AVALIAVEL');
+  assert.equal(segment.iav, null);
+  assert.ok(
+    segment.missing_data.some(
+      (missing) => missing.dimension === 'nivel' && missing.reason === 'SCORE_AUSENTE',
+    ),
+  );
+
+  const evidenceIds = segment.evidences.map((evidence) => evidence.evidence_id);
+  assert.ok(evidenceIds.includes('ana-fresh-river'));
+  assert.ok(evidenceIds.includes('sgb-stale-river'));
+});
+
 test('domain: pesos injetáveis alteram IAV determinísticamente', () => {
   const routeId = 'rota-2-fluvial-brasilia';
   const segmentId = 'r2-s1-fluvial-amazonas';
