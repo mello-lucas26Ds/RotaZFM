@@ -763,4 +763,19 @@ test('domain: pesos injetáveis alteram IAV determinísticamente', () => {
   assert.equal(defaultSegment.iav, 70);
   assert.equal(customSegment.iav, 63);
   assert.equal(customSegment.dimensions.nivel.weight, 0.1);
+  assert.equal(snapshot.rule_version, RULE_VERSION);
+  assert.ok(custom.rule_version.includes('+w-'));
+  assert.notEqual(custom.rule_version, snapshot.rule_version);
+});
+
+test('domain: pesos sem dimensões rodoviárias falham com INVALID_WEIGHTS', () => {
+  assert.throws(
+    () =>
+      makeSnapshot({
+        options: {
+          iavWeights: { nivel: 1, chuva: 0, trafego: 0, qualidade: 0, restricao: 0 },
+        },
+      }),
+    (error) => error.code === 'INVALID_WEIGHTS',
+  );
 });

@@ -2,7 +2,7 @@ import http from 'node:http';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { ContractValidationError, assertIavQuery } from '@rotazfm/contracts';
-import { DomainError, createDecisionSnapshot } from '@rotazfm/domain';
+import { DomainError, createDecisionSnapshot, parseIavWeightsJson } from '@rotazfm/domain';
 import { buildDecisionInput } from '@rotazfm/ingestion';
 
 const DEFAULT_PORT = 3002;
@@ -192,7 +192,15 @@ export function createRateLimiter({ limit = DEFAULT_RATE_LIMIT, windowMs = DEFAU
   return check;
 }
 
-export function consultarViabilidade(query, { referenceDate } = {}) {
+function iavWeightsFromEnv(rawValue) {
+  const parsed = parseIavWeightsJson(rawValue);
+  if (typeof rawValue === 'string' && rawValue.trim() !== '' && parsed === undefined) {
+    console.warn('IAV_WEIGHTS_JSON inválido; usando pesos padrão');
+  }
+  return parsed;
+}
+
+export function consultarViabilidade(query, { referenceDate, iavWeights } = {}) {
   const input = buildDecisionInput({ query });
   const snapshot = createDecisionSnapshot({
     query,
@@ -201,6 +209,7 @@ export function consultarViabilidade(query, { referenceDate } = {}) {
     blockers: input.blockers,
     relatedNews: input.relatedNews,
     referenceDate,
+    iavWeights: iavWeights ?? iavWeightsFromEnv(process.env.IAV_WEIGHTS_JSON),
   });
 
   if (!snapshot || typeof snapshot !== 'object') {

@@ -2,7 +2,7 @@ import http from 'node:http';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { ContractValidationError, assertIavQuery } from '@rotazfm/contracts';
-import { DomainError, createDecisionSnapshot } from '@rotazfm/domain';
+import { DomainError, createDecisionSnapshot, parseIavWeightsJson } from '@rotazfm/domain';
 import { buildDecisionInput } from '@rotazfm/ingestion';
 
 const DEFAULT_PORT = 3001;
@@ -139,14 +139,11 @@ export function createRateLimiter({ limit = DEFAULT_RATE_LIMIT, windowMs = DEFAU
 }
 
 function iavWeightsFromEnv(rawValue) {
-  if (typeof rawValue !== 'string' || rawValue.trim() === '') return undefined;
-  try {
-    const parsed = JSON.parse(rawValue);
-    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : undefined;
-  } catch {
+  const parsed = parseIavWeightsJson(rawValue);
+  if (typeof rawValue === 'string' && rawValue.trim() !== '' && parsed === undefined) {
     console.warn('IAV_WEIGHTS_JSON inválido; usando pesos padrão');
-    return undefined;
   }
+  return parsed;
 }
 
 export function consultarViabilidade(query, { referenceDate, iavWeights } = {}) {

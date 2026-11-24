@@ -24,6 +24,10 @@ function weightUnitsFor(weights = IAV_WEIGHTS) {
     sum += units[dimension];
   }
   if (sum <= 0) fail('A soma dos pesos deve ser maior que zero', 'INVALID_WEIGHTS');
+  const roadWeightUnits = RODOVIARIO_DIMENSIONS.reduce((total, dimension) => total + units[dimension], 0);
+  if (roadWeightUnits <= 0) {
+    fail('A soma dos pesos das dimensões rodoviárias deve ser maior que zero', 'INVALID_WEIGHTS');
+  }
   return units;
 }
 const SEGMENT_STATUS_RANK = Object.freeze({
@@ -37,6 +41,41 @@ const RODOVIARIO_DIMENSIONS = Object.freeze(['chuva', 'trafego', 'qualidade', 'r
 
 function applicableDimensions(mode) {
   return HYDRO_MODES.has(mode) ? IAV_DIMENSIONS : RODOVIARIO_DIMENSIONS;
+}
+
+function fnv1a(text) {
+  let hash = 2166136261;
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 16777619) >>> 0;
+  }
+  return hash.toString(16).padStart(8, '0');
+}
+
+function weightsFingerprint(weights) {
+  const units = weightUnitsFor(weights);
+  const totalUnits = IAV_DIMENSIONS.reduce((total, dimension) => total + units[dimension], 0);
+  const canonical = IAV_DIMENSIONS
+    .map((dimension) => `${dimension}:${Math.round((units[dimension] / totalUnits) * 1_000_000)}`)
+    .join('|');
+  return fnv1a(canonical);
+}
+
+const DEFAULT_WEIGHT_FINGERPRINT = weightsFingerprint(IAV_WEIGHTS);
+
+function ruleVersionForWeights(ruleVersion, weights) {
+  const fingerprint = weightsFingerprint(weights);
+  return fingerprint === DEFAULT_WEIGHT_FINGERPRINT ? ruleVersion : `${ruleVersion}+w-${fingerprint}`;
+}
+
+export function parseIavWeightsJson(rawValue) {
+  if (typeof rawValue !== 'string' || rawValue.trim() === '') return undefined;
+  try {
+    const parsed = JSON.parse(rawValue);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function hydroNivelAdjustment(nivelScore, chuvaScore) {
@@ -892,12 +931,16 @@ export function assessDecision({
   relatedNews = [],
   ruleVersion = RULE_VERSION,
   referenceDate,
-  iavWeights = IAV_WEIGHTS,
+  iavWeights,
 }) {
   const validQuery = assertIavQuery(query, { referenceDate });
   if (typeof ruleVersion !== 'string' || ruleVersion.trim() === '') {
     fail('ruleVersion é obrigatório', 'INVALID_RULE_VERSION');
   }
+  const effectiveIavWeights = iavWeights === undefined ? IAV_WEIGHTS : iavWeights;
+  const effectiveRuleVersion = iavWeights === undefined
+    ? ruleVersion
+    : ruleVersionForWeights(ruleVersion, effectiveIavWeights);
   if (!Array.isArray(facts)) fail('facts deve ser array', 'INVALID_FACT');
   if (!Array.isArray(blockers)) fail('blockers deve ser array', 'INVALID_BLOCKER');
   if (!Array.isArray(relatedNews)) fail('relatedNews deve ser array', 'INVALID_NEWS');
@@ -909,8 +952,8 @@ export function assessDecision({
     explicitBlockers: indexBlockers(blockers, routes, validQuery.data_embarque),
     loadProfile: validQuery.carga,
     relatedNews,
-    ruleVersion,
-    weightUnits: weightUnitsFor(iavWeights),
+    ruleVersion: effectiveRuleVersion,
+    weightUnits: weightUnitsFor(effectiveIavWeights),
   };
 
   const routeAssessments = routes.map((route) => assessRoute(route, context));
@@ -919,7 +962,7 @@ export function assessDecision({
   const allEvidences = uniqueEvidences(routeAssessments.flatMap((route) => route.evidences));
 
   return {
-    rule_version: ruleVersion,
+    rule_version: effectiveRuleVersion,
     catalog_version: catalog.version,
     query: validQuery,
     routes: routeAssessments,

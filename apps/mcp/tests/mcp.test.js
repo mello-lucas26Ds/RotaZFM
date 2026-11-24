@@ -272,3 +272,30 @@ test('mcp: corpo acima de 64 KiB retorna 413 sem derrubar a conexão', async () 
     await server.close();
   }
 });
+
+test('mcp: IAV_WEIGHTS_JSON altera rule_version do snapshot', async () => {
+  const server = await startServer();
+  const previous = process.env.IAV_WEIGHTS_JSON;
+  process.env.IAV_WEIGHTS_JSON = JSON.stringify({
+    nivel: 0.1,
+    chuva: 0.4,
+    trafego: 0.2,
+    qualidade: 0.2,
+    restricao: 0.1,
+  });
+  try {
+    const response = await rpc(
+      server.baseUrl,
+      'tools/call',
+      { name: 'consultar_viabilidade', arguments: validArguments() },
+      { id: 50 },
+    );
+    assert.equal(response.status, 200);
+    const body = await response.json();
+    assert.ok(body.result.structuredContent.rule_version.includes('+w-'));
+  } finally {
+    if (previous === undefined) delete process.env.IAV_WEIGHTS_JSON;
+    else process.env.IAV_WEIGHTS_JSON = previous;
+    await server.close();
+  }
+});
