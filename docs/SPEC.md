@@ -57,7 +57,7 @@ Data: 23/11/2026
 
 **Critérios de aceite:**
 - Cada `SegmentAssessment` tem `iav`, `dimensions`, `blockers[]`, `missing_data[]`, `evidences[]` e `rule_version`.
-- Pesos são fixos no MVP e registrados em `rule_version`.
+- Pesos padrão são documentados em `docs/pesos.md` e registrados em `rule_version`; overrides via `IAV_WEIGHTS_JSON` geram `rule_version` com fingerprint dos pesos.
 - Nenhum LLM participa do cálculo.
 - Score fora de `0..100` falha internamente e não é publicado.
 

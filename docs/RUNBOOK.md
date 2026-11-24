@@ -41,8 +41,8 @@ ROTAZFM_API_URL=http://127.0.0.1:3001 DASHBOARD_PORT=3003 npm run start --worksp
 Variáveis relevantes:
 
 - `IAV_MCP_API_KEYS`: chaves Bearer aceitas pela API e pelo MCP; o dashboard reutiliza a primeira chave para o proxy server-side.
-- `DASHBOARD_AUTH_TOKEN`: Bearer token opcional que protege assets e `/api/*` do dashboard fora de localhost; sem a variável, o dashboard permanece sem auth apenas para uso local.
-- `IAV_WEIGHTS_JSON`: override JSON opcional para experimentos de sensibilidade dos pesos do IAV.
+- `DASHBOARD_AUTH_TOKEN`: Bearer token opcional que protege `/api/*` do dashboard; sem a variável, o proxy fica aberto apenas para uso local. Os assets estáticos ficam públicos e o front pede o token em memória quando a API responde `DASHBOARD_UNAUTHORIZED`.
+- `IAV_WEIGHTS_JSON`: override JSON opcional para experimentos de sensibilidade dos pesos do IAV; API e MCP leem a mesma variável e o `rule_version` ganha fingerprint quando os pesos mudam.
 - `FIRECRAWL_API_KEY`: opcional para descoberta/filtro de notícias; sem ela, o sistema usa fixtures e declara fonte indisponível.
 - `API_PORT`/`PORT` e `HOST`: escuta da API.
 - `MCP_PORT`/`PORT` e `HOST`: escuta do MCP.
@@ -58,7 +58,7 @@ Variáveis relevantes:
 ## Segurança operacional
 
 - API e MCP exigem `Authorization: Bearer <chave>`; rate limit de 60 requisições/minuto por chave e corpo limitado a 64 KiB.
-- O dashboard protege assets e proxy com `DASHBOARD_AUTH_TOKEN` quando configurado; ele guarda a chave da API no servidor e a injeta apenas no proxy, sem expor ao browser.
+- O dashboard deixa assets estáticos públicos e protege `/api/*` com `DASHBOARD_AUTH_TOKEN` quando configurado; o token fica apenas em memória no navegador e a chave da API continua injetada somente no proxy server-side.
 - Não versionar `.env`, tokens ou chaves; em produção, usar variáveis de ambiente do provedor.
 - O probe de fontes não persiste payload bruto; grava apenas status, content-type, bytes, SHA-256, duração e parseabilidade/fallback.
 - Persistência atual é stateless/em memória com fixtures; PostgreSQL está adiado formalmente em `DEC-023`.
@@ -67,5 +67,5 @@ Variáveis relevantes:
 
 - Matriz C01–C20 está fechada em 20/20; E2E de browser do `EMPTY_STATE` foi validado via Playwright.
 - DNIT PNCT/ICM deram timeout/`FETCH_ERROR` a partir da VM; fixtures/fallback permanecem e o probe registra warning por fonte.
-- Pesos do IAV são injetáveis por `IAV_WEIGHTS_JSON` e documentados em `docs/pesos.md`; não há runner dedicado de sensibilidade neste PR.
+- Pesos do IAV são injetáveis por `IAV_WEIGHTS_JSON` na API/MCP e documentados em `docs/pesos.md`; não há runner dedicado de sensibilidade neste PR.
 - Nível do rio usa boletim ANA gov.br/PDF via `scripts/extract-ana-boletim.py`; não há credencial ANA.

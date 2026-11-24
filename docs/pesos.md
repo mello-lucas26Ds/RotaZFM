@@ -26,7 +26,7 @@ Os pesos podem ser injetados sem alterar o domínio:
 {"nivel":0.1,"chuva":0.4,"trafego":0.2,"qualidade":0.2,"restricao":0.1}
 ```
 
-- API: `IAV_WEIGHTS_JSON='{"nivel":0.1,"chuva":0.4,"trafego":0.2,"qualidade":0.2,"restricao":0.1}'`
+- API e MCP: `IAV_WEIGHTS_JSON='{"nivel":0.1,"chuva":0.4,"trafego":0.2,"qualidade":0.2,"restricao":0.1}'`
 - Chamada interna: `createDecisionSnapshot({ ..., iavWeights })`
 
-Pesos devem ser números não negativos e a soma precisa ser maior que zero. O domínio normaliza por segmento; não é obrigatório que a soma seja exatamente 1.
+Pesos devem ser números não negativos e a soma precisa ser maior que zero. A soma das dimensões rodoviárias (`chuva`, `trafego`, `qualidade`, `restricao`) também precisa ser maior que zero, pois esses trechos renormalizam os pesos entre si. O domínio normaliza por segmento; não é obrigatório que a soma seja exatamente 1. Overrides customizados geram `rule_version` com sufixo `+w-<fingerprint>` para não misturar snapshots de matrizes diferentes.
