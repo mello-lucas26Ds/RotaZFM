@@ -94,3 +94,40 @@ curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/instal
 rtk init -g
 npx skills add DietrichGebert/ponytail --skill ponytail
 segue
+
+## User message 3 (verbatim)
+
+Atue como Engenheiro de Software Sênior autônomo. Seu objetivo é resolver todas as pendências do PR #9, implementar as regras de negócio abaixo e validar a suíte de testes sem pedir aprovação a cada passo. Pare e me pergunte APENAS se precisar de uma chave de API que não esteja no `.env`.
+
+### 1. Credenciais, Extração Direta (GOV.BR/ANA) e Teste de Rede (Execute primeiro)
+- **Substituição da API da ANA (NOVA REGRA):** Não utilizaremos mais tokens/credenciais da API da ANA. Remova essa dependência do `.env` e do código.
+- **Scraping e Leitura de PDF (Sala de Situação):** Implemente a extração direta a partir da página `https://www.gov.br` buscando o link do boletim diário mais recente (padrão `https://www.gov.br/boletins/diario/boletim_01_amazonas_publicaDDMM-1.pdf`), aplicando *fallback* automático para a data mais recente disponível no topo da página caso o boletim do dia atual ainda não tenha sido publicado.
+- **Teste Prático Obrigatório (Executar agora):** Rode um script de teste extraindo os dados da **Página 1** do boletim PDF especificamente para o corredor/caminho das seguintes estações:
+  1. `MANAUS - RIO NEGRO` (Código 14990000)
+  2. `ITACOATIARA - RIO AMAZONAS` (Código 16030000)
+  3. `ÓBIDOS - RIO AMAZONAS` (Código 17050001)
+  4. `SANTARÉM - RIO TAPAJÓS` (Código 17900000)
+  *(Extraia Data, Nível em cm, Referência, Limite em cm e Diferença em cm — utilize leitura baseada em coordenadas/bounding boxes como `pdfplumber` ou `PyMuPDF` para não misturar as colunas da grade do PDF).*
+- **Demais Credenciais e Rede:** Verifique o arquivo `.env`. Se `FIRECRAWL_API_KEY` estiver ausente, crie mocks/fallbacks locais para não travar os testes. Teste via terminal a conectividade com `servicos.dnit.gov.br` e `apiprevmet3.inmet.gov.br` (implementando fallback automático com log de aviso em caso de bloqueio/timeout).
+
+### 2. Regras de Negócio e Normas DNIT (Decisões Aprovadas)
+- **Normas de Peso (DNIT/CONTRAN):** Aplique os limites da Resolução CONTRAN nº 882/2021 para PBTC nas rodovias federais. Para rodovias estaduais ou sem dado específico de PBTC, retorne status `NAO_AVALIAVEL` com fallback seguro (sem bloquear a rota, apenas sinalizando ausência de dado).
+- **Portarias BR-319 e SP-330:** Assuma a vigência das portarias mais recentes disponíveis nas fontes oficiais raspadas. Para a SP-330 (Anhanguera), priorize dados da ARTESP/DER-SP; se indisponível, marque qualidade como `NAO_AVALIAVEL`.
+- **Tráfego Hidroviário e Limiar de Navegabilidade:** Utilize os dados extraídos do PDF do boletim da ANA (convertendo leituras de **cm para metros**, dividindo por 100) para as estações do corredor (incluindo Santarém e Breves, se disponível; caso Breves não conste no boletim diário, aplique fallback seguro). Defina o limiar de alerta de navegabilidade com base na cota de atenção/estiagem histórica (Cota 95% / Limite do boletim) ou parâmetro ajustável em config, usando `NAO_AVALIAVEL` como fallback caso o download/parsing do PDF falhe.
+- **PNCT 2022:** Utilize os dados do PNCT 2022 apenas como referência secundária/fallback, adicionando uma flag/reason code indicando `dado_historico_defasado`.
+- **Normalização:** Conclua a conversão do resumo do INMET para `rain_signal` e agregue o DNIT ICM por km em segmentos contínuos.
+
+### 3. Correções Técnicas e Fechamento do PR #9
+- **Fixtures (C01–C20):** Materialize todas as fixtures por cenário garantindo alinhamento estrito entre score, frescor e `reason_codes`.
+- **Cenário C18:** Emita o bloqueador genérico `confirmed_restriction` quando houver restrição de PBTC ou portaria vigente bloqueando o trecho.
+- **Sensibilidade de Pesos:** Documente a matriz de pesos atual em `/docs/pesos.md` e deixe os pesos injetáveis via configuração/variáveis de ambiente.
+- **Banco de Dados (PostgreSQL):** Adie formalmente a persistência em PostgreSQL neste PR. Mantenha a execução stateless/em memória e registre um TODO arquitetural documentado.
+- **Autenticação do Dashboard:** Implemente proteção básica via Basic Auth ou Token via variável de ambiente (`DASHBOARD_AUTH_TOKEN`) antes de qualquer deploy em ambientes não-locais (Vercel/staging).
+
+### 4. Validação Obrigatória (Rode e corrija até passar)
+- Execute todos os testes unitários e de integração cobrindo C01 a C20.
+- Execute o teste E2E de browser validando especificamente o `EMPTY_STATE` do dashboard (cenário C20).
+- Ao finalizar, me entregue apenas:
+  1. Resumo do que foi alterado (incluindo a saída real do teste de extração das 4 estações do PDF);
+  2. Status dos testes;
+  3. Lista curta de chaves/tokens que preciso colar no `.env` (sem incluir tokens da ANA).

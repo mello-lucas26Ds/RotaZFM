@@ -13,6 +13,7 @@
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "sources:probe": "node scripts/probe-sources.mjs",
+    "ana:extract": "python3 scripts/extract-ana-boletim.py",
     "scenarios:run": "node scripts/run-scenarios.mjs",
     "load:local": "node scripts/load-test.mjs"
   },

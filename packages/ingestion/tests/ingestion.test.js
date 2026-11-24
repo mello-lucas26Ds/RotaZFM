@@ -261,6 +261,7 @@ test('ingestion: freshness_hours é calculado, não copiado da fixture', () => {
 
   const riverEvidence = input.evidences.find(
     (evidence) =>
+      evidence.fixture_file === 'river_level.fixture.json' &&
       evidence.fixture_dimension === 'river_level' &&
       evidence.segment_id === 'r2-s1-fluvial-amazonas' &&
       evidence.confirmation_status === 'CONFIRMADO',

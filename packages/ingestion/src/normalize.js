@@ -101,7 +101,19 @@ function rainValue(record) {
 }
 
 function riverValue(record) {
-  return pick(record, ['station', 'river', 'level_m', 'unit', 'observed_at']);
+  return pick(record, [
+    'station',
+    'station_code',
+    'river',
+    'level_m',
+    'unit',
+    'observed_at',
+    'reference',
+    'limit_m',
+    'difference_m',
+    'navigation_threshold_m',
+    'navigation_signal',
+  ]);
 }
 
 function trafficValue(record) {

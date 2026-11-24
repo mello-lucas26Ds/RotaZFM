@@ -15,7 +15,7 @@ Princípio: o MVP deve ser uma estrutura pequena de tomada de decisão, não um 
 | INMET direto | **Usar** | Previsão por geocódigo/município | Substitui scraping do site como primeira opção | Endpoint indicado: `https://apiprevmet3.inmet.gov.br/previsao/{geocodigo}` `[a validar payload e cobertura]` |
 | `tidyprf` / `prf-api` | **Cortar do MVP** | Acidentes e infrações PRF | Não substitui nenhuma das cinco dimensões atuais | Útil para risco futuro ou validação retrospectiva; `prf-api` parece desatualizado, preferir dados oficiais PRF ou `tidyprf` se voltar ao escopo |
 | Firecrawl | **Usar seletivamente** | Extração de SACE e portarias DNIT | Substitui scraping manual/frágil quando HTTP direto falha ou quando schema ajuda | Bom para PDF/página normativa; manter HTTP direto como fallback |
-| ANA HidroWebService | **Fallback futuro** | Série histórica e dados horários de nível/chuva | Substitui SACE somente quando autorizado e SACE falhar | Exige autorização por e-mail e token; pedir acesso no Dia 1, mas não bloquear MVP |
+| ANA gov.br/Sala de Situação | **Usar para fallback operacional** | Nível diário do rio por estação | Substitui API/credencial ANA HidroWebService | Fonte oficial pública em PDF; extrair via `scripts/extract-ana-boletim.py`, sem token |
 | Airflow/Prefect | **Cortar do MVP** | Orquestração pesada | Substituído por cron/worker simples | Para 5–6 coletores, Airflow/Prefect é complexidade desnecessária |
 | DuckDB | **Opcional/local** | Análise local | Não substitui PostgreSQL no MVP | Se já houver PostgreSQL, usar uma base só; DuckDB só para exploração/validação local |
 
@@ -75,12 +75,13 @@ A tabela `route_condition_facts` é o contrato central entre coleta, motor e int
 
 ### 1. Nível do rio
 
-- Primário: SACE via Firecrawl ou HTTP direto.
+- Primário operacional: boletim diário ANA gov.br/Sala de Situação em PDF via `scripts/extract-ana-boletim.py`.
 - Fallback imediato: último valor válido com flag de atraso.
-- Fallback futuro: ANA HidroWebService após autorização.
-- Validação retrospectiva: ANA pode ser útil se houver série histórica; SACE precisa ser testado para 2023 `[a validar]`.
+- Corroboração/contexto: SACE/CPRM via HTTP direto ou Firecrawl.
+- Fora de escopo nesta regra: ANA HidroWebService, pois exige cadastro/token e foi substituído pelo PDF público.
+- Validação retrospectiva: ANA gov.br/boletins pode ajudar histórico se houver série oficial acessível; SACE precisa ser testado para 2023 `[a validar]`.
 
-O que não fazer: depender de ANA antes da aprovação; usar Firecrawl sem schema; mostrar valor antigo como atual.
+O que não fazer: usar API/credencial ANA; usar Firecrawl sem schema; mostrar valor antigo como atual.
 
 ### 2. Previsão de chuva
 

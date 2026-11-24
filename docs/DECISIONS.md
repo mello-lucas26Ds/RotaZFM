@@ -84,12 +84,12 @@ Data de abertura: 09/11/2026
 - Alternativas descartadas: Airflow, Prefect, DuckDB runtime, múltiplos bancos.
 - Responsável: backend.
 
-## DEC-011 — ANA como fallback futuro
+## DEC-011 — ANA gov.br boletim PDF, sem API credenciada
 
-- Data: 09/11/2026
-- Decisão: pedir autorização da ANA HidroWebService, mas manter SACE como fonte primária de nível do rio.
-- Motivo: ANA pode ajudar fallback/histórico, mas depende de aprovação externa.
-- Alternativas descartadas: bloquear MVP esperando ANA ou usar ANA sem autorização.
+- Data: 24/11/2026 (substitui a decisão de 09/11/2026)
+- Decisão: coletar nível do rio pelo boletim diário público da Sala de Situação da ANA em gov.br, com download do PDF e extração por coordenadas/bounding boxes via `scripts/extract-ana-boletim.py`; não usar tokens nem credenciais da ANA HidroWebService.
+- Motivo: a nova regra remove a dependência de cadastro/API e usa fonte oficial pública já publicada; SACE/SAH pode continuar como contexto/corroboração.
+- Alternativas descartadas: ANA HidroWebService, cadastro/token ANA, score de navegabilidade sem threshold aprovado.
 - Responsável: dados.
 
 ## DEC-012 — Firecrawl seletivo

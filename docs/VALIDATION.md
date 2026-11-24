@@ -67,12 +67,12 @@ Resultado ruim está definido antes da análise e invalida a validação se ocor
 ### Candidato — CAND-RETRO-01: Rota 2 fluvial em evento hidrológico de 2023
 
 - **Por que candidato:** a Rota 2 tem o trecho crítico `r2-s1-fluvial-amazonas`; eventos de cheia/vazante do Amazonas são o caso em que nível do rio e restrição de navegação mais podem mudar a decisão.
-- **Fonte primária candidata:** SACE/CPRM ou ANA HidroWebService para nível do rio; Capitania Fluvial/Portaria para restrição confirmada; INMET/DNIT somente se houver série equivalente para chuva/tráfego. Se faltar série histórica, a dimensão fica ausente e o resultado esperado é `NAO_AVALIAVEL`, não score inventado.
+- **Fonte primária candidata:** boletim ANA gov.br/Sala de Situação em PDF ou SACE/CPRM para nível do rio; Capitania Fluvial/Portaria para restrição confirmada; INMET/DNIT somente se houver série equivalente para chuva/tráfego. Se faltar série histórica, a dimensão fica ausente e o resultado esperado é `NAO_AVALIAVEL`, não score inventado.
 - **Período:** a definir na Etapa 5 após confirmar cobertura SACE/ANA para 2023; não usar data ilustrativa no pitch.
 - **Resultado ruim pré-definido:** descartar se não houver fonte oficial cobrindo nível do rio na data/período, se a restrição depender de notícia não confirmada, se chuva/tráfego/PBTC não puderem ser reconstruídos ou marcados como faltantes, ou se o resultado não for reproduzível a partir de `raw_payloads`.
 - **Saída aceitável:** reproduzir `DecisionSnapshot` com fixtures/payloads reais anonimizados ou registrar descarte formal com motivo.
 
-**Resultado da Etapa 5:** CAND-RETRO-01 descartado formalmente. Não há cobertura oficial confirmada para todas as dimensões obrigatórias no mesmo período sem ANA autorizada/Firecrawl pago; tentar reproduzir terminaria em `NAO_AVALIAVEL` por lacuna de fonte, não por teste útil do motor. Detalhes na seção 7.
+**Resultado da Etapa 5:** CAND-RETRO-01 descartado formalmente. Não há cobertura oficial confirmada para todas as dimensões obrigatórias no mesmo período sem série histórica/Firecrawl pago; tentar reproduzir terminaria em `NAO_AVALIAVEL` por lacuna de fonte, não por teste útil do motor. Detalhes na seção 7. Atualização de 24/11/2026: a fonte operacional de nível passou a ser o boletim ANA gov.br/PDF, sem API/credencial ANA.
 
 ### Descartado — CAND-RETRO-02: BR-319 terrestre em 2023
 

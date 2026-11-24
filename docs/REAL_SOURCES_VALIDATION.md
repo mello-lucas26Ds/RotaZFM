@@ -1,13 +1,14 @@
 # REAL_SOURCES_VALIDATION — Validação de fontes reais (Etapa 5, parte documental)
 
-Status: validação documental vigente
-Data: 23/11/2026
+Status: validação documental vigente com atualização de 24/11/2026
+Data: 23/11/2026 (atualização ANA gov.br/PDF em 24/11/2026)
 Escopo: go/no-go por fonte para as dimensões do IAV v2, sem chamadas pagas e sem deploy.
 
 **Método e limites desta etapa**
 
 - Nenhuma API paga foi chamada. `FIRECRAWL_API_KEY`/segredos não foram lidos nem usados; `.env` não foi acessado.
 - Fontes verificadas diretamente em 23/11/2026 por HTTP público (páginas oficiais, endpoints públicos e PDFs oficiais), além da leitura de `data/fixtures/*`, `docs/VALIDATION.md`, `docs/INGESTION_COVERAGE.md` e `docs/DATA_SOURCES_EVALUATION.md`.
+- Em 24/11/2026, o boletim ANA gov.br foi verificado por HTTP público e PDF: listagem, download `@@download/file` e extração PyMuPDF das quatro estações do corredor.
 - Nenhum score, limiar ou endpoint foi inventado. Onde a verificação não foi possível, o item está marcado `BLOQUEADO` com motivo.
 - Custo desta etapa: **R$0**.
 - Ressalva de rede: `apiprevmet3.inmet.gov.br` e `servicos.dnit.gov.br` não responderam a `curl` a partir do ambiente desta sessão (reset de conexão/timeout), mas as páginas/endpoints foram verificados por acesso web. A ingestão real precisa rodar em ambiente com acesso confirmado a esses hosts (ver §7).
@@ -16,8 +17,9 @@ Escopo: go/no-go por fonte para as dimensões do IAV v2, sem chamadas pagas e se
 
 | Dimensão | Fonte primária | URL de referência | Status | Decisão |
 |---|---|---|---|---|
-| Nível do rio | SACE/SGB (SAH Amazonas) | `https://sace.sgb.gov.br/amazonas/` + boletins PDF | CONFIRMADO | `NECESSITA_NORMALIZACAO` (falta limiar de navegabilidade) |
-| Nível do rio (fallback/histórico) | ANA HidroWebService | `https://www.ana.gov.br/hidrowebservice/swagger-ui/index.html` | BLOQUEADO (exige cadastro/credencial) | `SO_CONTEXTO` até autorização |
+| Nível do rio | ANA gov.br/Sala de Situação boletim diário PDF | `https://www.gov.br/ana/pt-br/sala-de-situacao/rio-amazonas/boletins/diario` | CONFIRMADO em 24/11/2026 | `NECESSITA_NORMALIZACAO` (conversão cm→m feita; threshold de navegabilidade segue configurável/auditável) |
+| Nível do rio (contexto/corroboração) | SACE/SGB (SAH Amazonas) | `https://sace.sgb.gov.br/amazonas/` + boletins PDF | CONFIRMADO | `SO_CONTEXTO` ou fallback com frescor |
+| Nível do rio (API histórica) | ANA HidroWebService | `https://www.ana.gov.br/hidrowebservice/swagger-ui/index.html` | DESCARTADO nesta regra | não usar tokens/credenciais da ANA |
 | Nível operacional do porto | Porto de Manaus (previsão de barcos) | `https://portodemanaus.com.br/previsao-de-barcos/` | CONFIRMADO (página pública) | `SO_CONTEXTO` (não é fonte hidrológica oficial) |
 | Regra de navegabilidade | Capitania Fluvial (Marinha) — Portaria 158/CFAOC/2023 | PDF oficial (ver §3.4) | PARCIAL | `NECESSITA_NORMALIZACAO` (pode virar threshold) |
 | Chuva | INMET API de previsão por geocódigo | `https://apiprevmet3.inmet.gov.br/previsao/{geocodigo}` | CONFIRMADO | `PODE_ALIMENTAR_SCORE` após normalização do resumo |
@@ -33,7 +35,7 @@ Escopo: go/no-go por fonte para as dimensões do IAV v2, sem chamadas pagas e se
 
 ## 2. Nível do rio
 
-### 2.1 SACE/SGB — fonte primária (CONFIRMADO)
+### 2.1 SACE/SGB — contexto/corroboração (CONFIRMADO)
 
 - **URL corrigida:** a fixture da Etapa 1 usava `https://www.sgb.gov.br/sace/amazonas`, que hoje responde `404`. A página viva é `https://sace.sgb.gov.br/amazonas/` (HTTP 200, verificado em 23/11/2026). Boletins em `https://sace.sgb.gov.br/boletins/Amazonas/` (ex.: 45º boletim de 10/11/2026, PDF HTTP 200).
 - **O que é:** Sistema de Alerta de Eventos Críticos do SGB; dados das estações automáticas da Rede Hidrometeorológica Nacional (RHN, responsabilidade da ANA, operadas pelo SGB), recebidos a cada 1 hora por satélite/GSM; consolidados em boletins de monitoramento e alerta.
@@ -41,13 +43,15 @@ Escopo: go/no-go por fonte para as dimensões do IAV v2, sem chamadas pagas e se
 - **Estações úteis ao MVP (presentes no 45º boletim):** Manaus (Rio Negro, Ponta do Ismael), Itacoatiara, Parintins, Óbidos, Almeirim, além de Tabatinga, Itapéua/Coari, Manacapuru, São Gabriel da Cachoeira, Barcelos, Porto Velho (Madeira), Rio Branco (Acre), Beruri (Purus). **Santarém e Breves não foram confirmadas por esta sessão** — permanecem como item de verificação na amostra controlada (§6).
 - **Frescor:** boletim diário + dados horários na página; compatível com `freshness_hours` do MVP se a coleta for diária.
 - **Exemplo de dado (verificado):** 45º boletim, 10/11/2026 — Amazonas/Itacoatiara 344 cm; Parintins -34 cm; Óbidos 70 cm; Almeirim 269 cm; Rio Negro/Manaus 1.637 cm. (Valores em cm; a fixture da Etapa 1 usava m — normalização de unidade obrigatória.)
-- **Decisão:** `NECESSITA_NORMALIZACAO`. O nível bruto é dado oficial e fresco, mas **não existe limiar de navegabilidade** (calado/nível mínimo) aprovado; sem ele, a dimensão não vira score. Fallback: último valor válido com `last_valid_at`/`freshness_hours` (RF-005).
+- **Decisão:** `SO_CONTEXTO` como corroboração/fallback. O nível bruto é dado oficial e fresco, mas não substitui o boletim ANA gov.br/PDF e ainda não tem threshold de navegabilidade aprovado para virar score.
 
-### 2.2 ANA HidroWebService — fallback/histórico (BLOQUEADO, depende de cadastro)
+### 2.2 ANA gov.br/Sala de Situação — boletim diário PDF (CONFIRMADO em 24/11/2026)
 
-- **URL:** `https://www.ana.gov.br/hidrowebservice/swagger-ui/index.html` (documentada no manual oficial; a raiz sem path responde 404, o que é esperado).
-- **Acesso:** exige cadastro prévio por e-mail (`hidro@ana.gov.br`) com CPF/CNPJ; token de autenticação válido por 60 minutos; rotas em `WS-EstacoesTelemetricasController`.
-- **Decisão:** `SO_CONTEXTO` até que Lucas/humano solicite a credencial. Custo R$0, mas **não automatizável sem cadastro**. É a candidata natural para o retrospectivo CAND-RETRO-01 (série histórica 2023).
+- **Fonte:** `https://www.gov.br/ana/pt-br/sala-de-situacao/rio-amazonas/boletins/diario`, com paginação `?b_start:int=...`; o boletim mais recente disponível foi `boletim_01_amazonas_publica2411-1.pdf` datado de 24/11/2026.
+- **Acesso:** HTTP público com User-Agent de navegador; download direto em `...pdf/@@download/file`. Não usa token, cadastro ou ANA HidroWebService.
+- **Extração:** `scripts/extract-ana-boletim.py` usa PyMuPDF `get_text('words')` e bounding boxes para separar colunas `Data`, `Nível`, `Referência`, `Limite` e `Diferença` na página 1. Saída converte cm→m e preserva referência/limite/diferença como evidência, sem calcular score.
+- **Estações extraídas em 24/11/2026:** Manaus/Rio Negro `14990000` = 15,86 m; Itacoatiara/Amazonas `16030000` = 2,94 m; Óbidos/Amazonas `17050001` = 0,40 m; Santarém/Tapajós `17900000` = 1,16 m. Breves não apareceu na página 1 do boletim e permanece lacuna/fallback seguro.
+- **Decisão:** `NECESSITA_NORMALIZACAO` para virar score. O limite do boletim é guardado como `navigation_threshold_m`/referência auditável, mas o IAV continua `NAO_AVALIAVEL` se não houver threshold/regras aprovados ou se o download/parsing falhar.
 
 ### 2.3 Porto de Manaus — contexto operacional (CONFIRMADO, só contexto)
 
@@ -134,7 +138,7 @@ Objetivo: validar payload real → normalização → `route_condition_facts`, e
 | # | Fonte | Amostra | O que validar | Critério de aprovação |
 |---|---|---|---|---|
 | 1 | INMET | `GET /previsao/1302603` (Manaus) e `GET /previsao/3509502` (Campinas) | payload JSON sem campo `icone`, `resumo` → `rain_signal` determinístico, janela de 4 dias | 2 evidências normalizadas com `content_hash` e `freshness_hours`; teste unitário com payload anonimizado |
-| 2 | SACE | página `sace.sgb.gov.br/amazonas/` + 45º boletim PDF | tabela de estações, unidade (cm), data do último dado, presença/ausência de Santarém e Breves | 1 fato de nível por estação útil; lacunas Santarém/Breves resolvidas ou mantidas `INDISPONIVEL` |
+| 2 | ANA gov.br/SGB SACE | listagem `boletins/diario` + PDF `boletim_01_amazonas_publica2411-1.pdf`, página 1 | estações `14990000`, `16030000`, `17050001`, `17900000`; colunas Data/Nível/Referência/Limite/Diferença; Breves ausente | 4 estações do corredor extraídas com coordenadas; Santarém confirmada, Breves mantida `INDISPONIVEL`/fallback |
 | 3 | DNIT ICM | CSV `levantamentos_pavimentada_2026_10.csv` e `levantamentos_nao_pavimentada_2026_10.csv` (download direto) | colunas do dicionário, km por rodovia, classe ICM | amostra de linhas BR-319/BR-364/BR-153 extraída e mapeada aos segmentos; se download falhar por rede, registrar bloqueio e não contornar |
 | 4 | DNIT PNCT | XLSX Contagem de Tráfego Dez/2022 | se há linhas para BR-364/BR-153/BR-010/BR-010 com VMD | extrair amostra; declarar defasagem de 4 anos no `freshness_hours` |
 | 5 | ARTESP | CSV "Tráfego nas praças de pedágio por dia em 2026" | presença de pontos na SP-330 Anhanguera | se coberto, 1 fato de tráfego para `r1-s7`/`r2-s7`; senão manter `BLOQUEADO_SEM_FONTE` |
@@ -145,8 +149,8 @@ Validação de cada amostra: payload bruto salvo antes da normalização (RF-003
 
 ## 9. Bloqueios e dependências externas
 
-1. **ANA HidroWebService:** precisa de cadastro (e-mail para `hidro@ana.gov.br`) e credencial — ação humana; sem custo. Desbloqueia retrospectivo CAND-RETRO-01 e fallback histórico de nível.
-2. **Firecrawl/Alexandria:** precisa de `FIRECRAWL_API_KEY` e orçamento de créditos para spike de descoberta/filtro de notícias e scraping de páginas frágeis (INMET/DNIT se o acesso direto falhar). Nenhuma chamada feita nesta etapa.
+1. **ANA HidroWebService:** descartado pela nova regra; não pedir cadastro, token ou credencial. Usar boletim PDF gov.br via `scripts/extract-ana-boletim.py`.
+2. **Firecrawl/Alexandria:** precisa de `FIRECRAWL_API_KEY` e orçamento de créditos para spike de descoberta/filtro de notícias e scraping de páginas frágeis (INMET/DNIT se o acesso direto falhar). Nenhuma chamada paga feita nesta etapa.
 3. **Rede do ambiente de ingestão:** `apiprevmet3.inmet.gov.br` e `servicos.dnit.gov.br` não responderam a `curl` nesta VM; confirmar acesso a partir do ambiente que fará a coleta ou usar Firecrawl pago.
 4. **Limiares de navegabilidade:** decisão de produto (Lucas) necessária para converter nível do rio em score; sem isso a dimensão fica `SO_CONTEXTO`.
 5. **SP-330 qualidade:** fonte estadual (DER-SP/ARTESP) pendente de verificação.
@@ -155,6 +159,6 @@ Validação de cada amostra: payload bruto salvo antes da normalização (RF-003
 
 ## 10. Confirmação de escopo
 
-- Nenhum código de `apps/` ou `packages/` foi alterado; PR docs-only.
+- A rodada documental original não alterou `apps/`/`packages/`; a atualização de 24/11/2026 adicionou `scripts/extract-ana-boletim.py`, fixture `data/fixtures/ana_boletim_river_level.fixture.json`, fallback de probe e remoção da dependência de credencial ANA.
 - Nenhuma chamada paga, nenhuma leitura de `.env`/segredos, nenhum deploy.
 - Nenhum score, limiar ou endpoint foi inventado; itens não verificados estão marcados `BLOQUEADO` com motivo.

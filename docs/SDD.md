@@ -106,7 +106,7 @@ Regras:
 
 | Dimensão | Primária | Fallback | Observação |
 |---|---|---|---|
-| Nível do rio | SACE/CPRM via HTTP/Firecrawl | último valor válido; ANA futura | validar série histórica para retrospectivo |
+| Nível do rio | ANA gov.br/Sala de Situação boletim diário PDF via `scripts/extract-ana-boletim.py` | SACE/CPRM ou último valor válido; sem API ANA | converter cm→m e manter threshold de navegabilidade configurável; sem score sem regra aprovada |
 | Chuva | INMET direto por geocódigo | scraping INMET via Firecrawl | previsão municipal 4 dias |
 | Tráfego | DNIT/parseforge | tabela estática datada | trecho crítico BR-319 |
 | Qualidade da via | índice estático `precviasBR`/similar | valor fixo documentado | sem dinâmica no MVP |

@@ -17,6 +17,12 @@ const SOURCES = [
     expected: 'html',
   },
   {
+    id: 'ana-sala-situacao-boletins',
+    dimension: 'nivel',
+    url: 'https://www.gov.br/ana/pt-br/sala-de-situacao/rio-amazonas/boletins/diario',
+    expected: 'html',
+  },
+  {
     id: 'dnit-pnct-contagem',
     dimension: 'trafego',
     url: 'https://servicos.dnit.gov.br/dadosabertos/dataset/contagem-de-trafego',
@@ -29,6 +35,14 @@ const SOURCES = [
     expected: 'html',
   },
 ];
+
+const FALLBACK_BY_SOURCE = Object.freeze({
+  'inmet-previsao-manaus': 'manter fixture rain_signal e marcar NAO_AVALIAVEL; não bloquear a rota',
+  'sgb-sace-amazonas': 'usar boletim ANA gov.br via scripts/extract-ana-boletim.py ou fixture auditável; não usar API ANA',
+  'ana-sala-situacao-boletins': 'fallback para o boletim mais recente disponível na listagem ou NAO_AVALIAVEL',
+  'dnit-pnct-contagem': 'manter PNCT 2022 como dado_historico_defasado e não bloquear por tráfego',
+  'dnit-icm-pavimento': 'marcar qualidade NAO_AVALIAVEL sem bloquear a rota',
+});
 
 async function readLimited(response) {
   const reader = response.body.getReader();
@@ -82,6 +96,7 @@ async function probe(source) {
       truncated,
       duration_ms: Date.now() - started,
       sha256: createHash('sha256').update(body).digest('hex'),
+      fallback_action: FALLBACK_BY_SOURCE[source.id] ?? null,
     };
 
     if (source.expected === 'json') {
@@ -109,6 +124,7 @@ async function probe(source) {
       duration_ms: Date.now() - started,
       sha256: null,
       error: error?.name === 'AbortError' ? 'TIMEOUT' : 'FETCH_ERROR',
+      fallback_action: FALLBACK_BY_SOURCE[source.id] ?? null,
     };
   } finally {
     clearTimeout(timeout);
@@ -117,11 +133,16 @@ async function probe(source) {
 
 const results = [];
 for (const source of SOURCES) {
-  results.push(await probe(source));
+  const result = await probe(source);
+  results.push(result);
+  if (!result.ok || result.json_parseable === false) {
+    const detail = result.error ?? `HTTP ${result.http_status ?? 'desconhecido'}`;
+    console.error(`AVISO fonte ${result.id}: ${detail}; fallback: ${result.fallback_action ?? 'não definido'}`);
+  }
 }
 
 console.log(JSON.stringify({
   generated_at: new Date().toISOString(),
-  policy: 'GETs publicos minimos; timeout 12s; sem Firecrawl/Alexandria pago; sem credenciais; payload nao e persistido, apenas hash/tamanho',
+  policy: 'GETs publicos minimos; timeout 12s; sem Firecrawl/Alexandria pago; sem credenciais ANA; payload nao e persistido, apenas hash/tamanho',
   sources: results,
 }, null, 2));
