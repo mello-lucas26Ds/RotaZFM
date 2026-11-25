@@ -1,13 +1,18 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-export const DEFAULT_CATALOG_PATH = fileURLToPath(
-  new URL('../../../data/routes/mvp-routes.json', import.meta.url),
-);
+let cachedCatalogPath = null;
+export function getDefaultCatalogPath() {
+  if (cachedCatalogPath === null) {
+    const catalogRelativePath = '../../../data/routes/' + 'mvp-routes.json';
+    cachedCatalogPath = fileURLToPath(new URL(catalogRelativePath, import.meta.url));
+  }
+  return cachedCatalogPath;
+}
 
 const HYDRO_MODES = new Set(['hidroviario', 'multimodal']);
 
-export function loadCatalog(path = DEFAULT_CATALOG_PATH) {
+export function loadCatalog(path = getDefaultCatalogPath()) {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
 

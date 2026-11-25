@@ -146,8 +146,8 @@ function iavWeightsFromEnv(rawValue) {
   return parsed;
 }
 
-export function consultarViabilidade(query, { referenceDate, iavWeights } = {}) {
-  const input = buildDecisionInput({ query });
+export function consultarViabilidade(query, { referenceDate, iavWeights, buildInput = buildDecisionInput } = {}) {
+  const input = buildInput({ query });
   const snapshot = createDecisionSnapshot({
     query,
     catalog: input.catalog,
@@ -184,8 +184,7 @@ function timestampOrNull(value) {
   return Number.isFinite(timestamp) ? timestamp : null;
 }
 
-function normalizedSources() {
-  const input = buildDecisionInput({});
+export function normalizedSources(input = buildDecisionInput({})) {
   const collectedAtByPayload = new Map(
     input.rawPayloads.map((payload) => [payload.raw_payload_id, payload.collected_at]),
   );
@@ -264,8 +263,7 @@ function newsMatchesRoute(newsItem, routeId, segmentIds) {
   return false;
 }
 
-function normalizedNews(searchParams = new URLSearchParams(), { now = Date.now() } = {}) {
-  const input = buildDecisionInput({});
+export function normalizedNews(searchParams = new URLSearchParams(), { now = Date.now(), input = buildDecisionInput({}) } = {}) {
   let noticias = input.relatedNews;
 
   const rotaId = searchParams.get('rota_id');

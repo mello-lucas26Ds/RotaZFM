@@ -1,1 +1,8 @@
-export { consultarViabilidade, createApiServer, createRateLimiter, startApiServer } from './server.js';
+export {
+  consultarViabilidade,
+  createApiServer,
+  createRateLimiter,
+  normalizedNews,
+  normalizedSources,
+  startApiServer,
+} from './server.js';

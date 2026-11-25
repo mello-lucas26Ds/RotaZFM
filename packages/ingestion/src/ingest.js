@@ -1,5 +1,5 @@
-import { DEFAULT_CATALOG_PATH, buildSegmentIndex, loadCatalog } from './catalog.js';
-import { DEFAULT_FIXTURE_DIR, loadFixtureFiles } from './fixtures.js';
+import { buildSegmentIndex, loadCatalog } from './catalog.js';
+import { loadFixtureFiles } from './fixtures.js';
 import { normalizeDimensionFixtures, normalizeRelatedNews } from './normalize.js';
 import { buildPbtcBlockers } from './restrictions.js';
 
@@ -29,12 +29,14 @@ function sortFacts(facts) {
 }
 
 export function buildDecisionInput({
-  fixtureDir = DEFAULT_FIXTURE_DIR,
-  catalogPath = DEFAULT_CATALOG_PATH,
+  fixtureDir,
+  catalogPath,
+  fixtureFiles: injectedFixtureFiles,
+  catalog: injectedCatalog,
   query,
 } = {}) {
-  const fixtureFiles = loadFixtureFiles(fixtureDir);
-  const catalog = loadCatalog(catalogPath);
+  const fixtureFiles = injectedFixtureFiles ?? loadFixtureFiles(fixtureDir);
+  const catalog = injectedCatalog ?? loadCatalog(catalogPath);
   const segmentIndex = buildSegmentIndex(catalog);
 
   const rawPayloads = fixtureFiles.map((fixtureFile) => ({

@@ -1,38 +1,32 @@
 # Dashboard RotaZFM
 
-Dashboard mínimo da Etapa 4. Ele renderiza o `DecisionSnapshot` produzido pela API; não calcula IAV.
+Command Center em Next.js 15 (App Router) para o `DecisionSnapshot` do motor IAV. O dashboard não calcula score: ele consulta as rotas serverless `/api/v1/*`, que executam o mesmo domínio determinístico dos pacotes internos com catálogo/fixtures embutidos para deploy serverless.
 
 ## Rodar localmente
-
-Em terminais separados, com Node via nvm:
 
 ```bash
 source ~/.nvm/nvm.sh
 cd /home/ubuntu/repos/RotaZFM
-
-# API (terminal 1)
-IAV_MCP_API_KEYS=dev-key npm run start --workspace @rotazfm/api
-
-# Dashboard (terminal 2)
-IAV_MCP_API_KEYS=dev-key ROTAZFM_API_URL=http://127.0.0.1:3001 npm run start --workspace @rotazfm/dashboard
+npm install
+npm run dev --workspace @rotazfm/dashboard
 ```
 
-Abra `http://127.0.0.1:3002`.
+Abra `http://127.0.0.1:3000`.
 
-O dashboard usa `ROTAZFM_API_URL` para saber onde está a API e reutiliza a primeira chave de `IAV_MCP_API_KEYS` para o proxy `/api/v1/*`. O browser não recebe a chave.
+## Variáveis
 
-Para expor o dashboard fora de localhost, defina `DASHBOARD_AUTH_TOKEN` e envie `Authorization: Bearer <token>` nas requisições. Sem a variável, o modo atual permanece sem autenticação apenas para uso local.
+- `DASHBOARD_AUTH_TOKEN`: Bearer token exigido nas chamadas `/api/v1/*`; sem ele a página abre, mas os dados não carregam.
+- `IAV_MCP_API_KEYS`: chaves operacionais também aceitas pelas rotas serverless, separadas por vírgula.
+- `IAV_WEIGHTS_JSON`: override opcional dos pesos do IAV.
 
-## Testes
+O token é digitado no navegador e enviado apenas como `Authorization: Bearer` para as rotas do próprio app.
+
+## Verificação
 
 ```bash
-source ~/.nvm/nvm.sh
+npm run lint --workspace @rotazfm/dashboard
 npm run test --workspace @rotazfm/dashboard
 npm run build --workspace @rotazfm/dashboard
 ```
 
-## Limites do MVP
-
-- Sem mapa interativo.
-- Sem framework frontend/build de assets.
-- Sem deploy público; Vercel só na Etapa 7.
+Os testes legados de `src/server.js` continuam cobrindo o runner C20; a interface de produção é o App Router em `src/app`.

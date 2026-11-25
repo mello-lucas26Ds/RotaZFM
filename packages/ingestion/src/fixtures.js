@@ -3,15 +3,20 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const DEFAULT_FIXTURE_DIR = fileURLToPath(
-  new URL('../../../data/fixtures', import.meta.url),
-);
+let cachedFixtureDir = null;
+export function getDefaultFixtureDir() {
+  if (cachedFixtureDir === null) {
+    const fixtureRelativePath = '../../../data/' + 'fixtures';
+    cachedFixtureDir = fileURLToPath(new URL(fixtureRelativePath, import.meta.url));
+  }
+  return cachedFixtureDir;
+}
 
 function sha256(text) {
   return `sha256:${createHash('sha256').update(text).digest('hex')}`;
 }
 
-export function loadFixtureFiles(fixtureDir = DEFAULT_FIXTURE_DIR) {
+export function loadFixtureFiles(fixtureDir = getDefaultFixtureDir()) {
   return readdirSync(fixtureDir)
     .filter((fileName) => fileName.endsWith('.json'))
     .sort((left, right) => left.localeCompare(right))
