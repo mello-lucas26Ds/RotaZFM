@@ -13,7 +13,7 @@ function semanticTags(item: NewsItem) {
 
 export default function NewsRadar({ noticias }: { noticias: NewsItem[] }) {
   return (
-    <section className="bento-card p-4 xl:col-span-4" aria-labelledby="news-title">
+    <section id="radar-noticias" className="bento-card p-4 xl:col-span-4" aria-labelledby="news-title">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 id="news-title" className="card-title flex items-center gap-2">

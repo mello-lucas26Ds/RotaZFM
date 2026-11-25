@@ -3,11 +3,11 @@ import type { SourceStatus } from '@/lib/types';
 import { sourceSummary } from '@/lib/dashboard-utils';
 
 const NAV = [
-  { label: 'Command Center', icon: Gauge, active: true },
-  { label: 'Rotas', icon: Route },
-  { label: 'Mapa operacional', icon: Map },
-  { label: 'Radar de notícias', icon: Newspaper },
-  { label: 'Fontes', icon: RadioTower },
+  { label: 'Command Center', icon: Gauge, active: true, href: '#command-center' },
+  { label: 'Rotas', icon: Route, href: '#rotas' },
+  { label: 'Mapa operacional', icon: Map, href: '#mapa-operacional' },
+  { label: 'Radar de notícias', icon: Newspaper, href: '#radar-noticias' },
+  { label: 'Fontes', icon: RadioTower, href: '#fontes' },
 ];
 
 export default function Sidebar({ fontes, live, partial }: { fontes: SourceStatus[]; live: boolean; partial: boolean }) {
@@ -30,7 +30,7 @@ export default function Sidebar({ fontes, live, partial }: { fontes: SourceStatu
           return (
             <a
               key={item.label}
-              href="#command-center"
+              href={item.href}
               aria-current={item.active ? 'page' : undefined}
               className={`group flex items-center gap-3 rounded-xl border-l-2 px-3 py-2.5 text-sm transition ${
                 item.active

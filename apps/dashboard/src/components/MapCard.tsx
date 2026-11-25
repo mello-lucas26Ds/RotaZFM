@@ -17,7 +17,7 @@ const LogisticsHeatmap = dynamic(() => import('./LogisticsHeatmap'), {
 export default function MapCard() {
   const [mode, setMode] = useState<'3d' | 'heat'>('3d');
   return (
-    <section className="bento-card p-4 xl:col-span-4" aria-labelledby="map-title">
+    <section id="mapa-operacional" className="bento-card p-4 xl:col-span-4" aria-labelledby="map-title">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div>
           <h2 id="map-title" className="card-title">Corredor Amazônico</h2>

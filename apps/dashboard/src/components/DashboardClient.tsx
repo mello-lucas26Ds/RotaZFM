@@ -117,7 +117,7 @@ export default function DashboardClient() {
     <div id="command-center" className="min-h-screen bg-canvas">
       <Sidebar fontes={fontes} live={live} partial={partial} />
       <main className="min-h-screen px-4 py-5 sm:px-5 lg:ml-60 lg:px-6">
-        <header className="mb-5 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <header className="mb-5 flex flex-col gap-4 2xl:flex-row 2xl:items-end 2xl:justify-between">
           <div>
             <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-300">
               <Flame aria-hidden className="h-3.5 w-3.5" />
@@ -170,7 +170,7 @@ export default function DashboardClient() {
           </div>
         )}
 
-        <KpiCards snapshot={snapshot} fontes={fontes} />
+        <section id="fontes" aria-label="Indicadores e fontes"><KpiCards snapshot={snapshot} fontes={fontes} /></section>
         <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-12">
           <EvolutionPanel snapshot={snapshot} />
           <DimensionPanel snapshot={snapshot} />

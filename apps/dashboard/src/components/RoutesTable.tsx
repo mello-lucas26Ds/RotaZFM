@@ -12,7 +12,7 @@ function badgeClass(status?: string) {
 export default function RoutesTable({ snapshot }: { snapshot: DecisionSnapshot | null }) {
   const routes = snapshot?.routes ?? [];
   return (
-    <section className="bento-card p-4 xl:col-span-4" aria-labelledby="routes-title">
+    <section id="rotas" className="bento-card p-4 xl:col-span-4" aria-labelledby="routes-title">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 id="routes-title" className="card-title">Rotas avaliadas</h2>
