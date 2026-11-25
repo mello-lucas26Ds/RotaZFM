@@ -1,0 +1,82 @@
+{
+  "generated_at": "2026-11-24T23:41:38.502Z",
+  "policy": "GETs publicos minimos; timeout 12s; sem Firecrawl/Alexandria pago; sem credenciais ANA; payload nao e persistido, apenas hash/tamanho",
+  "sources": [
+    {
+      "id": "inmet-previsao-manaus",
+      "dimension": "chuva",
+      "url": "https://apiprevmet3.inmet.gov.br/previsao/1302603",
+      "expected": "json",
+      "http_status": 200,
+      "ok": true,
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 244159,
+      "truncated": false,
+      "duration_ms": 2044,
+      "sha256": "2be010d2729b61423256532781d2dad50200c02e09a745222f1f4a71e8c87bf0",
+      "fallback_action": "manter fixture rain_signal e marcar NAO_AVALIAVEL; não bloquear a rota",
+      "json_parseable": true,
+      "top_level_keys": [
+        "1302603"
+      ]
+    },
+    {
+      "id": "sgb-sace-amazonas",
+      "dimension": "nivel",
+      "url": "https://sace.sgb.gov.br/",
+      "expected": "html",
+      "http_status": 200,
+      "ok": true,
+      "content_type": "text/html; charset=UTF-8",
+      "bytes": 12132,
+      "truncated": false,
+      "duration_ms": 720,
+      "sha256": "3a1402bff25e90959b6e6a646bf9a391962553c1316f0c2843a615e14b249b29",
+      "fallback_action": "usar boletim ANA gov.br via scripts/extract-ana-boletim.py ou fixture auditável; não usar API ANA"
+    },
+    {
+      "id": "ana-sala-situacao-boletins",
+      "dimension": "nivel",
+      "url": "https://www.gov.br/ana/pt-br/sala-de-situacao/rio-amazonas/boletins/diario",
+      "expected": "html",
+      "http_status": 200,
+      "ok": true,
+      "content_type": "text/html;charset=utf-8",
+      "bytes": 220455,
+      "truncated": false,
+      "duration_ms": 659,
+      "sha256": "df8c2a9a53f97cef4e531e7ae761e7b0c31fd9b8548486d2cddab76a4ffc03aa",
+      "fallback_action": "fallback para o boletim mais recente disponível na listagem ou NAO_AVALIAVEL"
+    },
+    {
+      "id": "dnit-pnct-contagem",
+      "dimension": "trafego",
+      "url": "https://servicos.dnit.gov.br/dadosabertos/dataset/contagem-de-trafego",
+      "expected": "html",
+      "http_status": null,
+      "ok": false,
+      "content_type": null,
+      "bytes": 0,
+      "truncated": false,
+      "duration_ms": 10525,
+      "sha256": null,
+      "error": "FETCH_ERROR",
+      "fallback_action": "manter PNCT 2022 como dado_historico_defasado e não bloquear por tráfego"
+    },
+    {
+      "id": "dnit-icm-pavimento",
+      "dimension": "qualidade",
+      "url": "https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento",
+      "expected": "html",
+      "http_status": null,
+      "ok": false,
+      "content_type": null,
+      "bytes": 0,
+      "truncated": false,
+      "duration_ms": 10531,
+      "sha256": null,
+      "error": "FETCH_ERROR",
+      "fallback_action": "marcar qualidade NAO_AVALIAVEL sem bloquear a rota"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "fixture_version": "2026-11-23",
+  "fixture_kind": "route_catalog",
+  "created_at": "2026-11-23T00:00:00-04:00",
+  "created_by": "Maria - validação documental Etapa 1",
+  "canonical_source": {
+    "path": "data/routes/mvp-routes.json",
+    "version": "2026-11-23",
+    "source": "Lucas Melo, mensagem de 23/11/2026"
+  },
+  "purpose": "Snapshot de referência para testes de contrato; o catálogo canônico continua sendo data/routes/mvp-routes.json.",
+  "routes": [
+    {
+      "id": "rota-1-br-319",
+      "name": "Via BR-319 (Pelo interior / Centro-Oeste)",
+      "mode": "rodoviario",
+      "origin": "MANAUS",
+      "destination": "SAO_PAULO",
+      "approx_distance_km": 3850,
+      "segment_ids": [
+        "r1-s1-balsa-inicial",
+        "r1-s2-floresta-br319",
+        "r1-s3-rondonia-br364",
+        "r1-s4-mato-grosso-br364",
+        "r1-s5-goias-br364",
+        "r1-s6-minas-br365-br050",
+        "r1-s7-sao-paulo-sp330"
+      ],
+      "critical_segment_ids": ["r1-s1-balsa-inicial", "r1-s2-floresta-br319"]
+    },
+    {
+      "id": "rota-2-fluvial-brasilia",
+      "name": "Via Balsa até Belém (Pelo Rio Amazonas + Belém-Brasília)",
+      "mode": "multimodal",
+      "origin": "MANAUS",
+      "destination": "SAO_PAULO",
+      "approx_distance_km": 4400,
+      "segment_ids": [
+        "r2-s1-fluvial-amazonas",
+        "r2-s2-para-br316-br010",
+        "r2-s3-maranhao-br010",
+        "r2-s4-tocantins-br153",
+        "r2-s5-goias-br153",
+        "r2-s6-minas-br153-br050",
+        "r2-s7-sao-paulo-sp330"
+      ],
+      "critical_segment_ids": ["r2-s1-fluvial-amazonas"]
+    }
+  ],
+  "validation_notes": [
+    "r1-s2-floresta-br319 documentado como trecho crítico com aproximadamente 400 km sem asfalto; RIMA DNIT indica segmento não pavimentado km 250,7-656,4 (405,7 km) e notícias DNIT de 2026 confirmam obras/pavimentação parcial no Lote C km 198,2-218,2.",
+    "r2-s1-fluvial-amazonas documentado como trecho hidroviário crítico Manaus-Belém/Barcarena; estações SACE/SGB monitoram Itacoatiara, Parintins, Óbidos, Almeirim e Careiro.",
+    "PBTC/restrições BR-319 exigem tratamento sazonal e conservador por sobreposição de portarias; ver weight_restrictions.fixture.json."
+  ]
+}

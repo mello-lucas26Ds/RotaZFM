@@ -1,8 +1,8 @@
 # Avaliação de fontes e ferramentas — MVP RotaZFM
 
-Status: rascunho bruto para validação com o time  
-Data: 09/11/2026  
-Fonte: `Plan.md` v3 + informações fornecidas pelo time  
+Status: avaliação vigente para a Etapa 1 de fixtures/validação documental
+Data: 23/11/2026
+Fonte: `Plan.md` v3 + validação documental de 23/11/2026 + informações fornecidas pelo time
 Princípio: o MVP deve ser uma estrutura pequena de tomada de decisão, não um superprojeto. Tudo que não sustenta o IAV, o MCP ou o dashboard fica fora ou vira fallback/futuro.
 
 ## Veredito executivo
@@ -15,7 +15,7 @@ Princípio: o MVP deve ser uma estrutura pequena de tomada de decisão, não um 
 | INMET direto | **Usar** | Previsão por geocódigo/município | Substitui scraping do site como primeira opção | Endpoint indicado: `https://apiprevmet3.inmet.gov.br/previsao/{geocodigo}` `[a validar payload e cobertura]` |
 | `tidyprf` / `prf-api` | **Cortar do MVP** | Acidentes e infrações PRF | Não substitui nenhuma das cinco dimensões atuais | Útil para risco futuro ou validação retrospectiva; `prf-api` parece desatualizado, preferir dados oficiais PRF ou `tidyprf` se voltar ao escopo |
 | Firecrawl | **Usar seletivamente** | Extração de SACE e portarias DNIT | Substitui scraping manual/frágil quando HTTP direto falha ou quando schema ajuda | Bom para PDF/página normativa; manter HTTP direto como fallback |
-| ANA HidroWebService | **Fallback futuro** | Série histórica e dados horários de nível/chuva | Substitui SACE somente quando autorizado e SACE falhar | Exige autorização por e-mail e token; pedir acesso no Dia 1, mas não bloquear MVP |
+| ANA gov.br/Sala de Situação | **Usar para fallback operacional** | Nível diário do rio por estação | Substitui API/credencial ANA HidroWebService | Fonte oficial pública em PDF; extrair via `scripts/extract-ana-boletim.py`, sem token |
 | Airflow/Prefect | **Cortar do MVP** | Orquestração pesada | Substituído por cron/worker simples | Para 5–6 coletores, Airflow/Prefect é complexidade desnecessária |
 | DuckDB | **Opcional/local** | Análise local | Não substitui PostgreSQL no MVP | Se já houver PostgreSQL, usar uma base só; DuckDB só para exploração/validação local |
 
@@ -75,12 +75,13 @@ A tabela `route_condition_facts` é o contrato central entre coleta, motor e int
 
 ### 1. Nível do rio
 
-- Primário: SACE via Firecrawl ou HTTP direto.
+- Primário operacional: boletim diário ANA gov.br/Sala de Situação em PDF via `scripts/extract-ana-boletim.py`.
 - Fallback imediato: último valor válido com flag de atraso.
-- Fallback futuro: ANA HidroWebService após autorização.
-- Validação retrospectiva: ANA pode ser útil se houver série histórica; SACE precisa ser testado para 2023 `[a validar]`.
+- Corroboração/contexto: SACE/CPRM via HTTP direto ou Firecrawl.
+- Fora de escopo nesta regra: ANA HidroWebService, pois exige cadastro/token e foi substituído pelo PDF público.
+- Validação retrospectiva: ANA gov.br/boletins pode ajudar histórico se houver série oficial acessível; SACE precisa ser testado para 2023 `[a validar]`.
 
-O que não fazer: depender de ANA antes da aprovação; usar Firecrawl sem schema; mostrar valor antigo como atual.
+O que não fazer: usar API/credencial ANA; usar Firecrawl sem schema; mostrar valor antigo como atual.
 
 ### 2. Previsão de chuva
 
@@ -165,3 +166,39 @@ Implementação: cron/worker simples. Airflow/Prefect só em evolução futura s
 4. **ANA:** enviar pedido de autorização no Dia 1, mesmo sem bloquear o MVP.
 5. **Firecrawl:** validar schema de extração para SACE e portarias.
 6. **Escopo:** confirmar que PRF, Airflow/Prefect e routekit dinâmico ficam fora do caminho crítico.
+
+## Atualização — 23/11/2026
+
+- **Rotas:** o catálogo do MVP passa a ser `data/routes/mvp-routes.json`, com as duas rotas e trechos aprovadas por Lucas. `distbrasil`/`routekit` continuam apenas baseline/seed se a cobertura for confirmada; não são fonte de IAV.
+- **Alexandria/Firecrawl:** Alexandria é uma biblioteca de providers dentro do Firecrawl, com créditos e termos por provider. Uso permitido no MVP: descoberta de fontes oficiais e filtro de notícias relacionadas por rota/trecho. Uso proibido: fonte primária de dimensão do IAV sem normalização e confirmação oficial.
+- **Notícias relacionadas:** entram como `related_news[]` com fonte, URL, data e `matched_segments[]`; nunca criam bloqueador sem `confirmation_status = CONFIRMADO`.
+- **Deploy:** nenhum deploy público antes da etapa final; alvo final é Vercel.
+- **Segredos:** `.env.example` lista `DATABASE_URL`, `API_PORT`, `MCP_PORT`, `IAV_MCP_API_KEYS`, `NEXT_PUBLIC_API_URL`, `FIRECRAWL_API_KEY`, `ROUTEKIT_API_KEY` opcional e variáveis Vercel de deploy; valores reais nunca são commitados.
+
+## Atualização — validação documental de 23/11/2026
+
+Esta seção registra a validação documental feita para os trechos críticos do MVP e o estado das fontes mínimas por dimensão. Fixtures locais estão em `data/fixtures/`; detalhes e perguntas pendentes estão em `docs/VALIDATION.md`.
+
+### Fontes validadas nesta etapa
+
+| Dimensão | Fonte primária validada | URL/página | Verificação | Status | Fallback |
+|---|---|---|---|---|---|
+| Nível do rio | SGB/SAH Amazonas | `https://sace.sgb.gov.br/` e boletim `https://www.sgb.gov.br/w/niveis-do-rio-negro-e-das-grandes-calhas-da-bacia-do-amazonas-mantem-se-estaveis` | 23/11/2026 | CONFIRMADO | último valor válido com atraso; ANA futura após autorização |
+| Chuva | INMET direto por geocódigo | `https://apiprevmet3.inmet.gov.br/previsao/{geocodigo}` | 23/11/2026 | CONFIRMADO | scraping INMET via Firecrawl somente com custo/limite registrado |
+| Tráfego | DNIT PNCT/dados abertos | `https://servicos.dnit.gov.br/dadosabertos/dataset/contagem-de-trafego` | 23/11/2026 | PARCIAL | tabela estática datada; trecho BR-319/AM ainda sem contagem confirmada |
+| Qualidade da via | DNIT ICM + RIMA BR-319 | `https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento`; `https://www.gov.br/dnit/pt-br/assuntos/portais-tematicos/br-319-am-ro/audiencias-publicas/br319rima_eleitoral_compressed.pdf` | 23/11/2026 | PARCIAL | valor fixo documentado; SP-330 e trecho fluvial sem fonte terrestre confirmada |
+| Restrição de peso/PBTC | Portarias DNIT/DOU | Portaria 5.455/2022; Portaria 13/2025 DOU | 23/11/2026 | PARCIAL | tabela estática "não verificada"; regra conservadora em sobreposição |
+| Notícias relacionadas | Fontes oficiais/noticiosas via busca documental | SGB, DNIT, G1, BNC | 23/11/2026 | PARCIAL | fixtures locais; Firecrawl/Alexandria só para descoberta/filtro contextual |
+
+### Conclusões operacionais
+
+- O trecho florestal BR-319 está documentado como crítico e majoritariamente não pavimentado: RIMA indica km 250,7-656,4 (405,7 km) como Trecho do Meio; notícias DNIT de 2026 confirmam pavimentação pontual no Lote C km 198,2-218,2 e manutenção/conservação ampla, sem eliminar o trecho não pavimentado.
+- O trecho fluvial Manaus-Belém/Barcarena está documentado e possui: SGB/SAH com estações em Itacoatiara, Parintins, Óbidos, Almeirim e Careiro; leitura específica de Santarém/Breves ficou como lacuna.
+- PBTC na BR-319 exige regra sazonal e conservadora: Portaria 5.455/2022 prevê 17 t nov-mai e 23 t jun-out para km 250,7-679,3, proibição noturna 18h-06h e exceções AET; Portaria 13/2025 prevê proibição acima de 45 t dez-jun para km 1,0-679,3. A consolidação vigente deve ser confirmada antes de tratar como regra única.
+- Firecrawl/Alexandria podem ajudar a filtrar notícias por rota/trecho e descobrir fontes, mas não entram como fonte primária de dimensão do IAV sem normalização e confirmação oficial. Nenhuma chamada paga foi feita nesta etapa; custo registrado: R$0.
+
+## Atualização — probe controlado de 23/11/2026
+
+- O probe em `scripts/probe-sources.mjs` confirmou INMET (`HTTP 200`, JSON parseável) e SGB/SACE (`HTTP 200` em `https://sace.sgb.gov.br/`). A rota antiga `https://www.sgb.gov.br/sace/amazonas` retornou `404` e foi substituída pela URL operacional do SACE.
+- Os dois endpoints DNIT de dados abertos deram timeout a partir da VM; tráfego e qualidade da via seguem com fixture/fallback e extração pendente.
+- Nenhuma chamada paga Firecrawl/Alexandria foi feita; custo da etapa: R$0.

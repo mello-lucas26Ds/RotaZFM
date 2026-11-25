@@ -1,0 +1,167 @@
+{
+  "version": "2026-11-23",
+  "source": "Lucas Melo, mensagem de 23/11/2026",
+  "routes": [
+    {
+      "id": "rota-1-br-319",
+      "name": "Via BR-319 (Pelo interior / Centro-Oeste)",
+      "mode": "rodoviario",
+      "origin": "MANAUS",
+      "destination": "SAO_PAULO",
+      "approx_distance_km": 3850,
+      "segments": [
+        {
+          "id": "r1-s1-balsa-inicial",
+          "name": "Travessia Inicial (Balsa)",
+          "mode": "multimodal",
+          "from": "Manaus (AM)",
+          "to": "Careiro da Várzea (AM)",
+          "road": null,
+          "critical": true,
+          "notes": "Cruza os rios Negro e Solimões; início da BR-319."
+        },
+        {
+          "id": "r1-s2-floresta-br319",
+          "name": "Trecho Floresta — BR-319",
+          "mode": "rodoviario",
+          "from": "Careiro da Várzea (AM)",
+          "to": "Porto Velho (RO)",
+          "road": "BR-319",
+          "critical": true,
+          "notes": "Passa por Careiro (Castanho) e Humaitá (AM); trecho crítico com ~400 km sem asfalto."
+        },
+        {
+          "id": "r1-s3-rondonia-br364",
+          "name": "Trecho Rondônia — BR-364",
+          "mode": "rodoviario",
+          "from": "Porto Velho (RO)",
+          "to": "Vilhena (RO)",
+          "road": "BR-364",
+          "critical": false,
+          "notes": "Passa por Ariquemes, Ji-Paraná e Cacoal."
+        },
+        {
+          "id": "r1-s4-mato-grosso-br364",
+          "name": "Trecho Mato Grosso — BR-364",
+          "mode": "rodoviario",
+          "from": "Vilhena (RO)",
+          "to": "Rondonópolis (MT)",
+          "road": "BR-364",
+          "critical": false,
+          "notes": "Passa por Comodoro, Cáceres, Cuiabá e Rondonópolis."
+        },
+        {
+          "id": "r1-s5-goias-br364",
+          "name": "Trecho Goiás — BR-364",
+          "mode": "rodoviario",
+          "from": "Rondonópolis (MT)",
+          "to": "São Simão (GO)",
+          "road": "BR-364",
+          "critical": false,
+          "notes": "Passa por Jataí e Rio Verde."
+        },
+        {
+          "id": "r1-s6-minas-br365-br050",
+          "name": "Trecho Minas Gerais — BR-365 e BR-050",
+          "mode": "rodoviario",
+          "from": "São Simão (GO)",
+          "to": "Uberaba (MG)",
+          "road": "BR-365/BR-050",
+          "critical": false,
+          "notes": "Passa por Ituiutaba e Uberlândia; em Uberlândia entra na BR-050."
+        },
+        {
+          "id": "r1-s7-sao-paulo-sp330",
+          "name": "Trecho São Paulo — SP-330 (Via Anhanguera)",
+          "mode": "rodoviario",
+          "from": "Uberaba (MG)",
+          "to": "São Paulo (SP)",
+          "road": "SP-330",
+          "critical": false,
+          "notes": "Passa por Ituverava, Ribeirão Preto, Araraquara e Campinas."
+        }
+      ]
+    },
+    {
+      "id": "rota-2-fluvial-brasilia",
+      "name": "Via Balsa até Belém (Pelo Rio Amazonas + Belém-Brasília)",
+      "mode": "multimodal",
+      "origin": "MANAUS",
+      "destination": "SAO_PAULO",
+      "approx_distance_km": 4400,
+      "distance_note": "Aproximadamente 1.500 km de rio + 2.900 km de estrada.",
+      "segments": [
+        {
+          "id": "r2-s1-fluvial-amazonas",
+          "name": "Trecho Fluvial (Rio Amazonas - Balsa)",
+          "mode": "hidroviario",
+          "from": "Manaus (AM)",
+          "to": "Belém / Barcarena (PA)",
+          "road": null,
+          "critical": true,
+          "notes": "Passa por Itacoatiara, Parintins, Óbidos, Santarém, Almeirim e Breves."
+        },
+        {
+          "id": "r2-s2-para-br316-br010",
+          "name": "Trecho Pará — BR-316 e BR-010",
+          "mode": "rodoviario",
+          "from": "Belém (PA)",
+          "to": "Ulianópolis (PA)",
+          "road": "BR-316/BR-010",
+          "critical": false,
+          "notes": "Passa por Santa Maria do Pará e Paragominas."
+        },
+        {
+          "id": "r2-s3-maranhao-br010",
+          "name": "Trecho Maranhão — BR-010",
+          "mode": "rodoviario",
+          "from": "Ulianópolis (PA)",
+          "to": "Estreito (MA)",
+          "road": "BR-010",
+          "critical": false,
+          "notes": "Passa por Açailândia e Imperatriz."
+        },
+        {
+          "id": "r2-s4-tocantins-br153",
+          "name": "Trecho Tocantins — BR-153 (Belém-Brasília)",
+          "mode": "rodoviario",
+          "from": "Estreito (MA)",
+          "to": "Gurupi (TO)",
+          "road": "BR-153",
+          "critical": false,
+          "notes": "Passa por Araguaína, Guaraí, Paraíso do Tocantins e Gurupi."
+        },
+        {
+          "id": "r2-s5-goias-br153",
+          "name": "Trecho Goiás — BR-153",
+          "mode": "rodoviario",
+          "from": "Gurupi (TO)",
+          "to": "Itumbiara (GO)",
+          "road": "BR-153",
+          "critical": false,
+          "notes": "Passa por Porangatu, Uruaçu, Anápolis, Goiânia e Itumbiara."
+        },
+        {
+          "id": "r2-s6-minas-br153-br050",
+          "name": "Trecho Minas Gerais — BR-153 e BR-050",
+          "mode": "rodoviario",
+          "from": "Itumbiara (GO)",
+          "to": "Uberaba (MG)",
+          "road": "BR-153/BR-050",
+          "critical": false,
+          "notes": "Passa por Prata e Uberlândia; em Uberlândia entra na BR-050."
+        },
+        {
+          "id": "r2-s7-sao-paulo-sp330",
+          "name": "Trecho São Paulo — SP-330 (Via Anhanguera)",
+          "mode": "rodoviario",
+          "from": "Uberaba (MG)",
+          "to": "São Paulo (SP)",
+          "road": "SP-330",
+          "critical": false,
+          "notes": "Passa por Ribeirão Preto e Campinas."
+        }
+      ]
+    }
+  ]
+}

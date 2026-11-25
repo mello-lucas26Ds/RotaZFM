@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>RotaZFM — Viabilidade de rotas</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <p class="eyebrow">Polo Industrial de Manaus</p>
+        <h1>RotaZFM</h1>
+        <p class="lede">Apoio à decisão de escoamento por IAV determinístico, fontes e rastreabilidade.</p>
+      </header>
+
+      <section class="panel" aria-labelledby="consulta-title">
+        <h2 id="consulta-title">Consulta de viabilidade</h2>
+        <form id="viability-form" class="grid-form">
+          <label>
+            Origem
+            <input name="origem" value="MANAUS" required />
+          </label>
+          <label>
+            Destino
+            <input name="destino" value="SAO_PAULO" required />
+          </label>
+          <label>
+            Data de embarque
+            <input name="data_embarque" type="date" required />
+          </label>
+          <label>
+            Tipo de carga
+            <select name="tipo">
+              <option value="SECA">SECA</option>
+              <option value="CONTEINERIZADA">CONTEINERIZADA</option>
+            </select>
+          </label>
+          <label>
+            Peso bruto total (kg)
+            <input name="peso_bruto_total_kg" type="number" min="1" max="60000" step="1" value="10000" required />
+          </label>
+          <label>
+            Caminhões (opcional)
+            <input name="quantidade_caminhoes" type="number" min="1" step="1" />
+          </label>
+          <div class="actions">
+            <button type="submit">Consultar</button>
+          </div>
+        </form>
+        <p id="date-window-hint" class="meta" aria-live="polite"></p>
+        <p id="error" class="error" hidden></p>
+      </section>
+
+      <section class="panel" aria-labelledby="resultado-title">
+        <h2 id="resultado-title">Resultado</h2>
+        <div id="empty-state" class="empty-state">
+          Nenhuma consulta executada. Preencha o formulário para ver rotas, IAV, bloqueadores, evidências e faltantes.
+        </div>
+        <div id="snapshot" hidden></div>
+      </section>
+
+      <section class="panel" aria-labelledby="fontes-title">
+        <h2 id="fontes-title">Fontes monitoradas</h2>
+        <ul id="fontes" class="plain-list"></ul>
+      </section>
+
+      <section class="panel" aria-labelledby="noticias-title">
+        <h2 id="noticias-title">Notícias</h2>
+        <ul id="news" class="plain-list"></ul>
+      </section>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

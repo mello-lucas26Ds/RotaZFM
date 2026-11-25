@@ -1,0 +1,178 @@
+{
+  "fixture_version": "2026-11-23",
+  "fixture_kind": "dimension_evidence",
+  "dimension": "river_level",
+  "created_at": "2026-11-23T00:00:00-04:00",
+  "created_by": "Maria - validação documental Etapa 1",
+  "mock": false,
+  "source_status": "CONFIRMADO",
+  "sources": [
+    {
+      "name": "SGB - SAH Amazonas",
+      "source_url": "https://sace.sgb.gov.br/amazonas/",
+      "official_page_url": "https://www.sgb.gov.br/w/niveis-do-rio-negro-e-das-grandes-calhas-da-bacia-do-amazonas-mantem-se-estaveis",
+      "verification_date": "2026-11-23",
+      "status": "CONFIRMADO",
+      "fallback": "Último valor válido com flag de atraso ou boletim ANA gov.br/PDF via scripts/extract-ana-boletim.py; sem API/credencial ANA"
+    }
+  ],
+  "official_readings": [
+    {
+      "id": "river-level-r1-s1-careiro-2026-11",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s1-balsa-inicial",
+      "station": "Careiro",
+      "river": "Amazonas/Solimões",
+      "level_m": 4.07,
+      "unit": "m",
+      "observed_at": "2026-11-04",
+      "published_at": "2026-11-04T18:50:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "method": "documental_snapshot",
+      "content_hash": "sha256:edef4be290e81b0f74f352f17335301cd239dee84de3eb7cc789352d4cf633f2",
+      "confirmation_status": "CONFIRMADO",
+      "effective_from": "2026-11-04",
+      "effective_until": "2026-11-26",
+      "freshness_hours": 96,
+      "last_valid_at": "2026-11-19T17:15:00-04:00",
+      "notes": "Valor citado no 44º Boletim de Alerta Hidrológico; página atualizada em 19/11/2026.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://sace.sgb.gov.br/amazonas/"
+    },
+    {
+      "id": "river-level-r2-s1-itacoatiara-2026-11",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "station": "Itacoatiara",
+      "river": "Amazonas",
+      "level_m": 3.42,
+      "unit": "m",
+      "observed_at": "2026-11-04",
+      "published_at": "2026-11-04T18:50:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "method": "documental_snapshot",
+      "content_hash": "sha256:edef4be290e81b0f74f352f17335301cd239dee84de3eb7cc789352d4cf633f2",
+      "confirmation_status": "CONFIRMADO",
+      "effective_from": "2026-11-04",
+      "effective_until": "2026-11-26",
+      "freshness_hours": 96,
+      "last_valid_at": "2026-11-19T17:15:00-04:00",
+      "notes": "Estações do trecho fluvial Manaus-Belém confirmadas em fonte oficial SGB/SACE.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://sace.sgb.gov.br/amazonas/"
+    },
+    {
+      "id": "river-level-r2-s1-parintins-2026-11",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "station": "Parintins",
+      "river": "Amazonas",
+      "level_m": -0.31,
+      "unit": "m",
+      "observed_at": "2026-11-04",
+      "published_at": "2026-11-04T18:50:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "method": "documental_snapshot",
+      "content_hash": "sha256:edef4be290e81b0f74f352f17335301cd239dee84de3eb7cc789352d4cf633f2",
+      "confirmation_status": "CONFIRMADO",
+      "effective_from": "2026-11-04",
+      "effective_until": "2026-11-26",
+      "freshness_hours": 96,
+      "last_valid_at": "2026-11-19T17:15:00-04:00",
+      "notes": "Nível negativo é esperado para a referência da estação; não interpretar como erro sem a curva de referência.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://sace.sgb.gov.br/amazonas/"
+    },
+    {
+      "id": "river-level-r2-s1-obidos-2026-11",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "station": "Óbidos",
+      "river": "Amazonas",
+      "level_m": 0.65,
+      "unit": "m",
+      "observed_at": "2026-11-04",
+      "published_at": "2026-11-04T18:50:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "method": "documental_snapshot",
+      "content_hash": "sha256:edef4be290e81b0f74f352f17335301cd239dee84de3eb7cc789352d4cf633f2",
+      "confirmation_status": "CONFIRMADO",
+      "effective_from": "2026-11-04",
+      "effective_until": "2026-11-26",
+      "freshness_hours": 96,
+      "last_valid_at": "2026-11-19T17:15:00-04:00",
+      "notes": "Estação localizada no corredor fluvial do MVP.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://sace.sgb.gov.br/amazonas/"
+    },
+    {
+      "id": "river-level-r2-s1-almeirim-2026-11",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "station": "Almeirim",
+      "river": "Amazonas",
+      "level_m": 2.66,
+      "unit": "m",
+      "observed_at": "2026-11-04",
+      "published_at": "2026-11-04T18:50:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "method": "documental_snapshot",
+      "content_hash": "sha256:edef4be290e81b0f74f352f17335301cd239dee84de3eb7cc789352d4cf633f2",
+      "confirmation_status": "CONFIRMADO",
+      "effective_from": "2026-11-04",
+      "effective_until": "2026-11-26",
+      "freshness_hours": 96,
+      "last_valid_at": "2026-11-19T17:15:00-04:00",
+      "notes": "Estação localizada no corredor fluvial do MVP.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://sace.sgb.gov.br/amazonas/"
+    }
+  ],
+  "coverage_gaps": [
+    {
+      "station": "Santarém",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "confirmation_status": "INDISPONIVEL",
+      "notes": "Trecho catalogado passa por Santarém, mas leitura específica não foi confirmada no boletim/documento validado nesta etapa.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://sace.sgb.gov.br/amazonas/"
+    },
+    {
+      "station": "Breves",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "confirmation_status": "INDISPONIVEL",
+      "notes": "Trecho catalogado passa por Breves; estação/valor não confirmado nesta etapa.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://sace.sgb.gov.br/amazonas/"
+    },
+    {
+      "station": "Manaus (tráfego fluvial de embarque)",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "confirmation_status": "NAO_CONFIRMADO",
+      "notes": "Manaus/Rio Negro tem acompanhamento SGB, mas a operacionalidade da balsa Manaus-Belém depende também de calado, terminais e avisos da capitania.",
+      "source": "SGB/SAH Amazonas",
+      "source_url": "https://sace.sgb.gov.br/amazonas/"
+    }
+  ],
+  "scenarios": {
+    "normal_vazante_2026_11": {
+      "description": "Cenário documental de novembro/2026: vazante atuando, níveis próximos da normalidade e chuvas abaixo do esperado na bacia.",
+      "source_url": "https://www.sgb.gov.br/w/niveis-do-rio-negro-e-das-grandes-calhas-da-bacia-do-amazonas-mantem-se-estaveis",
+      "confirmation_status": "CONFIRMADO"
+    },
+    "low_water_mock": {
+      "description": "Fixture mock para teste de sensibilidade: simula nível muito baixo em Óbidos/Santarém sem afirmar ocorrência real.",
+      "mock": true,
+      "mock_values_m": {
+        "obidos": 0.2,
+        "santarem": 0.8
+      },
+      "confirmation_status": "NAO_CONFIRMADO"
+    }
+  },
+  "rules_for_implementation": [
+    "Não calcular IAV se a estação exigida estiver ausente, velha ou conflitante; usar NAO_AVALIAVEL.",
+    "Último valor válido só pode ser reutilizado com flag de atraso e dentro de freshness_hours.",
+    "Notícia sobre nível do rio é contextual; score de nível deve vir de fonte hidrológica oficial."
+  ]
+}

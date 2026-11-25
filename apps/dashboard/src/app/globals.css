@@ -1,0 +1,142 @@
+@import "maplibre-gl/dist/maplibre-gl.css";
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #060b14;
+  --color-surface: #0d1522;
+  --color-elevated: #131e30;
+  --color-line: rgba(56, 189, 248, 0.14);
+  --color-line-alert: rgba(249, 115, 22, 0.5);
+  --color-boitata-fire: #f97316;
+  --color-boitata-ember: #ea580c;
+  --color-zfm-cyan: #38bdf8;
+  --color-zfm-deep: #0284c7;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-muted: #64748b;
+  --font-display: var(--font-space-grotesk), "Inter", system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+  background: #060b14;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: #060b14;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 70% -10%, rgba(2, 132, 199, 0.18), transparent 34rem),
+    radial-gradient(circle at 8% 105%, rgba(249, 115, 22, 0.08), transparent 28rem),
+    #060b14;
+  color: #e2e8f0;
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 3px;
+}
+
+.bento-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(56, 189, 248, 0.14);
+  border-radius: 18px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
+    #0d1522;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+}
+
+.bento-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.48), transparent);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.bento-card-alert {
+  border-color: rgba(249, 115, 22, 0.5);
+  background:
+    radial-gradient(circle at 88% 12%, rgba(249, 115, 22, 0.11), transparent 12rem),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.012)),
+    #0d1522;
+}
+
+.kpi-number {
+  font-family: var(--font-space-grotesk), var(--font-inter), system-ui, sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.card-title {
+  font-family: var(--font-space-grotesk), var(--font-inter), system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  color: #e2e8f0;
+}
+
+.metadata {
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.35;
+  font-variant-numeric: tabular-nums;
+}
+
+.number {
+  font-variant-numeric: tabular-nums;
+}
+
+.scan-grid {
+  background-image:
+    linear-gradient(rgba(56, 189, 248, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

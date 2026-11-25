@@ -1,8 +1,9 @@
 # Pré-mortem — RotaZFM
 
-Status: rascunho bruto de planejamento  
-Data: 09/11/2026  
-Fonte: `Plan.md` versão 3
+Status: análise de riscos vigente; datas de 09/11/2026 são históricas  
+Data: 09/11/2026, atualizado em 23/11/2026  
+Fonte: `Plan.md` versão 3 + decisões de Lucas em 23/11/2026  
+Nota: a dependência de entrevistas foi substituída por validação documental, fixtures e matriz C01..C20; deploy público é Vercel somente no final.
 
 ## Veredito
 
@@ -31,7 +32,7 @@ Suponha que, em 28/11/2026, o projeto foi submetido e fracassou. O fracasso mais
 
 | # | Falha | Probabilidade | Impacto | Sinal precoce | Mitigação |
 |---|---|---:|---:|---|---|
-| 1 | Problema não validado com gestor do PIM | Alta | Alto | Ninguém confirma que a decisão de rota é manual ou difícil | Fazer 3 entrevistas rápidas nos Dias 1–5; se impossível, buscar evidência pública e declarar hipótese no pitch |
+| 1 | Problema não validado documentalmente | Alta | Alto | Ninguém confirma que a decisão de rota é manual ou difícil | Usar evidência pública, fixtures e matriz C01..C20; declarar hipótese no pitch se não houver confirmação |
 | 2 | SACE/INMET/DNIT não entregam dado utilizável | Média/Alta | Alto | Scripts de coleta falham ou retornam HTML/erro | Definir fallback por fonte; dado estático com data; fixture local para demo |
 | 3 | Caso retrospectivo sem série histórica | Média/Alta | Alto | Não há dado diário do SACE para 2023 ou contagens DNIT úteis | Trocar caso antes de investir; documentar bloqueio; usar fonte pública alternativa |
 | 4 | Rota Manaus–BR-319–Porto Velho–São Paulo mal definida | Média | Alto | Distância, trechos, portarias e transições não fecham | Validar com mapa oficial; modelar por trechos; se não fechar, reduzir para corredor viável |
@@ -56,7 +57,7 @@ As decisões abaixo precisam ser fechadas imediatamente:
 - existência de série SACE 2023 e contagens DNIT;
 - caso retrospectivo escolhido ou descartado;
 - definição escrita de “resultado ruim”;
-- 3 entrevistas ou substituto honesto;
+- validação substituta documentada;
 - decisão AIHOT: usar como base, referência ou abandonar.
 
 ## Gates de decisão
@@ -72,7 +73,7 @@ Bloqueia o projeto se falhar:
 Ação:
 
 - Confirmar regulamento.
-- Marcar entrevistas.
+- Definir validação substituta.
 - Pedir ao responsável por dados para testar SACE, INMET e DNIT hoje.
 - Congelar nomes e rotas.
 
@@ -185,7 +186,7 @@ A justificativa deve ser determinística: números, fontes, datas, dimensões fa
 
 Pivotar não significa abandonar. Significa reduzir a promessa.
 
-- Se não houver entrevistas: chamar o produto de **protótipo de apoio à decisão** e validar com caso retrospectivo + fontes públicas.
+- Se a validação documental for insuficiente: chamar o produto de **protótipo de apoio à decisão** e validar com caso retrospectivo + fontes públicas.
 - Se SACE 2023 não existir: escolher outro evento com dado disponível ou validar só com dado atual e documentar limitação.
 - Se BR-319 não for verificável: reduzir o MVP para Manaus–Belém fluvial e Manaus–Porto Velho–São Paulo rodoviário, com trechos explícitos.
 - Se MCP na Cloudflare falhar: manter MCP local + túnel e documentar fallback; não perder o dashboard por causa disso.

@@ -1,0 +1,64 @@
+{
+  "generated_at": "2026-11-23T22:29:34.563Z",
+  "policy": "GETs publicos minimos; timeout 12s; sem Firecrawl/Alexandria pago; sem credenciais; payload nao e persistido, apenas hash/tamanho",
+  "sources": [
+    {
+      "id": "inmet-previsao-manaus",
+      "dimension": "chuva",
+      "url": "https://apiprevmet3.inmet.gov.br/previsao/1302603",
+      "expected": "json",
+      "http_status": 200,
+      "ok": true,
+      "content_type": "application/json; charset=utf-8",
+      "bytes": 236567,
+      "truncated": false,
+      "duration_ms": 2242,
+      "sha256": "8dc705598098d8defa3c6d5c47132fc980a72ffc4d5b6441a60ec74eaf3eed17",
+      "json_parseable": true,
+      "top_level_keys": [
+        "1302603"
+      ]
+    },
+    {
+      "id": "sgb-sace-amazonas",
+      "dimension": "nivel",
+      "url": "https://sace.sgb.gov.br/",
+      "expected": "html",
+      "http_status": 200,
+      "ok": true,
+      "content_type": "text/html; charset=UTF-8",
+      "bytes": 12132,
+      "truncated": false,
+      "duration_ms": 1073,
+      "sha256": "3a1402bff25e90959b6e6a646bf9a391962553c1316f0c2843a615e14b249b29"
+    },
+    {
+      "id": "dnit-pnct-contagem",
+      "dimension": "trafego",
+      "url": "https://servicos.dnit.gov.br/dadosabertos/dataset/contagem-de-trafego",
+      "expected": "html",
+      "http_status": null,
+      "ok": false,
+      "content_type": null,
+      "bytes": 0,
+      "truncated": false,
+      "duration_ms": 10532,
+      "sha256": null,
+      "error": "FETCH_ERROR"
+    },
+    {
+      "id": "dnit-icm-pavimento",
+      "dimension": "qualidade",
+      "url": "https://servicos.dnit.gov.br/dadosabertos/dataset/condicoes-do-pavimento",
+      "expected": "html",
+      "http_status": null,
+      "ok": false,
+      "content_type": null,
+      "bytes": 0,
+      "truncated": false,
+      "duration_ms": 10537,
+      "sha256": null,
+      "error": "FETCH_ERROR"
+    }
+  ]
+}

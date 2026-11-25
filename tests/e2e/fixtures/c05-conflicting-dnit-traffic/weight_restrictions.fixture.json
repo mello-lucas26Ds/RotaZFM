@@ -1,0 +1,326 @@
+{
+  "fixture_version": "2026-11-23",
+  "fixture_kind": "dimension_evidence",
+  "dimension": "weight_restriction",
+  "created_at": "2026-11-23T00:00:00-04:00",
+  "created_by": "E2E fixture materialization",
+  "mock": true,
+  "source_status": "CONFIRMADO",
+  "sources": [
+    {
+      "name": "fixture-e2e",
+      "verification_date": "2026-11-23",
+      "status": "CONFIRMADO"
+    }
+  ],
+  "restrictions": [
+    {
+      "id": "ev-rota-1-br-319-r1-s1-balsa-inicial-8ytnun",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s1-balsa-inicial",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "road": null,
+      "uf": "BR",
+      "restriction_type": "PBTC_fixture",
+      "legal_instrument": "fixture",
+      "pbtc_kg": 60000,
+      "rules": {
+        "pbtc_max_t_nov_may": 60
+      }
+    },
+    {
+      "id": "ev-rota-1-br-319-r1-s2-floresta-br319-6vfvtk",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s2-floresta-br319",
+      "source": "portaria-dnit-pbtc-br319-2026-001",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 76,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "road": "BR-319",
+      "uf": "BR",
+      "restriction_type": "PBTC_fixture",
+      "legal_instrument": "fixture",
+      "pbtc_kg": 60000,
+      "rules": {
+        "pbtc_max_t_nov_may": 60
+      }
+    },
+    {
+      "id": "ev-rota-1-br-319-r1-s3-rondonia-br364-is223q",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s3-rondonia-br364",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "road": "BR-364",
+      "uf": "BR",
+      "restriction_type": "PBTC_fixture",
+      "legal_instrument": "fixture",
+      "pbtc_kg": 60000,
+      "rules": {
+        "pbtc_max_t_nov_may": 60
+      }
+    },
+    {
+      "id": "ev-rota-1-br-319-r1-s4-mato-grosso-br364-oyagte",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s4-mato-grosso-br364",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "road": "BR-364",
+      "uf": "BR",
+      "restriction_type": "PBTC_fixture",
+      "legal_instrument": "fixture",
+      "pbtc_kg": 60000,
+      "rules": {
+        "pbtc_max_t_nov_may": 60
+      }
+    },
+    {
+      "id": "ev-rota-1-br-319-r1-s5-goias-br364-dko2ho",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s5-goias-br364",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "road": "BR-364",
+      "uf": "BR",
+      "restriction_type": "PBTC_fixture",
+      "legal_instrument": "fixture",
+      "pbtc_kg": 60000,
+      "rules": {
+        "pbtc_max_t_nov_may": 60
+      }
+    },
+    {
+      "id": "ev-rota-1-br-319-r1-s6-minas-br365-br050-m97wmp",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s6-minas-br365-br050",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "road": "BR-365/BR-050",
+      "uf": "BR",
+      "restriction_type": "PBTC_fixture",
+      "legal_instrument": "fixture",
+      "pbtc_kg": 60000,
+      "rules": {
+        "pbtc_max_t_nov_may": 60
+      }
+    },
+    {
+      "id": "ev-rota-1-br-319-r1-s7-sao-paulo-sp330-6ysldx",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s7-sao-paulo-sp330",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "road": "SP-330",
+      "uf": "BR",
+      "restriction_type": "PBTC_fixture",
+      "legal_instrument": "fixture",
+      "pbtc_kg": 60000,
+      "rules": {
+        "pbtc_max_t_nov_may": 60
+      }
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s1-fluvial-amazonas-ect483",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 64,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "road": null,
+      "uf": "BR",
+      "restriction_type": "PBTC_fixture",
+      "legal_instrument": "fixture",
+      "pbtc_kg": 60000,
+      "rules": {
+        "pbtc_max_t_nov_may": 60
+      }
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s2-para-br316-br010-l8vc8r",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s2-para-br316-br010",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "road": "BR-316/BR-010",
+      "uf": "BR",
+      "restriction_type": "PBTC_fixture",
+      "legal_instrument": "fixture",
+      "pbtc_kg": 60000,
+      "rules": {
+        "pbtc_max_t_nov_may": 60
+      }
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s3-maranhao-br010-dhqukj",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s3-maranhao-br010",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "road": "BR-010",
+      "uf": "BR",
+      "restriction_type": "PBTC_fixture",
+      "legal_instrument": "fixture",
+      "pbtc_kg": 60000,
+      "rules": {
+        "pbtc_max_t_nov_may": 60
+      }
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s4-tocantins-br153-3kkz9d",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s4-tocantins-br153",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "road": "BR-153",
+      "uf": "BR",
+      "restriction_type": "PBTC_fixture",
+      "legal_instrument": "fixture",
+      "pbtc_kg": 60000,
+      "rules": {
+        "pbtc_max_t_nov_may": 60
+      }
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s5-goias-br153-9hucp5",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s5-goias-br153",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "road": "BR-153",
+      "uf": "BR",
+      "restriction_type": "PBTC_fixture",
+      "legal_instrument": "fixture",
+      "pbtc_kg": 60000,
+      "rules": {
+        "pbtc_max_t_nov_may": 60
+      }
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s6-minas-br153-br050-n28nfr",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s6-minas-br153-br050",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "road": "BR-153/BR-050",
+      "uf": "BR",
+      "restriction_type": "PBTC_fixture",
+      "legal_instrument": "fixture",
+      "pbtc_kg": 60000,
+      "rules": {
+        "pbtc_max_t_nov_may": 60
+      }
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s7-sao-paulo-sp330-0iz5pk",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s7-sao-paulo-sp330",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "road": "SP-330",
+      "uf": "BR",
+      "restriction_type": "PBTC_fixture",
+      "legal_instrument": "fixture",
+      "pbtc_kg": 60000,
+      "rules": {
+        "pbtc_max_t_nov_may": 60
+      }
+    }
+  ]
+}

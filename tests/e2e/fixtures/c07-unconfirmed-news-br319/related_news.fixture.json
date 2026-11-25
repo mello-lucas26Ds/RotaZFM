@@ -1,0 +1,26 @@
+{
+  "fixture_version": "2026-11-23",
+  "fixture_kind": "related_news",
+  "dimension": "related_news",
+  "created_at": "2026-11-23T00:00:00-04:00",
+  "created_by": "E2E fixture materialization",
+  "mock": true,
+  "source_status": "CONFIRMADO",
+  "items": [
+    {
+      "id": "news-c07",
+      "title": "Rumor de interdição na BR-319",
+      "url": "https://example.com/rumor",
+      "source": "portal-regional-exemplo",
+      "source_url": "https://example.com/rumor",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "matched_segments": [
+        "r1-s2-floresta-br319"
+      ],
+      "route_id": "rota-1-br-319",
+      "confirmation_status": "NAO_CONFIRMADO",
+      "blocker": false
+    }
+  ]
+}

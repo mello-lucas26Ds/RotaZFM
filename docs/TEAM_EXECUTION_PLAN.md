@@ -1,9 +1,9 @@
 # Plano de execução e divisão da equipe — RotaZFM
 
-Status: rascunho bruto v2  
+Status: detalhe histórico de papéis; o quadro vigente de execução está em `docs/EXECUTION_BOARD.md`  
 Data: 09/11/2026  
-Fontes: `Plan.md` v3 + `PREMORTEM.md` + `DATA_SOURCES_EVALUATION.md`  
-Dia 1 = 05/11/2026; hoje = aproximadamente Dia 5.
+Fontes: `Plan.md` v3 + `PREMORTEM.md` + `DATA_SOURCES_EVALUATION.md` + `EXECUTION_BOARD.md`  
+Nota: datas e entrevistas deste documento são históricas; desde 23/11/2026 não há entrevistas com gestores e o deploy público é Vercel somente no final.
 
 ## Objetivo do plano
 
@@ -29,14 +29,14 @@ A evolução para outros estados e rotas futuras deve acontecer por **configura�
 
 ## Papéis sugeridos
 
-São 4 papéis para 4 pessoas. Os nomes ficam em aberto para o time definir.
+São 4 papéis para 4 pessoas. A visão resumida em 4 etapas está em `docs/EXECUTION_BOARD.md`.
 
-| Papel | Responsável sugerido | Escopo |
+| Papel | Responsável | Escopo |
 |---|---|---|
-| Produto, validação e pitch | Líder/time lead | Regulamento, entrevistas, caso retrospectivo, plataforma, roteiro, vídeo, decisões de corte |
-| Dados e fontes | Integrante de dados | SACE, INMET, DNIT, portarias, distbrasil, routekit seed, qualidade da via, fixtures, validação histórica |
-| Motor, API e MCP | Integrante backend | Modelo de dados, `route_condition_facts`, IAV, API, MCP, auth, rate limit, testes de contrato |
-| Frontend, demo e E2E | Integrante frontend | Dashboard, mapa, justificativa, cliente MCP de demonstração, Playwright, assets visuais |
+| Produto, validação e pitch | Samuelson | Regulamento, validação documental substituta, caso retrospectivo, plataforma, roteiro, vídeo, decisões de corte |
+| Dados e fontes | Maria | SACE, INMET, DNIT, portarias, distbrasil, routekit seed, qualidade da via, fixtures, validação histórica |
+| Motor, API e MCP | Cris | Modelo de dados, `route_condition_facts`, IAV, API, MCP, auth, rate limit, testes de contrato |
+| Frontend, demo e E2E | Lucas | Estrutura do projeto, dashboard, mapa, justificativa, cliente MCP de demonstração, Playwright, assets visuais |
 
 Se alguém acumular dois papéis, prioridade absoluta:
 
@@ -116,7 +116,7 @@ Entregas:
 - Spike de `routekit-mcp`: validar se gera as duas rotas com waypoints; se sim, salvar saída estática.
 - Pedido de autorização ANA enviado, sem bloquear MVP.
 - Decisão AIHOT: base, referência ou descarte.
-- Três entrevistas ou substituto documentado.
+- Validação substituta documentada para o que seria validado em entrevistas.
 - Caso retrospectivo escolhido ou descartado.
 - Definição escrita de “resultado ruim”.
 
@@ -308,7 +308,7 @@ Toda decisão técnica ou de escopo entra em `docs/DECISIONS.md` com:
 | Validação | Dono | Evidência esperada |
 |---|---|---|
 | Regulamento e prazos | Produto | Captura/screenshot do regulamento e datas |
-| Entrevistas PIM | Produto | Notas ou gravação autorizada, com consentimento |
+| Validação substituta PIM | Produto | Pesquisa documental, premissas explícitas e critérios objetivos |
 | Caso retrospectivo | Dados | Fonte primária, série de dados, definição de resultado ruim |
 | SACE/INMET/DNIT | Dados | Script rodando + fixture + fallback |
 | Distbrasil | Dados | Pares necessários extraídos e versionados |
@@ -329,7 +329,7 @@ Se hoje é Dia 5, a prioridade é fechar a Fase 0 hoje ou amanhã:
 3. Verificar rota Porto Velho–São Paulo.
 4. Verificar cobertura do `distbrasil` para os pares necessários.
 5. Fazer spike de `routekit-mcp` para gerar/cachear geometria das duas rotas.
-6. Marcar entrevistas.
+6. Definir validação substituta para o caso retrospectivo.
 7. Pedir autorização ANA, sem bloquear MVP.
 8. Decidir AIHOT em até 2 dias; se não houver prova clara de reuso, usar estrutura própria.
 9. Criar repositório com estrutura mínima, schema de fatos e README.

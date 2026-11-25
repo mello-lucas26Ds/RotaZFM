@@ -1,6 +1,6 @@
 # RotaZFM: documento consolidado
 
-Status: versão 3, substitui as anteriores. Esta é a fonte de verdade do projeto. Itens marcados com [a validar] ainda não foram confirmados em fonte primária e não devem aparecer no pitch como fato.
+Status: baseline histórico de 09/11/2026. Decisões vigentes a partir de 23/11/2026 estão em `docs/PRD.md`, `docs/SPEC.md`, `docs/SDD.md`, `docs/DECISIONS.md` e `.specs/features/rotazfm-mvp/plan.md`. Itens marcados com [a validar] ainda não foram confirmados em fonte primária e não devem aparecer no pitch como fato.
 
 1. Resumo executivo
 
@@ -31,7 +31,7 @@ O usuário da demo é o gestor. O argumento de arquitetura é o agente. O júri 
 
 3. Escopo do MVP (MoSCoW)
 ID	Funcionalidade	Prioridade	Critério de aceitação
-F1	Coleta de nível do rio (SACE, via Firecrawl ou HTTP)	Must	Último valor do rio Amazonas no banco, com data e estação
+F1	Coleta de nível do rio (boletim ANA gov.br/PDF ou SACE/CPRM via Firecrawl/HTTP)	Must	Último valor do rio no banco, com data, estação, referência e limite do boletim
 F2	Coleta de previsão de chuva (API do INMET)	Must	Previsão de 4 dias para Manaus e para o trecho da BR-319
 F3	Coleta de tráfego (scraper do DNIT, parseforge)	Must	Contagens da BR-319 no banco
 F4	Índice de qualidade da via (dado estático)	Must	Valor por trecho, com fonte e data de referência
@@ -66,7 +66,7 @@ Não substitui a decisão do gestor.
 5. O índice IAV
 5.1 Dimensões e fontes
 Dimensão	Peso	Pergunta que responde	Fonte primária	Fallback
-Nível do rio	30%	A calha fluvial está navegável na data?	SGB/CPRM (SACE)	Último valor válido; ANA (HidroWebService) como fonte de reserva, com aprovação pendente
+Nível do rio	30%	A calha fluvial está navegável na data?	Boletim diário ANA gov.br/Sala de Situação (PDF)	SACE/CPRM ou último valor válido; threshold de navegabilidade configurável, sem API ANA
 Previsão de chuva	25%	Há risco de atoleiro na BR-319 ou de cheia?	API do INMET	Scraping do site do INMET
 Volume de tráfego	20%	A rodovia está com fluxo anormal?	Scraper DNIT (parseforge)	Tabela de referência com última contagem
 Qualidade da via	15%	O trecho está em condição precária?	Índice estático (precviasBR ou safety-road-mapping)	Valor fixo documentado

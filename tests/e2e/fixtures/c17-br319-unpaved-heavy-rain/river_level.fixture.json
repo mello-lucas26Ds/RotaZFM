@@ -1,0 +1,56 @@
+{
+  "fixture_version": "2026-11-23",
+  "fixture_kind": "dimension_evidence",
+  "dimension": "river_level",
+  "created_at": "2026-11-23T00:00:00-04:00",
+  "created_by": "E2E fixture materialization",
+  "mock": true,
+  "source_status": "CONFIRMADO",
+  "sources": [
+    {
+      "name": "fixture-e2e",
+      "verification_date": "2026-11-23",
+      "status": "CONFIRMADO"
+    }
+  ],
+  "official_readings": [
+    {
+      "id": "ev-rota-1-br-319-r1-s1-balsa-inicial-02wpwa",
+      "route_id": "rota-1-br-319",
+      "segment_id": "r1-s1-balsa-inicial",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 90,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "station": "Travessia Inicial (Balsa)",
+      "river": "Amazonas",
+      "level_m": 1,
+      "unit": "m",
+      "observed_at": "2026-11-23"
+    },
+    {
+      "id": "ev-rota-2-fluvial-brasilia-r2-s1-fluvial-amazonas-6e51b4",
+      "route_id": "rota-2-fluvial-brasilia",
+      "segment_id": "r2-s1-fluvial-amazonas",
+      "source": "fixture-e2e",
+      "source_url": "https://example.com/fixture",
+      "confirmation_status": "CONFIRMADO",
+      "score": 64,
+      "effective_from": "2026-11-23",
+      "effective_until": "2026-11-27",
+      "last_valid_at": "2026-11-23T00:00:00-04:00",
+      "collected_at": "2026-11-23T00:00:00-04:00",
+      "published_at": "2026-11-23T00:00:00-04:00",
+      "station": "Trecho Fluvial (Rio Amazonas - Balsa)",
+      "river": "Amazonas",
+      "level_m": 1,
+      "unit": "m",
+      "observed_at": "2026-11-23"
+    }
+  ]
+}
