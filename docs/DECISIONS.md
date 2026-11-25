@@ -189,6 +189,14 @@ Data de abertura: 09/11/2026
 - Responsável: Cris + Lucas.
 - TODO arquitetural: implementar `raw_payloads`, `evidences`, `route_condition_facts`, `iav_calculations` e `decision_snapshots` quando houver deploy/staging e fonte de dados real estável.
 
+## DEC-024 — Dashboard serverless com fixtures embutidos
+
+- Data: 25/11/2026
+- Decisão: publicar dashboard/API no mesmo projeto Vercel (`apps/dashboard`) com Next.js 15 App Router; as rotas serverless embalam catálogo e fixtures versionados no bundle em vez de depender de filesystem em runtime.
+- Motivo: Vercel Functions não garantem acesso aos arquivos fora do tracing de servidor; embutir os dados preserva determinismo, rollback por commit e funcionamento serverless do motor real.
+- Alternativas descartadas: API separada em outra plataforma no caminho crítico; leitura direta de `data/` em runtime; score calculado no cliente.
+- Responsável: Lucas + Devin.
+
 ## Pendências que afetam decisões
 
 - Confirmar regulamento do Hack Brasil 2026 e prazo final.

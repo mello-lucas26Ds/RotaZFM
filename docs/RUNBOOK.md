@@ -1,4 +1,14 @@
-# Runbook local — RotaZFM
+# Runbook — RotaZFM
+
+## Produção publicada
+
+- Dashboard e rotas serverless: <https://rotazfm-dashboard.vercel.app/>
+- Projeto Vercel: `rotazfm-dashboard`, repositório `mello-lucas26Ds/RotaZFM`, root directory `apps/dashboard`.
+- Deploy production usa Next.js 15 no workspace `@rotazfm/dashboard`; as rotas `/api/v1/viabilidade`, `/api/v1/fontes` e `/api/v1/noticias` executam o motor real com catálogo/fixtures embutidos.
+- A página é pública; as chamadas `/api/v1/*` exigem Bearer token quando `DASHBOARD_AUTH_TOKEN` está configurado. `DASHBOARD_AUTH_TOKEN` e `IAV_MCP_API_KEYS` ficam como variáveis sensíveis da Vercel, nunca no repositório.
+- Rollback: na Vercel, abrir o projeto `rotazfm-dashboard`, selecionar o deployment production anterior e usar **Redeploy/Promote**. Também é possível reverter o merge em `main` e aguardar novo deploy.
+- Checklist de demo: abrir a URL, informar o token, consultar 10.000 kg de carga seca para o dia seguinte, alternar mapa 3D/heatmap, verificar 2 rotas, 5/13 fontes, badge IAV PARCIAL, evidências/fontes e radar de notícias.
+
 
 ## Pré-requisitos
 
