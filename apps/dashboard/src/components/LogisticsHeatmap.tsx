@@ -37,6 +37,7 @@ export default function LogisticsHeatmap() {
   useEffect(() => {
     if (!containerRef.current) return;
 
+    maplibregl.setWorkerUrl('/maplibre-gl-worker.js');
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: {
